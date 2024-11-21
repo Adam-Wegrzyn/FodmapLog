@@ -1,0 +1,6 @@
+@FodmapLog.Server_HostAddress = http://localhost:5115
+
+GET {{FodmapLog.Server_HostAddress}}
+Accept: application/json
+
+###
