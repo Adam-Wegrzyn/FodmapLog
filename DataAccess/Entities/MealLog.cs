@@ -8,7 +8,7 @@ namespace DataAccess.Entities
 {
     public class MealLog
     {
-        public List<Meal> Meal { get; set; }
+        public List<Meal> Meal{ get; set; }
         public DateTime Time { get; set; }
     }
 }

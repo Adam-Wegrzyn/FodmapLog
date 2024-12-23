@@ -17,7 +17,7 @@ namespace FodmapLog.Server.Controllers
         }
 
         [HttpGet]
-        [Route("GetProductsByKeyword/{keyword}")]
+        [Route("getProductsByKeyword/{keyword}")]
         public async Task<IActionResult> GetProductsByKeyword(string keyword)
         {
             var result = await _productsApiService.GetProductsByName(keyword);

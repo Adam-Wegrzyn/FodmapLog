@@ -1,1 +1,87 @@
-<p>add-meal works!</p>
+<div class="list-grop" style='text-align: left;' *ngFor="let p of productQuantityArr.controls">
+  <a class="list-group-item list-group-item-action flex-column align-items-startt" data-bs-toggle="modal" data-bs-target="#myModal">
+    <div class="d-flex justify-content-between">
+        <div>
+            <div class="d-flex w-100 justify-content-between">
+                <p class="mb-1">{{p.value.product.name}}</p>
+              </div>
+              <div class="d-flex">
+                <small>({{p.quantity}} {{p.unit}})</small>
+                <small class="text-primary ms-2">{{p.value.product.nutriments.energyKcalServing}} kcal</small>
+              </div>
+        </div>
+        <div>
+            <span class="text-danger fs-3">-</span>
+        </div>
+
+    </div>
+
+  
+  
+</a>
+        </div>
+<div class="row g-0">
+    <div class="col-10">
+        <input class="w-100 p-0" type="text" [(ngModel)]="name" placeholder="Name">
+    </div>
+    <div class="col-2">
+        <button class="w-100 p-0" (click)="SearchProduct()">search</button>
+    </div>
+    
+
+    <div class="list-group" style='text-align: left;' *ngFor="let p of products">
+        <a class="list-group-item list-group-item-action flex-column align-items-startt" data-bs-toggle="modal" data-bs-target="#myModal">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="d-flex w-100 justify-content-between">
+                        <p class="mb-1">{{p.name}}</p>
+                      </div>
+                      <div class="d-flex">
+                        <small>Serving ({{p.servingQuantity}} {{p.servingQuantityUnit}})</small>
+                        <small class="text-primary ms-2">{{p.nutriments.energyKcalServing}} kcal</small>
+                      </div>
+                </div>
+                <div>
+                    <span class="text-success fs-3">+</span>
+                </div>
+
+            </div>
+
+          
+          
+        </a>
+        <!-- The Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="myModalLabel">{{p.name}}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body row">
+            <div class="col">
+<input type="text" [(ngModel)]="quantityInput" class="form-control">
+            </div>
+            <div class="col">
+                <select [(ngModel)]="selectedUnit"  class="form-select">
+                    <option [value]=p.servingQuantity>serving</option>
+                    <option *ngFor="let unit of units" [value]="unit.value">{{unit.label}}</option>
+                </select>
+            </div>
+            <div class="col">
+                 <span>Total: {{p.nutriments.energyKcal100g | totalKcalConverter: selectedUnit * quantityInput}} kcal</span>
+            </div>
+            
+          <!-- Modal Body Content -->
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" #closeModalBtn class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button (click)="AddProduct(p, quantityInput)" type="button" class="btn btn-primary">add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+      </div>
+</div>
+

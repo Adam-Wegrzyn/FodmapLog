@@ -9,7 +9,7 @@ namespace DataAccess.Entities
 {
     public class Meal
     {
-        Product Product { get; set; }
-        Quantity Quantity { get; set; }
+        public DateTime Date { get; set; }
+        public IEnumerable<ProductQuantity> ProductQuantity { get; set; }
     }
 }

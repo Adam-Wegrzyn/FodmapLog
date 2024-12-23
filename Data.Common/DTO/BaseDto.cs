@@ -4,13 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess.Enums
+namespace Data.Common.DTO
 {
-    public enum Unit
+    public class BaseDto
     {
-        Grams = 1,
-        Glass = 250,
-        Tablespoons = 15,
-        Teaspoons = 5
+        public int Id { get; set;}
     }
 }

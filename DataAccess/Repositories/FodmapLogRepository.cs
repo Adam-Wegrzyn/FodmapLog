@@ -19,40 +19,40 @@ namespace DataAccess.Repositories
             _context = context;
         }
 
-        // Methods for MealLog
-        public async Task<IEnumerable<MealLog>> GetAllMealLogs()
+        // Methods for Meal
+        public async Task<IEnumerable<Meal>> GetAllMeals()
         {
-            return await _context.Set<MealLog>().ToListAsync();
+            return await _context.Set<Meal>().ToListAsync();
         }
 
-        public async Task<MealLog> GetMealLog(int id)
+        public async Task<Meal> GetMeal(int id)
         {
-            return await _context.MealLogs.FindAsync(id);
+            return await _context.Meals.FindAsync(id);
         }
 
-        public async Task<MealLog> AddMealLog(MealLog mealLog)
+        public async Task<Meal> AddMeal(Meal Meal)
         {
-            _context.MealLogs.Add(mealLog);
+            _context.Meals.Add(Meal);
             await _context.SaveChangesAsync();
-            return mealLog;
+            return Meal;
         }
 
-        public async Task<MealLog> UpdateMealLog(MealLog mealLog)
+        public async Task<Meal> UpdateMeal(Meal Meal)
         {
-            _context.MealLogs.Update(mealLog);
+            _context.Meals.Update(Meal);
             await _context.SaveChangesAsync();
-            return mealLog;
+            return Meal;
         }
 
-        public async Task<MealLog> DeleteMealLog(int id)
+        public async Task<Meal> DeleteMeal(int id)
         {
-            var mealLog = await _context.MealLogs.FindAsync(id);
-            if (mealLog != null)
+            var Meal = await _context.Meals.FindAsync(id);
+            if (Meal != null)
             {
-                _context.MealLogs.Remove(mealLog);
+                _context.Meals.Remove(Meal);
                 await _context.SaveChangesAsync();
             }
-            return mealLog;
+            return Meal;
         }
 
         // Methods for Product

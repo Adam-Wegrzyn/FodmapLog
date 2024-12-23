@@ -1,4 +1,5 @@
-﻿using DataAccess.Entities;
+﻿using Data.Common.DTO;
+using DataAccess.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,17 +10,18 @@ namespace Core.Interfaces
 {
     public interface IFodmapLogService
     {
-        Task<MealLog> GetMealLog(int id, CancellationToken cancellationToken);
-        Task<IEnumerable<MealLog>> GetAllMealLogs(CancellationToken cancellationToken);
-        Task<MealLog> AddMealLog(MealLog mealLog, CancellationToken cancellationToken);
-        Task<MealLog> UpdateMealLog(MealLog mealLog, CancellationToken cancellationToken);
-        Task<MealLog> DeleteMealLog(int id, CancellationToken cancellationToken);
+        Task<MealDto> GetMeal(int id, CancellationToken cancellationToken);
+        Task<IEnumerable<MealDto>> GetAllMeals(CancellationToken cancellationToken);
+        Task<MealDto> AddMeal(MealDto mealDto, CancellationToken cancellationToken);
+        Task<MealDto> UpdateMeal(MealDto mealDto, CancellationToken cancellationToken);
+        Task<MealDto> DeleteMeal(int id, CancellationToken cancellationToken);
 
         // Methods for Product
-        Task<Product> GetProduct(int id, CancellationToken cancellationToken);
-        Task<IEnumerable<Product>> GetAllProducts(CancellationToken cancellationToken);
-        Task<Product> AddProduct(Product product, CancellationToken cancellationToken);
-        Task<Product> UpdateProduct(Product product, CancellationToken cancellationToken);
-        Task<Product> DeleteProduct(int id, CancellationToken cancellationToken);
+        Task<ProductDto> GetProduct(int id, CancellationToken cancellationToken);
+        Task<IEnumerable<ProductDto>> GetAllProducts(CancellationToken cancellationToken);
+        Task<ProductDto> AddProduct(ProductDto productDto, CancellationToken cancellationToken);
+        Task<ProductDto> UpdateProduct(ProductDto productDto, CancellationToken cancellationToken);
+        Task<ProductDto> DeleteProduct(int id, CancellationToken cancellationToken);
+
     }
 }

@@ -4,16 +4,22 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AddMealComponent } from './add-meal/add-meal.component.ts';
+import { AddMealComponent } from './add-meal/add-meal.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TotalKcalConverterPipe } from './pipes/total-kcal-converter.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
-    AddMealComponent
+    AddMealComponent,
+    TotalKcalConverterPipe,
   ],
   imports: [
-    BrowserModule, HttpClientModule,
-    AppRoutingModule
+    BrowserModule,
+     HttpClientModule,
+    AppRoutingModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

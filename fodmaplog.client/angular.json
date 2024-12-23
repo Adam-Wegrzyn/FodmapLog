@@ -35,9 +35,11 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css"
             ],
-            "scripts": []
+            "scripts": [
+            "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"            ]
           },
           "configurations": {
             "production": {
@@ -75,7 +77,9 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "proxyConfig": "src/proxy.conf.js"
+            "proxyConfig": "src/proxy.conf.js",
+            "sslCert": "C:\\Users\\a890907\\ssl\\ca.crt",
+            "sslKey": "C:\\Users\\a890907\\ssl\\ca.key"
           }
         },
         "extract-i18n": {
@@ -97,7 +101,8 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css" 
             ],
             "scripts": [],
             "karmaConfig": "karma.conf.js"
