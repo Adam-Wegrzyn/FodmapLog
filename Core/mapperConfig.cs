@@ -8,14 +8,14 @@ namespace Core
     {
         public mapperConfig()
         {
-            CreateMap<MealDto, Meal>().ReverseMap();
+            CreateMap<MealLogDto, MealLog>().ReverseMap();
             CreateMap<ProductDto, Product>().ReverseMap();
             CreateMap<ProductQuantityDto, ProductQuantity>().ReverseMap();
-            CreateMap<QuantityDto, Quantity>().ReverseMap();
+            CreateMap<NutrimentsDto, Nutriments>().ReverseMap();
 
-            CreateMap<Meal, MealDto>()
+            CreateMap<MealLog, MealLogDto>()
                 .ForMember(dest => dest.TotalKcal, opt => opt.MapFrom(src => src.ProductQuantity
-                .Sum(pq => pq.Product.Nutriments.EnergyKcal100g / 100 * pq.Quantity.Amount)));
+                .Sum(pq => pq.Product.Nutriments.EnergyKcal100g / 100 * pq.Quantity)));
         }
         
 

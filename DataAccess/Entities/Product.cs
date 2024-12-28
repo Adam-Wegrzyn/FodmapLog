@@ -2,21 +2,19 @@
 
 namespace DataAccess.Entities
 {
-    public class Product
+    public class Product: BaseEntity
     {
-        [JsonProperty("product_name")]
-        public string Name { get; set; }
+        public string IdExternal { get; set; }
 
-        [JsonProperty("product_quantity")]
-        public string ProductQuantity { get; set; }        
+        public string? Name { get; set; }
+
+        public string? ProductQuantity { get; set; }        
         
-        [JsonProperty("product_quantity_unit")]
-        public string ProductQuantityUnit { get; set; }
+        public string? ProductQuantityUnit { get; set; }
 
-        [JsonProperty("serving_quantity")]
-        public string ServingQuantity { get; set; }
-        [JsonProperty("serving_quantity_unit")]
-        public string ServingQuantityUnit { get; set; }
-        public Nutriments Nutriments { get; set; }
+        public string? ServingQuantity { get; set; }
+
+        public string? ServingQuantityUnit { get; set; }
+        public Nutriments? Nutriments { get; set; }
     }
 }

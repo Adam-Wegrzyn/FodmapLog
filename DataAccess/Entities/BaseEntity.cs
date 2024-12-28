@@ -1,15 +1,15 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 
-namespace Data.Common.DTO
+namespace DataAccess.Entities
 {
-    public class BaseDto
+    public class BaseEntity
     {
         [JsonIgnore]
-        public int Id { get; set;}
+        public int Id { get; set; }
     }
 }

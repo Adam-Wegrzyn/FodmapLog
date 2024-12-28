@@ -1,4 +1,5 @@
-﻿using DataAccess.Entities;
+﻿using Data.Common.DTO;
+using DataAccess.Entities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace Core.Services
         public int PageSize { get; set; }
 
 
-        public IEnumerable<Product> Products { get; set; }
+        public IEnumerable<ProductDto> Products { get; set; }
 
         //public string Code { get; set; }
 

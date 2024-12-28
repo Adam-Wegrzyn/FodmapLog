@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DataAccess.Entities
 {
-    public class MealLog
+    public class MealLog: BaseEntity
     {
-        public List<Meal> Meal{ get; set; }
-        public DateTime Time { get; set; }
+        public DateTime Date { get; set; }
+        public IEnumerable<ProductQuantity> ProductQuantity { get; set; }
     }
 }

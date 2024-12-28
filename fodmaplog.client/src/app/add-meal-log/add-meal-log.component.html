@@ -1,26 +1,43 @@
-<div class="list-grop" style='text-align: left;' *ngFor="let p of productQuantityArr.controls">
-  <a class="list-group-item list-group-item-action flex-column align-items-startt" data-bs-toggle="modal" data-bs-target="#myModal">
-    <div class="d-flex justify-content-between">
-        <div>
-            <div class="d-flex w-100 justify-content-between">
-                <p class="mb-1">{{p.value.product.name}}</p>
-              </div>
-              <div class="d-flex">
-                <small>({{p.quantity}} {{p.unit}})</small>
-                <small class="text-primary ms-2">{{p.value.product.nutriments.energyKcalServing}} kcal</small>
-              </div>
-        </div>
-        <div>
-            <span class="text-danger fs-3">-</span>
-        </div>
 
-    </div>
+<div class="row">
+  <div class="col-6 p-0">
+    <button class="btn btn-success w-100 no-radius">Cancel</button>
+    
+  </div>
+    <div class="col-6 p-0">
+      <button class="btn btn-success w-100 no-radius" (click)="SaveMealLog()" >Save</button>
+  </div>
+
+
+</div>
+
+<ng-container *ngIf="productQuantityArr.length > 0">
+  <div class="list-group" style='text-align: left;' *ngFor="let p of productQuantityArr.controls">
+    <a class="list-group-item list-group-item-action flex-column align-items-start" data-bs-toggle="modal" data-bs-target="#myModal">
+      <div class="d-flex justify-content-between">
+          <div>
+              <div class="d-flex w-100 justify-content-between">
+                  <p class="mb-1">{{p.value.product.name}}</p>
+                </div>
+                <div class="d-flex">
+                  <small>{{p.value.quantity}} {{p.value.unit}} ({{p.value.totalGrams}}g)</small>
+                  <small class="text-primary ms-2">{{p.value.product.nutriments.energyKcal100g | totalKcalConverter: p.value.quantity: p.value.unit}} kcal</small>
+                </div>
+          </div>
+          <div>
+              <span (click)="DeleteProduct(p.value.id)" class="text-danger fs-3">-</span>
+          </div>
+  
+      </div>
+  
 
   
   
 </a>
         </div>
-<div class="row g-0">
+      </ng-container>
+
+<div class="row g-0 mt-5">
     <div class="col-10">
         <input class="w-100 p-0" type="text" [(ngModel)]="name" placeholder="Name">
     </div>
@@ -29,8 +46,8 @@
     </div>
     
 
-    <div class="list-group" style='text-align: left;' *ngFor="let p of products">
-        <a class="list-group-item list-group-item-action flex-column align-items-startt" data-bs-toggle="modal" data-bs-target="#myModal">
+    <div class="list-group" style='text-align: left;' *ngFor="let p of products; let i = index">
+        <a class="list-group-item list-group-item-action flex-column align-items-start" data-bs-toggle="modal" attr.data-bs-target="#myModal{{i}}">
             <div class="d-flex justify-content-between">
                 <div>
                     <div class="d-flex w-100 justify-content-between">
@@ -51,7 +68,7 @@
           
         </a>
         <!-- The Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="myModal{{i}}" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -65,11 +82,11 @@
             <div class="col">
                 <select [(ngModel)]="selectedUnit"  class="form-select">
                     <option [value]=p.servingQuantity>serving</option>
-                    <option *ngFor="let unit of units" [value]="unit.value">{{unit.label}}</option>
+                    <option *ngFor="let unit of units" [value]="unit.label">{{unit.label}}</option>
                 </select>
             </div>
             <div class="col">
-                 <span>Total: {{p.nutriments.energyKcal100g | totalKcalConverter: selectedUnit * quantityInput}} kcal</span>
+                 <span>Total: {{p.nutriments.energyKcal100g | totalKcalConverter: quantityInput: selectedUnit}} kcal</span>
             </div>
             
           <!-- Modal Body Content -->

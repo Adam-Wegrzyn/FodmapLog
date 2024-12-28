@@ -16,8 +16,8 @@ export class ProductQuantity extends BaseClass {
         this.quantity = quantity;
         this.unit = unit;
         this.totalGrams = this.quantity * this.unit;
-        this.totalKcal = Converters.TotalKcalConverter(this.product.nutriments.energyKcal100g, this.totalGrams);
+        // this.totalKcal = Converters.TotalKcalConverter(this.product.nutriments.energyKcal100g, this.totalGrams);
     }
 }
 
-}
+

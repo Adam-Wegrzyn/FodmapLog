@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Core.Services
 {
-    public class FodmapLogService : IFodmapLogService
+    public class FodmapLogService :IFodmapLogService
     {
         private readonly IFodmapLogRepository _fodmapLogRepository;
         private readonly IMapper _mapper;
@@ -25,11 +25,11 @@ namespace Core.Services
             
         }
 
-        public async Task<MealDto> AddMeal(MealDto Meal, CancellationToken cancellationToken)
+        public async Task<MealLogDto> AddMealLog(MealLogDto mealLogDto, CancellationToken cancellationToken)
         {
-            var meal = _mapper.Map<Meal>(Meal);
-            var addedMeal = await _fodmapLogRepository.AddMeal(meal);
-            return _mapper.Map<MealDto>(addedMeal);
+            var mealLog = _mapper.Map<MealLog>(mealLogDto);
+            var addedMealLog = await _fodmapLogRepository.AddMealLog(mealLog);
+            return _mapper.Map<MealLogDto>(addedMealLog);
         }
 
         public async Task<ProductDto> AddProduct(ProductDto productDto, CancellationToken cancellationToken)
@@ -39,10 +39,10 @@ namespace Core.Services
             return _mapper.Map<ProductDto>(addedProduct);
         }
 
-        public async Task<MealDto> DeleteMeal(int id, CancellationToken cancellationToken)
+        public async Task<MealLogDto> DeleteMealLog(int id, CancellationToken cancellationToken)
         {
-            var deletedMeal = await _fodmapLogRepository.DeleteMeal(id);
-            return _mapper.Map<MealDto>(deletedMeal);
+            var deletedMealLog = await _fodmapLogRepository.DeleteMealLog(id);
+            return _mapper.Map<MealLogDto>(deletedMealLog);
         }
 
         public async Task<ProductDto> DeleteProduct(int id, CancellationToken cancellationToken)
@@ -51,10 +51,10 @@ namespace Core.Services
             return _mapper.Map<ProductDto>(deletedProduct);
         }
 
-        public async Task<IEnumerable<MealDto>> GetAllMeals(CancellationToken cancellationToken)
+        public async Task<IEnumerable<MealLogDto>> GetAllMealLogs(CancellationToken cancellationToken)
         {
-            var meals = await _fodmapLogRepository.GetAllMeals();
-            return _mapper.Map<IEnumerable<MealDto>>(meals);
+            var mealLogs = await _fodmapLogRepository.GetAllMealLogs();
+            return _mapper.Map<IEnumerable<MealLogDto>>(mealLogs);
         }
 
         public async Task<IEnumerable<ProductDto>> GetAllProducts(CancellationToken cancellationToken)
@@ -63,23 +63,23 @@ namespace Core.Services
             return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
-        public async Task<MealDto> GetMeal(int id, CancellationToken cancellationToken)
+        public async Task<MealLogDto> GetMealLogById(int id, CancellationToken cancellationToken)
         {
-            var meal = await _fodmapLogRepository.GetMeal(id);
-            return _mapper.Map<MealDto>(meal);
+            var mealLog = await _fodmapLogRepository.GetMealLogById(id);
+            return _mapper.Map<MealLogDto>(mealLog);
         }
 
-        public async Task<ProductDto> GetProduct(int id, CancellationToken cancellationToken)
+        public async Task<ProductDto> GetProductById(int id, CancellationToken cancellationToken)
         {
-            var product = await _fodmapLogRepository.GetProduct(id);
+            var product = await _fodmapLogRepository.GetProductById(id);
             return _mapper.Map<ProductDto>(product);
         }
 
-        public async Task<MealDto> UpdateMeal(MealDto mealDto, CancellationToken cancellationToken)
+        public async Task<MealLogDto> UpdateMealLog(MealLogDto mealLogDto, CancellationToken cancellationToken)
         {
-            var meal = _mapper.Map<Meal>(mealDto);
-            var updatedMeal = await _fodmapLogRepository.UpdateMeal(meal);
-            return _mapper.Map<MealDto>(updatedMeal);
+            var mealLog = _mapper.Map<MealLog>(mealLogDto);
+            var updatedMealLog = await _fodmapLogRepository.UpdateMealLog(mealLog);
+            return _mapper.Map<MealLogDto>(updatedMealLog);
         }
 
         public async Task<ProductDto> UpdateProduct(ProductDto productDto, CancellationToken cancellationToken)

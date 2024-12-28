@@ -1,5 +1,10 @@
-﻿using Core.Interfaces;
+﻿using AutoMapper;
+using Core.Interfaces;
+using Data.Common.DTO;
+using DataAccess;
 using DataAccess.Entities;
+using DataAccess.Interfaces;
+using DataAccess.Repositories;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,13 +21,17 @@ namespace Core.Services
     public class ProductApiService : IProductsApiService
     {
         private readonly HttpClient _httpClient;
+        private readonly IFodmapLogRepository _fodmapLogRepository;
+        private readonly IMapper _mapper;
 
-        public ProductApiService(HttpClient httpClient)
+        public ProductApiService(HttpClient httpClient, IFodmapLogRepository fodmapLogRepository, IMapper mapper)
         {
             _httpClient = httpClient;
+            _fodmapLogRepository = fodmapLogRepository;
+            _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Product>> GetProductsByName(string name)
+        public async Task<IEnumerable<ProductDto>> GetProductsByName(string name)
         {
             var url = $"https://world.openfoodfacts.org/cgi/search.pl?search_terms={name}&search_simple=1&json=1";
             var response = await _httpClient.GetAsync(url);
@@ -30,7 +39,18 @@ namespace Core.Services
             var jsonString = await response.Content.ReadAsStringAsync();
             var productsResponse = JsonConvert.DeserializeObject<ProductResponse>(jsonString);
             var products = productsResponse.Products;
-           // var product = productsResponse.Product;
+
+            foreach (var product in products)
+            {
+                
+                var p = await _fodmapLogRepository.GetProductByExternalId(product.IdExternal);
+                if (p == null && product.IdExternal != null)
+                {
+                    var productToAdd = _mapper.Map<Product>(product);
+                    await _fodmapLogRepository.AddProduct(productToAdd);
+                }
+            }
+
 
 
             return products;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Entities
 {
-    public class SymptomsLog
+    public class SymptomsLog: BaseEntity
     {
         public Symptom Symptom { get; set; }
         public SymptomScale SymptomScale { get; set; }

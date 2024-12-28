@@ -1,6 +1,6 @@
 export class Converters{
 
-    static TotalKcalConverter(energyKcal100g: number, totalGrams: number): number {
-        return energyKcal100g * totalGrams / 100;
+    static TotalKcalConverter(energyKcal100g: number, quantity: number, unit: string): number {
+        return energyKcal100g * quantity  / 100;
 }
 }

@@ -1,4 +1,5 @@
 ﻿using Core.Services;
+using Data.Common.DTO;
 using DataAccess.Entities;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,6 @@ namespace Core.Interfaces
     public interface IProductsApiService
     {
 
-        Task<IEnumerable<Product>> GetProductsByName(string name);
+        Task<IEnumerable<ProductDto>> GetProductsByName(string name);
     }
 }

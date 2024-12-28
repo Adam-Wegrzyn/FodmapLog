@@ -19,40 +19,40 @@ namespace DataAccess.Repositories
             _context = context;
         }
 
-        // Methods for Meal
-        public async Task<IEnumerable<Meal>> GetAllMeals()
+        // Methods for MealLog
+        public async Task<IEnumerable<MealLog>> GetAllMealLogs()
         {
-            return await _context.Set<Meal>().ToListAsync();
+            return await _context.Set<MealLog>().ToListAsync();
         }
 
-        public async Task<Meal> GetMeal(int id)
+        public async Task<MealLog> GetMealLogById(int id)
         {
-            return await _context.Meals.FindAsync(id);
+            return await _context.MealLogs.FindAsync(id);
         }
 
-        public async Task<Meal> AddMeal(Meal Meal)
+        public async Task<MealLog> AddMealLog(MealLog MealLog)
         {
-            _context.Meals.Add(Meal);
+            _context.MealLogs.Add(MealLog);
             await _context.SaveChangesAsync();
-            return Meal;
+            return MealLog;
         }
 
-        public async Task<Meal> UpdateMeal(Meal Meal)
+        public async Task<MealLog> UpdateMealLog(MealLog MealLog)
         {
-            _context.Meals.Update(Meal);
+            _context.MealLogs.Update(MealLog);
             await _context.SaveChangesAsync();
-            return Meal;
+            return MealLog;
         }
 
-        public async Task<Meal> DeleteMeal(int id)
+        public async Task<MealLog> DeleteMealLog(int id)
         {
-            var Meal = await _context.Meals.FindAsync(id);
-            if (Meal != null)
+            var MealLog = await _context.MealLogs.FindAsync(id);
+            if (MealLog != null)
             {
-                _context.Meals.Remove(Meal);
+                _context.MealLogs.Remove(MealLog);
                 await _context.SaveChangesAsync();
             }
-            return Meal;
+            return MealLog;
         }
 
         // Methods for Product
@@ -61,9 +61,14 @@ namespace DataAccess.Repositories
             return await _context.Products.ToListAsync();
         }
 
-        public async Task<Product> GetProduct(int id)
+        public async Task<Product> GetProductById(int id)
         {
             return await _context.Products.FindAsync(id);
+        }
+
+        public async Task<Product> GetProductByExternalId(string id)
+        {
+            return await _context.Products.SingleOrDefaultAsync(p => p.IdExternal == id);
         }
 
         public async Task<Product> AddProduct(Product product)

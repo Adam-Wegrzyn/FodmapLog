@@ -10,14 +10,14 @@ namespace Core.Interfaces
 {
     public interface IFodmapLogService
     {
-        Task<MealDto> GetMeal(int id, CancellationToken cancellationToken);
-        Task<IEnumerable<MealDto>> GetAllMeals(CancellationToken cancellationToken);
-        Task<MealDto> AddMeal(MealDto mealDto, CancellationToken cancellationToken);
-        Task<MealDto> UpdateMeal(MealDto mealDto, CancellationToken cancellationToken);
-        Task<MealDto> DeleteMeal(int id, CancellationToken cancellationToken);
+        Task<MealLogDto> GetMealLogById(int id, CancellationToken cancellationToken);
+        Task<IEnumerable<MealLogDto>> GetAllMealLogs(CancellationToken cancellationToken);
+        Task<MealLogDto> AddMealLog(MealLogDto MealLogDto, CancellationToken cancellationToken);
+        Task<MealLogDto> UpdateMealLog(MealLogDto MealLogDto, CancellationToken cancellationToken);
+        Task<MealLogDto> DeleteMealLog(int id, CancellationToken cancellationToken);
 
         // Methods for Product
-        Task<ProductDto> GetProduct(int id, CancellationToken cancellationToken);
+        Task<ProductDto> GetProductById(int id, CancellationToken cancellationToken);
         Task<IEnumerable<ProductDto>> GetAllProducts(CancellationToken cancellationToken);
         Task<ProductDto> AddProduct(ProductDto productDto, CancellationToken cancellationToken);
         Task<ProductDto> UpdateProduct(ProductDto productDto, CancellationToken cancellationToken);

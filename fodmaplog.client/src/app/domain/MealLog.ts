@@ -2,7 +2,7 @@ import { Nutriments } from "./Nutriments";
 import { Product } from "./Product";
 import { ProductQuantity } from "./ProductQuantity";
 
-export class Meal{
+export class MealLog{
     id: number;
     date: string;
     productQuantity: ProductQuantity[];

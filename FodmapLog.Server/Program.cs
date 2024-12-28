@@ -26,11 +26,12 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IFodmapLogRepository, FodmapLogRepository>();
 builder.Services.AddHttpClient<IProductsApiService, ProductApiService>();
+builder.Services.AddHttpClient<IFodmapLogService, FodmapLogService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddDbContext<FodmapLogDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("FodmapLogContext"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 var app = builder.Build();
