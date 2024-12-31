@@ -5,7 +5,7 @@ namespace Data.Common.DTO
 {
     public class ProductDto: BaseDto
     {
-        [JsonProperty("_id")]
+        [JsonProperty("id")]
         public string IdExternal { get; set; }
 
         [JsonProperty("product_name")]

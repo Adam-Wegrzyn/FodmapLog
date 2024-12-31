@@ -9,7 +9,7 @@ namespace Data.Common.DTO
 {
     public class BaseDto
     {
-        [JsonIgnore]
+        //[JsonIgnore]
         public int Id { get; set;}
     }
 }

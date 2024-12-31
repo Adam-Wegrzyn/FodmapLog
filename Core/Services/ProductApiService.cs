@@ -31,7 +31,7 @@ namespace Core.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ProductDto>> GetProductsByName(string name)
+        public async Task<IEnumerable<ProductDto>> GetProductsByName(string name, CancellationToken cancellationToken)
         {
             var url = $"https://world.openfoodfacts.org/cgi/search.pl?search_terms={name}&search_simple=1&json=1";
             var response = await _httpClient.GetAsync(url);
@@ -40,20 +40,27 @@ namespace Core.Services
             var productsResponse = JsonConvert.DeserializeObject<ProductResponse>(jsonString);
             var products = productsResponse.Products;
 
+            var productsWithId = new List<ProductDto>();
+
             foreach (var product in products)
             {
                 
-                var p = await _fodmapLogRepository.GetProductByExternalId(product.IdExternal);
+                var p = await _fodmapLogRepository.GetProductByExternalId(product.IdExternal, cancellationToken);
                 if (p == null && product.IdExternal != null)
                 {
                     var productToAdd = _mapper.Map<Product>(product);
-                    await _fodmapLogRepository.AddProduct(productToAdd);
+                    await _fodmapLogRepository.AddProduct(productToAdd, cancellationToken);
+                    productsWithId.Add(_mapper.Map<ProductDto>(productToAdd));
+                }
+                else
+                {
+                    productsWithId.Add(_mapper.Map<ProductDto>(p));
                 }
             }
 
 
 
-            return products;
+            return productsWithId;
         }
     }
 }

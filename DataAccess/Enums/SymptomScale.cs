@@ -13,5 +13,6 @@ namespace DataAccess.Enums
         Mild,
         Moderate,
         Severe,
+        Serious
     }
 }

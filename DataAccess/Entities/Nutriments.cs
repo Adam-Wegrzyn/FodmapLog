@@ -4,15 +4,11 @@ namespace DataAccess.Entities
 {
     public class Nutriments : BaseEntity
     {
-        public float? Fat { get; set; }
-
         public float? FatServing { get; set; }
 
         public float? Fat100g { get; set; }
 
         public string? FatUnit { get; set; }
-
-        public float? Sugars { get; set; }
 
         public float? SugarsServing { get; set; }
 
@@ -20,7 +16,7 @@ namespace DataAccess.Entities
 
         public string? SugarsUnit { get; set; }
 
-        public float? Carbohydrates { get; set; }
+        public float? CarbohydratesServing { get; set; }
 
         public float? Carbohydrates100g { get; set; }
         public string? CarbohydratesUnit { get; set; }
@@ -28,10 +24,12 @@ namespace DataAccess.Entities
 
         public float? EnergyKcalServing { get; set; }
         public string? EnergyKcalUnit { get; set; }
-        public float? Proteins { get; set; }
         public float? ProteinsServing { get; set; }
         public float? Proteins100g { get; set; }
-        public string? ProteinsUnit { get; set; }
+        public string? ProteinsUnit { get; set; }        
+        public float? Fiber100g { get; set; }
+        public float? FiberServing { get; set; }
+        public string? FiberUnit { get; set; }
 
     }
 }

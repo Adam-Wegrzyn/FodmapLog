@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Entities
 {
-    public class SymptomsLog: BaseEntity
+    public class Symptom: BaseEntity
     {
-        public DateTime Date { get; set; } 
-        public List<Symptom> Symptoms { get; set; }
+        public SymptomType SymptomType { get; set; }
+        public SymptomScale SymptomScale { get; set; }
     }
 }

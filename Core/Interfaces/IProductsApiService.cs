@@ -12,6 +12,6 @@ namespace Core.Interfaces
     public interface IProductsApiService
     {
 
-        Task<IEnumerable<ProductDto>> GetProductsByName(string name);
+        Task<IEnumerable<ProductDto>> GetProductsByName(string name, CancellationToken cancellationToken);
     }
 }

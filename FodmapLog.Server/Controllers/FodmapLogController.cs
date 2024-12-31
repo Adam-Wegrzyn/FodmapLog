@@ -17,27 +17,35 @@ namespace FodmapLog.Server.Controllers
         }
         [HttpGet]
         [Route("getMealLogById/{id}")]
-        public IActionResult GetMealLogById(int id, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetMealLogById(int id, CancellationToken cancellationToken)
         {
-            var result = _fodmapLogService.GetMealLogById(id, cancellationToken);
+            var result = await  _fodmapLogService.GetMealLogById(id, cancellationToken);
             return Ok(result);
         }
 
 
         [HttpGet]
         [Route("getAllMealLogs")]
-        public IActionResult GetAllMealLogs(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllMealLogs(CancellationToken cancellationToken)
         {
-            var result = _fodmapLogService.GetAllMealLogs(cancellationToken);
+            var result = await _fodmapLogService.GetAllMealLogs(cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("getDailyLogsByDate/{date}")]
+        public async Task<IActionResult> GetDailyLogsByDate(string date, CancellationToken cancellationToken)
+        {
+            var result = await _fodmapLogService.GetDailyLogsByDate(DateTime.Parse(date), cancellationToken);
             return Ok(result);
         }
 
         [HttpPost]
         [Route("addMealLog")]
-        public IActionResult AddMealLog([FromBody] MealLogDto mealLogDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddMealLog([FromBody] MealLogDto mealLogDto, CancellationToken cancellationToken)
         {
 
-            var result = _fodmapLogService.AddMealLog(mealLogDto, cancellationToken);
+            var result = await _fodmapLogService.AddMealLog(mealLogDto, cancellationToken);
             return Ok(result);
         }        
         

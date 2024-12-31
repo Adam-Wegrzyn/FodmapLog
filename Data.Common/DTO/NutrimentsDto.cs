@@ -19,7 +19,7 @@ namespace Data.Common.DTO
         public float? Fat100g { get; set; }
 
         [JsonProperty("fat_unit")]
-        public string FatUnit { get; set; }
+        public string? FatUnit { get; set; }
 
         [JsonProperty("sugars")]
         public float? Sugars { get; set; }
@@ -31,7 +31,7 @@ namespace Data.Common.DTO
         public float? Sugars100g { get; set; }
 
         [JsonProperty("sugars_unit")]
-        public string SugarsUnit { get; set; }
+        public string? SugarsUnit { get; set; }
 
         [JsonProperty("carbohydrates")]
         public float? Carbohydrates { get; set; }
@@ -49,7 +49,7 @@ namespace Data.Common.DTO
         public float? EnergyKcalServing { get; set; }
 
         [JsonProperty("energy-kcal_unit")]
-        public string EnergyKcalUnit { get; set; }
+        public string? EnergyKcalUnit { get; set; }
 
         [JsonProperty("proteins")]
         public float? Proteins { get; set; }
@@ -61,6 +61,17 @@ namespace Data.Common.DTO
         public float? Proteins100g { get; set; }
 
         [JsonProperty("proteins_unit")]
-        public string ProteinsUnit { get; set; }
+        public string? ProteinsUnit { get; set; }
+
+        [JsonProperty("fiber_100g")]
+        public float? Fiber100g { get; set; }
+
+        [JsonProperty("fiber_serving")]
+        public float? FiberServing { get; set; }
+
+        [JsonProperty("fiber_unit")]
+        public string? FiberUnit { get; set; }
+
+
     }
 }

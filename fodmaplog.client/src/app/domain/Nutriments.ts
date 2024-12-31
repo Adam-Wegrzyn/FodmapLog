@@ -1,33 +1,40 @@
-export class Nutriments{
+export class Nutriments {
     energyKcal100g: number;
-    carbohydrates: number;
     carbohydratesServing: number;
     carbohydratesUnit: number;
     carbohydrates100g: number;
-    fat: number;
     fatServing: number;
     fatUnit: number;
     fat100g: number;
-    protein: number;
     proteinServing: number;
     proteinUnit: number;
     protein100g: number;
-    fibre: number;
     servingQuantity: number;
     servingQuantityUnit: string;
     energyKcalServing: number;
-    
+    fiber100g: number;
+    fiberServing: number;
+    fiberUnit: string;
 
-    constructor(carbohydrates: number, protein: number, fat: number,
-        fibre: number, carbohydratesServing: number, proteinServing: number,
-        fatServing: number, carbohydrates100g: number, fat100g: number,
-        protein100g: number, carbohydratesUnit: number, fatUnit: number,
-        proteinUnit: number, energyKcal100g: number, servingQuantity: number,
-        servingQuantityUnit: string, energyKcalServing: number){
-        this.carbohydrates = carbohydrates;
-        this.protein = protein;
-        this.fat = fat;
-        this.fibre = fibre;
+    constructor(
+        carbohydratesServing: number,
+        proteinServing: number,
+        fatServing: number,
+        carbohydrates100g: number,
+        fat100g: number,
+        protein100g: number,
+        carbohydratesUnit: number,
+        fatUnit: number,
+        proteinUnit: number,
+        energyKcal100g: number,
+        servingQuantity: number,
+        servingQuantityUnit: string,
+        energyKcalServing: number,
+        fiber100g: number,
+        fiberServing: number,
+        fiberUnit: string
+
+    ) {
         this.carbohydratesServing = carbohydratesServing;
         this.proteinServing = proteinServing;
         this.fatServing = fatServing;
@@ -41,5 +48,8 @@ export class Nutriments{
         this.servingQuantity = servingQuantity;
         this.servingQuantityUnit = servingQuantityUnit;
         this.energyKcalServing = energyKcalServing;
+        this.fiber100g = this.fiber100g
+        this.fiberServing = this.fiberServing
+        this.fiberUnit = this.fiberUnit
     }
 }

@@ -26,7 +26,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IFodmapLogRepository, FodmapLogRepository>();
 builder.Services.AddHttpClient<IProductsApiService, ProductApiService>();
-builder.Services.AddHttpClient<IFodmapLogService, FodmapLogService>();
+builder.Services.AddScoped<IFodmapLogService, FodmapLogService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddDbContext<FodmapLogDbContext>(options =>

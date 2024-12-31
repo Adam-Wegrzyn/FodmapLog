@@ -4,6 +4,7 @@ using DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(FodmapLogDbContext))]
-    partial class FodmapLogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241229063853_AddedTotalMacros")]
+    partial class AddedTotalMacros
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,10 +61,10 @@ namespace DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<float?>("Carbohydrates100g")
+                    b.Property<float?>("Carbohydrates")
                         .HasColumnType("real");
 
-                    b.Property<float?>("CarbohydratesServing")
+                    b.Property<float?>("Carbohydrates100g")
                         .HasColumnType("real");
 
                     b.Property<string>("CarbohydratesUnit")
@@ -76,6 +79,9 @@ namespace DataAccess.Migrations
                     b.Property<string>("EnergyKcalUnit")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<float?>("Fat")
+                        .HasColumnType("real");
+
                     b.Property<float?>("Fat100g")
                         .HasColumnType("real");
 
@@ -85,14 +91,8 @@ namespace DataAccess.Migrations
                     b.Property<string>("FatUnit")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float?>("Fiber100g")
+                    b.Property<float?>("Proteins")
                         .HasColumnType("real");
-
-                    b.Property<float?>("FiberServing")
-                        .HasColumnType("real");
-
-                    b.Property<string>("FiberUnit")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<float?>("Proteins100g")
                         .HasColumnType("real");
@@ -102,6 +102,9 @@ namespace DataAccess.Migrations
 
                     b.Property<string>("ProteinsUnit")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<float?>("Sugars")
+                        .HasColumnType("real");
 
                     b.Property<float?>("Sugars100g")
                         .HasColumnType("real");
@@ -183,30 +186,6 @@ namespace DataAccess.Migrations
                     b.ToTable("ProductQuantity");
                 });
 
-            modelBuilder.Entity("DataAccess.Entities.Symptom", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("SymptomScale")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SymptomType")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SymptomsLogId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SymptomsLogId");
-
-                    b.ToTable("Symptom");
-                });
-
             modelBuilder.Entity("DataAccess.Entities.SymptomsLog", b =>
                 {
                     b.Property<int>("Id")
@@ -215,8 +194,11 @@ namespace DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("Symptom")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SymptomScale")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -247,21 +229,9 @@ namespace DataAccess.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("DataAccess.Entities.Symptom", b =>
-                {
-                    b.HasOne("DataAccess.Entities.SymptomsLog", null)
-                        .WithMany("Symptoms")
-                        .HasForeignKey("SymptomsLogId");
-                });
-
             modelBuilder.Entity("DataAccess.Entities.MealLog", b =>
                 {
                     b.Navigation("ProductQuantity");
-                });
-
-            modelBuilder.Entity("DataAccess.Entities.SymptomsLog", b =>
-                {
-                    b.Navigation("Symptoms");
                 });
 #pragma warning restore 612, 618
         }

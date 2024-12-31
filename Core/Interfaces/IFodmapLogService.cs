@@ -23,5 +23,7 @@ namespace Core.Interfaces
         Task<ProductDto> UpdateProduct(ProductDto productDto, CancellationToken cancellationToken);
         Task<ProductDto> DeleteProduct(int id, CancellationToken cancellationToken);
 
+        Task<IEnumerable<DailyLogDto>> GetDailyLogsByDate(DateTime date, CancellationToken cancellationToken);
+
     }
 }

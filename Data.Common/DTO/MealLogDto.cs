@@ -11,9 +11,10 @@ namespace Data.Common.DTO
     {
         public DateTime Date { get; set; }
         public IEnumerable<ProductQuantityDto>? ProductQuantity { get; set; }
-        public double TotalKcal { get; set; }  
-        public double TotalCarbohydrates { get; set; }  
-        public double TotalProteins { get; set; }  
-        public double TotalFat { get; set; }  
+        public float? TotalKcal { get; set; }  
+        public float? TotalCarbohydrates { get; set; }  
+        public float? TotalProteins { get; set; }  
+        public float? TotalFat { get; set; }  
+        public float? TotalFibre { get; set; }
     }
 }

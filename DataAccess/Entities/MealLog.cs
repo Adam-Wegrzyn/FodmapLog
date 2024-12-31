@@ -11,5 +11,10 @@ namespace DataAccess.Entities
     {
         public DateTime Date { get; set; }
         public IEnumerable<ProductQuantity> ProductQuantity { get; set; }
+        public float? TotalKcal { get; set; } = 0;
+        public float? TotalCarbohydrates { get; set; }
+        public float? TotalProteins { get; set; }
+        public float? TotalFat { get; set; }
+        public float? TotalFibre { get;}
     }
 }

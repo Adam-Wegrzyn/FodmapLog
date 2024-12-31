@@ -7,12 +7,14 @@ import { AppComponent } from './app.component';
 import { AddMealLogComponent } from './add-meal-log/add-meal-log.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TotalKcalConverterPipe } from './pipes/total-kcal-converter.pipe';
+import { DailyLogComponent } from './daily-log/daily-log.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     AddMealLogComponent,
     TotalKcalConverterPipe,
+    DailyLogComponent,
   ],
   imports: [
     BrowserModule,

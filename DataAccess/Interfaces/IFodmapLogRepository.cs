@@ -9,17 +9,20 @@ namespace DataAccess.Interfaces
 {
     public interface IFodmapLogRepository
     {
-        public Task<IEnumerable<MealLog>> GetAllMealLogs();
-        public Task<MealLog> GetMealLogById(int id);
-        public Task<MealLog> AddMealLog(MealLog mealLog);
-        public Task<MealLog> UpdateMealLog(MealLog fodmapLog);
-        public Task<MealLog> DeleteMealLog(int id);
-        public Task<IEnumerable<Product>> GetAllProducts();
-        public Task<Product> GetProductById(int id);
-        public Task<Product> AddProduct(Product product);
-        public Task<Product> UpdateProduct(Product product);
-        public Task<Product> DeleteProduct(int id);
+        public Task<IEnumerable<MealLog>> GetAllMealLogs(CancellationToken cancellationToken);
+        public Task<MealLog> GetMealLogById(int id, CancellationToken cancellationToken);
+        public Task<MealLog> AddMealLog(MealLog mealLog, CancellationToken cancellationToken);
+        public Task<MealLog> UpdateMealLog(MealLog fodmapLog, CancellationToken cancellationToken);
+        public Task<MealLog> DeleteMealLog(int id, CancellationToken cancellationToken);
+        public Task<IEnumerable<Product>> GetAllProducts(CancellationToken cancellationToken);
+        public Task<Product> GetProductById(int id, CancellationToken cancellationToken);
+        public Task<Product> AddProduct(Product product, CancellationToken cancellationToken);
+        public Task<Product> UpdateProduct(Product product, CancellationToken cancellationToken);
+        public Task<Product> DeleteProduct(int id, CancellationToken cancellationToken);
 
-        public Task<Product> GetProductByExternalId(string externalId);
+        public Task<Product> GetProductByExternalId(string externalId, CancellationToken cancellationToken);
+
+        public Task<IEnumerable<MealLog>> GetMealLogsByDate(DateTime date, CancellationToken cancellationToken);
+        public Task<IEnumerable<SymptomsLog>> GetSymptomsLogsByDate(DateTime date, CancellationToken cancellationToken);
     }
 }

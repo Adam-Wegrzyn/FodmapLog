@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Enums
 {
-    public enum Symptom
+    public enum SymptomType
     {
         Nausea,
         Burping,
