@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AddMealLogComponent } from './add-meal-log/add-meal-log.component';
 import { DailyLogComponent } from './daily-log/daily-log.component';
+import { AddSymptomsLogComponent } from './add-symptoms-log/add-symptoms-log.component';
 
 const routes: Routes = [
   {
@@ -10,7 +11,11 @@ const routes: Routes = [
   },
   {
     path: "daily-log", component: DailyLogComponent
+  },
+  {
+    path: "add-symptoms-log", component: AddSymptomsLogComponent
   }
+
   
 ];
 

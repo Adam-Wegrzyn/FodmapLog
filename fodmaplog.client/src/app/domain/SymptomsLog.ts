@@ -1,19 +1,13 @@
-import { SymptomScale } from "./SymptomScale";
-import { SymptomType } from "./SymptomType";
+import { Symptom } from "./Symptom";
 
 export class SymptomsLog {
     id: number;
     date: string;
-    symptomType: SymptomType;
-    symptomScale: SymptomScale;
+    symptoms: Symptom[];
 
-    constructor(id: number, date: string, symptomType: SymptomType,
-         symptomScale: SymptomScale) {
+    constructor(id: number, date: string, symptoms: Symptom[]) {
         this.id = id;
         this.date = date;
-        this.symptomType = symptomType;
-        this.symptomScale = symptomScale;
-        
-        
+        this.symptoms = symptoms;   
     }
 }

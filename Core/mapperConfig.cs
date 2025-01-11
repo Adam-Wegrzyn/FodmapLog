@@ -12,6 +12,8 @@ namespace Core
             CreateMap<ProductDto, Product>().ReverseMap();
             CreateMap<ProductQuantityDto, ProductQuantity>().ReverseMap();
             CreateMap<NutrimentsDto, Nutriments>().ReverseMap();
+            CreateMap<SymptomsLog, SymptomsLogDto>().ReverseMap();
+            CreateMap<Symptom, SymptomDto>().ReverseMap();
 
             CreateMap<MealLogDto, MealLog>()
     .ForMember(dest => dest.TotalKcal, opt => opt.MapFrom(src => src.ProductQuantity

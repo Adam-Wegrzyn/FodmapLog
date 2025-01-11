@@ -8,6 +8,8 @@ import { AddMealLogComponent } from './add-meal-log/add-meal-log.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TotalKcalConverterPipe } from './pipes/total-kcal-converter.pipe';
 import { DailyLogComponent } from './daily-log/daily-log.component';
+import { AddSymptomsLogComponent } from './add-symptoms-log/add-symptoms-log.component';
+import { AddLogBaseComponent } from './add-log-base/add-log-base.component';
 
 @NgModule({
   declarations: [
@@ -15,6 +17,8 @@ import { DailyLogComponent } from './daily-log/daily-log.component';
     AddMealLogComponent,
     TotalKcalConverterPipe,
     DailyLogComponent,
+    AddSymptomsLogComponent,
+    AddLogBaseComponent
   ],
   imports: [
     BrowserModule,

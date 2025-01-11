@@ -39,6 +39,13 @@ namespace Core.Services
             return _mapper.Map<ProductDto>(addedProduct);
         }
 
+        public async Task<SymptomsLogDto> AddSymptomsLog(SymptomsLogDto symptomsLogDto, CancellationToken cancellationToken)
+        {
+            var symptomsLog = _mapper.Map<SymptomsLog>(symptomsLogDto);
+            var addedSymptomsLog = await _fodmapLogRepository.AddSymptomsLog(symptomsLog, cancellationToken);
+            return _mapper.Map<SymptomsLogDto>(addedSymptomsLog);
+        }
+
         public async Task<MealLogDto> DeleteMealLog(int id, CancellationToken cancellationToken)
         {
             var deletedMealLog = await _fodmapLogRepository.DeleteMealLog(id, cancellationToken);

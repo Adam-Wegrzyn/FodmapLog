@@ -1,4 +1,5 @@
-﻿using DataAccess.Enums;
+﻿using DataAccess.Entities;
+using DataAccess.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Data.Common.DTO
 {
     public class SymptomsLogDto
     {
-        public SymptomType Symptom { get; set; }
-        public SymptomScale SymptomScale { get; set; }
+        public DateTime Date { get; set; }
+        public List<SymptomDto> Symptoms { get; set; }
     }
 }

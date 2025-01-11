@@ -1,0 +1,60 @@
+<div class="row">
+    <div class="col-2">
+<button (click)="decreaseDate()"><</button>
+    </div>
+    <div class="col-8">
+        <input [(ngModel)]="currentDate" (ngModelChange)="onDateChange($event)" type="date" id="calendar" name="calendar">
+        {{currentDate}}  
+    </div>
+    <div class="col-2">
+        <button class="btn btn-success" (click)="increaseDate()">></button>
+    </div>
+    
+</div>
+    <ng-container *ngFor="let log of logs; let i = index">
+        <div [ngClass]="{'bg-light': i % 2 != 0}"
+        *ngIf="log.mealLog != undefined && log.mealLog != null" class="row">
+            <div class="col-2 border-end"> 
+<span >Meal</span>
+            </div>
+            <div class="col-8">
+                <div *ngFor="let pq of log.mealLog.productQuantity" style="text-align: left;">
+                    <!-- < class="d-flex flex-column align-items-start"> -->
+                        <span>{{pq.product.name}}</span>
+                        <!-- </a> -->
+
+                </div>
+            </div>
+            <div class="col-2 border-start">
+                {{log.date | date: 'shortTime'}}
+            </div>
+            
+        </div>
+        <div [ngClass]="{'bg-light': i % 2 != 0}" 
+        *ngIf="log.symptomsLog != undefined && log.symptomsLog != null" class="row">
+            <div class="col-2 border-end"> 
+Symptom 
+            </div>
+            <div class="col-8">
+<div  *ngFor="let s of log.symptomsLog.symptoms" class="row">
+    <div class="col-4">
+        {{symptomType[s.symptomType]}}
+
+    </div>
+    <div class="col-8">
+        <input disabled="true"  type="range" class="form-range" min="0" max="5"  [ngModel]="s.symptomScale">
+        <div [ngClass]="{'text-success': s.symptomScale == 0, 'text-warning': s.symptomScale > 0 && s.symptomScale < 4,
+           'text-danger': s.symptomScale >= 4}"
+         class="fs-7"> {{symptomScale[s.symptomScale]}}</div>
+
+    </div>
+
+</div>
+            </div>
+            <div class="col-2 border-start">
+                {{log.date | date: 'shortTime'}}
+            </div>
+
+        </div>
+
+    </ng-container>

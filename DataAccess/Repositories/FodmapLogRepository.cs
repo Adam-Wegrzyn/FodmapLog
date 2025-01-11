@@ -126,8 +126,16 @@ namespace DataAccess.Repositories
         public async Task<IEnumerable<SymptomsLog>> GetSymptomsLogsByDate(DateTime date, CancellationToken cancellationToken)
         {
             return await _context.SymptomsLogs
+                .Include(s => s.Symptoms)
                 .Where(s => s.Date.Date == date.Date)
                 .ToListAsync(cancellationToken);
+        }
+
+        public async Task<SymptomsLog> AddSymptomsLog(SymptomsLog symptomsLog, CancellationToken cancellationToken)
+        {
+            _context.Add(symptomsLog);
+            await _context.SaveChangesAsync();
+            return symptomsLog;
         }
     }
 }

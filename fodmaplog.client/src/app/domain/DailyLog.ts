@@ -5,11 +5,12 @@ import { SymptomsLog } from "./SymptomsLog";
 
 export class DailyLog extends BaseClass {
     date: string;
-    mealLogs: MealLog[];
-    symptomsLog: SymptomsLog[];
-    constructor(id: number, date: string, mealLogs: MealLog[]) {
+    mealLog: MealLog;
+    symptomsLog: SymptomsLog;
+    constructor(id: number, date: string, mealLog: MealLog, symptomsLog: SymptomsLog) {
         super(id);
         this.date = date;
-        this.mealLogs = mealLogs;
+        this.mealLog = mealLog;
+        this.symptomsLog = symptomsLog;
     }
 }

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AddMealLogComponent } from './add-meal-log.component.js';
+import { AddLogBaseComponent } from './add-log-base.component';
 
-describe('AddMealLogComponent', () => {
-  let component: AddMealLogComponent;
-  let fixture: ComponentFixture<AddMealLogComponent>;
+describe('AddLogBaseComponent', () => {
+  let component: AddLogBaseComponent;
+  let fixture: ComponentFixture<AddLogBaseComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [AddMealLogComponent]
+      declarations: [AddLogBaseComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(AddMealLogComponent);
+    fixture = TestBed.createComponent(AddLogBaseComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -40,6 +40,7 @@ export class AddMealLogComponent implements OnInit {
       totalFiber: 0
     })
         console.log(this.products)
+        console.log('test' + this.unit["Glass"])
     }
 
   products: Product[];
