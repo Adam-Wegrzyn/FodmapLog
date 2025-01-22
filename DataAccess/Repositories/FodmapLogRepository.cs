@@ -30,7 +30,11 @@ namespace DataAccess.Repositories
 
         public async Task<MealLog> GetMealLogById(int id, CancellationToken cancellationToken)
         {
-            return await _context.MealLogs.FindAsync(id);
+            return await _context.MealLogs
+                .Include(m => m.ProductQuantity)
+                .ThenInclude(pq => pq.Product)
+                .ThenInclude(p => p.Nutriments)
+                .SingleOrDefaultAsync(m => m.Id == id);
         }
         public async Task<IEnumerable<MealLog>> GetMealLogsByDate(DateTime date, CancellationToken cancellationToken)
         {
@@ -60,11 +64,53 @@ namespace DataAccess.Repositories
             return mealLog;
         }
 
-        public async Task<MealLog> UpdateMealLog(MealLog MealLog, CancellationToken cancellationToken)
+        public async Task<MealLog> UpdateMealLog(MealLog updatedMealLog, CancellationToken cancellationToken)
         {
-            _context.MealLogs.Update(MealLog);
+
+            // Retrieve the existing MealLog from the database
+            var existingMealLog = await _context.MealLogs
+                .Include(m => m.ProductQuantity)
+                .ThenInclude(pq => pq.Product)
+                .FirstOrDefaultAsync(m => m.Id == updatedMealLog.Id, cancellationToken);
+
+            if (existingMealLog == null)
+            {
+                throw new InvalidOperationException("MealLog not found");
+            }
+
+            // Update the main entity properties
+            _context.Entry(existingMealLog).CurrentValues.SetValues(updatedMealLog);
+
+            // Update nested entities (ProductQuantity)
+            foreach (var updatedProductQuantity in updatedMealLog.ProductQuantity)
+            {
+                var existingProductQuantity = existingMealLog.ProductQuantity
+                    .FirstOrDefault(pq => pq.Id == updatedProductQuantity.Id);
+
+                if (existingProductQuantity != null)
+                {
+                    // Update existing ProductQuantity
+                    _context.Entry(existingProductQuantity).CurrentValues.SetValues(updatedProductQuantity);
+                }
+                else
+                {
+                    // Add new ProductQuantity
+                    existingMealLog.ProductQuantity.Add(updatedProductQuantity);
+                }
+            }
+
+            // Remove ProductQuantity that are no longer present
+            foreach (var existingProductQuantity in existingMealLog.ProductQuantity.ToList())
+            {
+                if (!updatedMealLog.ProductQuantity.Any(pq => pq.Id == existingProductQuantity.Id))
+                {
+                    _context.ProductQuantities.Remove(existingProductQuantity);
+                }
+            }
+            //existingMealLog.ProductQuantity = updatedMealLog.ProductQuantity;
+
             await _context.SaveChangesAsync();
-            return MealLog;
+            return existingMealLog;
         }
 
         public async Task<MealLog> DeleteMealLog(int id, CancellationToken cancellationToken)

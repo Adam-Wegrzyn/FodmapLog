@@ -17,5 +17,7 @@ namespace DataAccess
         public DbSet<MealLog> MealLogs { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<SymptomsLog> SymptomsLogs { get; set; }
+        public DbSet<Symptom> Symptoms { get; set; }
+        public DbSet<ProductQuantity> ProductQuantities { get; set; }
     }
 }

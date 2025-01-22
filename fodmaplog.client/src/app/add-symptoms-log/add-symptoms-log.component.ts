@@ -26,6 +26,7 @@ export class AddSymptomsLogComponent implements OnInit {
   symptomType = SymptomType;
   symptomRange: number;
   symptomScale = SymptomScale
+  currDate = new Date().toISOString().split('T')[0];
 
   constructor(private productsApiService: ProductsApiService,
     private fodmapLogService: FodmapLogService,
@@ -88,5 +89,8 @@ GetProduct(){
    
   }
   
+  Cancel(): void{
+    this.form.reset();
+  }
 
 }

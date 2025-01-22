@@ -7,10 +7,19 @@ import { AddSymptomsLogComponent } from './add-symptoms-log/add-symptoms-log.com
 
 const routes: Routes = [
   {
+    path: "", redirectTo: "/daily-log", pathMatch: "full"
+  },
+  {
     path: "add-meal-log", component: AddMealLogComponent
   },
   {
+    path: "add-meal-log/:id", component: AddMealLogComponent
+  },
+  {
     path: "daily-log", component: DailyLogComponent
+  },
+  {
+    path: "daily-log/:date", component: DailyLogComponent
   },
   {
     path: "add-symptoms-log", component: AddSymptomsLogComponent

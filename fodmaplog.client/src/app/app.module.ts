@@ -10,6 +10,10 @@ import { TotalKcalConverterPipe } from './pipes/total-kcal-converter.pipe';
 import { DailyLogComponent } from './daily-log/daily-log.component';
 import { AddSymptomsLogComponent } from './add-symptoms-log/add-symptoms-log.component';
 import { AddLogBaseComponent } from './add-log-base/add-log-base.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { CommonModule } from '@angular/common';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 
 @NgModule({
   declarations: [
@@ -18,16 +22,21 @@ import { AddLogBaseComponent } from './add-log-base/add-log-base.component';
     TotalKcalConverterPipe,
     DailyLogComponent,
     AddSymptomsLogComponent,
-    AddLogBaseComponent
+    AddLogBaseComponent,
   ],
   imports: [
     BrowserModule,
      HttpClientModule,
     AppRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    CommonModule,
+    FontAwesomeModule,
+    NgxMaterialTimepickerModule
   ],
-  providers: [],
+  providers: [
+    provideAnimationsAsync('noop')
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

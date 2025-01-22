@@ -5,7 +5,8 @@ import { MealLog } from '../domain/MealLog';
 import { DailyLog } from '../domain/DailyLog';
 import { SymptomType } from '../domain/SymptomType';
 import { SymptomScale } from '../domain/SymptomScale';
-
+import { faCircleChevronRight, faCircleChevronLeft, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-daily-log',
   templateUrl: './daily-log.component.html',
@@ -14,18 +15,32 @@ import { SymptomScale } from '../domain/SymptomScale';
 export class DailyLogComponent implements OnInit {
   constructor(
     private fodmapLogService: FodmapLogService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
   ) { }
 
   logs: DailyLog[];
   symptomType = SymptomType;
   symptomScale = SymptomScale;
-   currentDate: Date = new Date();
-  //currentDate: string = new Date().toLocaleDateString();
+  currentDate: Date = new Date();
+  setDateCalendar: string = new Date().toISOString().split('T')[0];
+  //setDateCalendar = "2025-01-03";
+  faCircleChevronRight = faCircleChevronRight;
+  faCircleChevronLeft = faCircleChevronLeft;
+  faPlusCircle = faPlusCircle;
+  
   
 
   ngOnInit(): void {
-    this.GetDailyLog(this.currentDate.toISOString());
+    this.route.params.subscribe(params => {
+      if (params['date']) {
+        this.setDateCalendar = params['date'];
+        console.log(params);
+      }
+    })
+      
+    
+    this.GetDailyLog(this.setDateCalendar);
     console.log(this.logs + 'test2')
     
     ;
@@ -45,21 +60,34 @@ export class DailyLogComponent implements OnInit {
 
   
   )
-    
+}
+
+  isMealLog(log: DailyLog): boolean {
+    return log.mealLog != undefined && log.mealLog != null;
   }
+  updateCalendar(date:  Date): void {
+    this.setDateCalendar = this.getOnlyStringDate(date);
+  }
+    
+ 
   onDateChange(newDate: string): void {
     this.GetDailyLog(newDate)
   }
 
   decreaseDate(): void {
     this.currentDate.setDate(this.currentDate.getDate() - 1);
-    this.GetDailyLog(this.currentDate.toDateString());
+    this.setDateCalendar = this.getOnlyStringDate(this.currentDate);
+    this.GetDailyLog(this.setDateCalendar);
   }
 
   increaseDate(): void {
     this.currentDate.setDate(this.currentDate.getDate() + 1);
+    this.setDateCalendar = this.getOnlyStringDate(this.currentDate);
     this.GetDailyLog(this.currentDate.toDateString());
-
-}}
-
+  
+}
+getOnlyStringDate(date: Date): string { 
+  return date.toISOString().split('T')[0];
+}
+}
 

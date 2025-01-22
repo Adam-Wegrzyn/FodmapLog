@@ -13,13 +13,19 @@ export class FodmapLogService {
     url: string = "https://localhost:44349/api/FodmapLog"
     constructor(private httpClient: HttpClient) { }
 
+    UpdateMealLog(mealLog: MealLog): Observable<MealLog> {
+        return this.httpClient.put<MealLog>(`${this.url}/updateMealLog`, mealLog);
+      }
     AddMealLog(mealLog: MealLog): Observable<MealLog> {
-        var request = this.httpClient.post<MealLog>(`${this.url}/addMealLog`, mealLog)
-        return request;
+        return this.httpClient.post<MealLog>(`${this.url}/addMealLog`, mealLog);
     }
 
     GetAllMealLogs(): Observable<MealLog[]> {
         return this.httpClient.get<MealLog[]>(`${this.url}/getAllMealLogs`);
+    }
+
+    GetMealLogById(id: number): Observable<MealLog> {
+        return this.httpClient.get<MealLog>(`${this.url}/getMealLogById/${id}`);
     }
 
     GetDailyLogsByDate(date: string): Observable<DailyLog[]> {

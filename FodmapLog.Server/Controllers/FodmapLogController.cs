@@ -49,6 +49,15 @@ namespace FodmapLog.Server.Controllers
             return Ok(result);
         }
 
+        [HttpPut]
+        [Route("updateMealLog")]
+        public async Task<IActionResult> UpdateMealLog([FromBody] MealLogDto mealLogDto, CancellationToken cancellationToken)
+        {
+
+            var result = await _fodmapLogService.UpdateMealLog(mealLogDto, cancellationToken);
+            return Ok(result);
+        }
+
         [HttpPost]
         [Route("addSymptomsLog")]
         public async Task<IActionResult> AddSymptomsLog([FromBody] SymptomsLogDto symptomsLogDto, CancellationToken cancellationToken)

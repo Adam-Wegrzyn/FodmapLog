@@ -1,60 +1,81 @@
-<div class="row">
-    <div class="col-2">
-<button (click)="decreaseDate()"><</button>
-    </div>
-    <div class="col-8">
-        <input [(ngModel)]="currentDate" (ngModelChange)="onDateChange($event)" type="date" id="calendar" name="calendar">
-        {{currentDate}}  
-    </div>
-    <div class="col-2">
-        <button class="btn btn-success" (click)="increaseDate()">></button>
-    </div>
-    
-</div>
-    <ng-container *ngFor="let log of logs; let i = index">
-        <div [ngClass]="{'bg-light': i % 2 != 0}"
-        *ngIf="log.mealLog != undefined && log.mealLog != null" class="row">
-            <div class="col-2 border-end"> 
-<span >Meal</span>
-            </div>
-            <div class="col-8">
-                <div *ngFor="let pq of log.mealLog.productQuantity" style="text-align: left;">
-                    <!-- < class="d-flex flex-column align-items-start"> -->
-                        <span>{{pq.product.name}}</span>
-                        <!-- </a> -->
+    <div class="row mb-5">
+        <div class="col-2">
+            <fa-icon (click)="decreaseDate()" size="2x" class="text-success" [icon]="faCircleChevronLeft"></fa-icon>    </div>
+        <div class="col-8">
+            <input [(ngModel)]="setDateCalendar" (ngModelChange)="onDateChange($event)" type="date" id="calendar" name="calendar">
+        </div>
+        <div class="col-2">
+            <fa-icon (click)="increaseDate()" size="2x" class="text-success" [icon]="faCircleChevronRight"></fa-icon>
+        </div>
 
+    </div>
+    <div class="row">
+        <ng-container *ngFor="let log of logs; let i = index">
+            <div [ngClass]="{'bg-light': i % 2 != 0}" class="row"
+            >
+                <div class="col-2 border-end d-flex align-items-center
+                 justify-content-center text-secondary"> 
+                    <ng-container
+                     *ngIf="isMealLog(log) else SymptomLog">
+                     <span class="fw-bold fs-5">M</span>
+                      </ng-container>
+                      <ng-template #SymptomLog>
+                        <span class="fw-bold fs-5">S</span>
+                      </ng-template>
                 </div>
+                <div class="col-8 py-2">
+                    <ng-container *ngIf="isMealLog(log) else SymptomsLogContent">
+                        <div *ngFor="let pq of log.mealLog.productQuantity" style="text-align: left;"
+                        [routerLink]="['/add-meal-log', log.mealLog.id]">
+                                <span>{{pq.product.name}}</span>
+        
+                        </div>
+                    </ng-container>
+                    <ng-template #SymptomsLogContent>
+                        <div  *ngFor="let s of log.symptomsLog.symptoms" class="row">
+                            <div class="col-4">
+                                {{symptomType[s.symptomType]}}
+                        
+                            </div>
+                            <div class="col-8 py-2">
+                                <input disabled="true"  type="range" class="form-range" min="0" max="5"  [ngModel]="s.symptomScale">
+                                <div [ngClass]="{'text-success': s.symptomScale == 0, 'text-warning': s.symptomScale > 0 && s.symptomScale < 4,
+                                   'text-danger': s.symptomScale >= 4}"
+                                 class="fs-7"> {{symptomScale[s.symptomScale]}}</div>
+                        
+                            </div>
+                        
+                        </div>
+                    </ng-template>
+    
+                    
+                </div>
+                <div class="col-2 border-start d-flex align-items-center justify-content-center">
+                    {{log.date | date: 'shortTime'}}
+                </div>
+                
             </div>
-            <div class="col-2 border-start">
-                {{log.date | date: 'shortTime'}}
-            </div>
-            
-        </div>
-        <div [ngClass]="{'bg-light': i % 2 != 0}" 
-        *ngIf="log.symptomsLog != undefined && log.symptomsLog != null" class="row">
-            <div class="col-2 border-end"> 
-Symptom 
-            </div>
-            <div class="col-8">
-<div  *ngFor="let s of log.symptomsLog.symptoms" class="row">
-    <div class="col-4">
-        {{symptomType[s.symptomType]}}
-
+        </ng-container>
     </div>
-    <div class="col-8">
-        <input disabled="true"  type="range" class="form-range" min="0" max="5"  [ngModel]="s.symptomScale">
-        <div [ngClass]="{'text-success': s.symptomScale == 0, 'text-warning': s.symptomScale > 0 && s.symptomScale < 4,
-           'text-danger': s.symptomScale >= 4}"
-         class="fs-7"> {{symptomScale[s.symptomScale]}}</div>
 
+            <div class="mb-5 mx-5 fixed-bottom d-flex justify-content-end align-items-end">
+                <fa-icon data-bs-toggle="modal" data-bs-target="#LogAddModal" class="text-success" size="3x" [icon]="faPlusCircle"></fa-icon>
+            </div>
+
+  
+<!-- Modal -->
+<div class="modal fade" id="LogAddModal" tabindex="-1" aria-labelledby="LogAddModalLabel" aria-hidden="true">
+    <div class="modal-dialog custom-modal-position">
+      <div class="modal-content">
+
+        <div class="modal-body">
+            <div class="list-group list-group-flush">
+                <a routerLink="/add-meal-log" class="list-group-item list-group-item-action"
+                data-bs-dismiss="modal" >Add Meal</a>
+                <a routerLink="/add-symptoms-log" class="list-group-item list-group-item-action"
+                data-bs-dismiss="modal" >Add Symptoms</a>
+              </div>
+
+      </div>
     </div>
-
-</div>
-            </div>
-            <div class="col-2 border-start">
-                {{log.date | date: 'shortTime'}}
-            </div>
-
-        </div>
-
-    </ng-container>
+  </div>
