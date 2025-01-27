@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { addMealLogComponent } from './add-meal-log.component.js';
+import { DateTimeInputComponent } from './date-time-input.component';
 
-describe('addMealLogComponent', () => {
-  let component: addMealLogComponent;
-  let fixture: ComponentFixture<addMealLogComponent>;
+describe('DateTimeInputComponent', () => {
+  let component: DateTimeInputComponent;
+  let fixture: ComponentFixture<DateTimeInputComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [addMealLogComponent]
+      declarations: [DateTimeInputComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(addMealLogComponent);
+    fixture = TestBed.createComponent(DateTimeInputComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

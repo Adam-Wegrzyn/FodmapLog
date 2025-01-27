@@ -2,13 +2,15 @@
 
 <div class="row">
   <div class="col-6 p-0">
-    <button (click)="Cancel()" [routerLink]="['/daily-log', currDate]" class="btn btn-success w-100 no-radius">Cancel</button>
+    <button (click)="cancel()" [routerLink]="['/daily-log', currDate]" class="btn btn-success w-100 no-radius">cancel</button>
     
   </div>
     <div class="col-6 p-0">
-      <button class="btn btn-success w-100 no-radius" (click)="SaveSymptomsLog()" >Save</button>
+      <button class="btn btn-success w-100 no-radius" (click)="saveSymptomsLog()" >Save</button>
   </div>
 </div>
+
+<app-date-time-input [(date)]="currDate" [(time)]="currTime" (dateTimeChange)="onDateTimeChanged($event)"></app-date-time-input>
 
 <div class="row mb-5">
   <ng-container formArrayName="symptoms" *ngIf="symptomsArr.length > 0">
@@ -37,7 +39,7 @@
               
             </div>
             <div class="col-2 align-items-end">
-                <span (click)="DeleteSymptom(p.value.id)" class="text-danger fs-1 float-end">-</span>
+                <span (click)="deleteSymptom(i)" class="text-danger fs-1 float-end">-</span>
             </div>
     
         </div>
@@ -61,7 +63,7 @@
                       </div>
                 </div>
                 <div>
-                    <span (click)="AddSymptom(s.value)"class="text-success fs-3">+</span>
+                    <span (click)="addSymptom(s.value)"class="text-success fs-3">+</span>
                 </div>
 
             </div>

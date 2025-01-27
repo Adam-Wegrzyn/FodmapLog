@@ -65,5 +65,22 @@ namespace FodmapLog.Server.Controllers
             var result = await _fodmapLogService.AddSymptomsLog(symptomsLogDto, cancellationToken);
             return Ok(result);
         }
+
+        [HttpGet]
+        [Route("getSymptomsLogById/{id}")]
+        public async Task<IActionResult> GetSymptomsLogById(int id, CancellationToken cancellationToken)
+        {
+            var result = await _fodmapLogService.GetSymptomsLogById(id, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPut]
+        [Route("updateSymptomsLog")]
+        public async Task<IActionResult> UpdateSymptomsLog([FromBody] SymptomsLogDto symptomsLogDto, CancellationToken cancellationToken)
+        {
+            var result = await _fodmapLogService.UpdateSymptomsLog(symptomsLogDto, cancellationToken);
+            return Ok(result);
+        }
+
     }
 }

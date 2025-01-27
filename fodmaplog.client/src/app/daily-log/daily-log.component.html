@@ -11,52 +11,51 @@
     </div>
     <div class="row">
         <ng-container *ngFor="let log of logs; let i = index">
-            <div [ngClass]="{'bg-light': i % 2 != 0}" class="row"
-            >
-                <div class="col-2 border-end d-flex align-items-center
-                 justify-content-center text-secondary"> 
-                    <ng-container
-                     *ngIf="isMealLog(log) else SymptomLog">
-                     <span class="fw-bold fs-5">M</span>
-                      </ng-container>
-                      <ng-template #SymptomLog>
-                        <span class="fw-bold fs-5">S</span>
-                      </ng-template>
+            <a *ngIf="isMealLog(log)" [routerLink]="['/add-meal-log', log.mealLog.id]" class="row-link">
+              <div [ngClass]="{'bg-light': i % 2 != 0}" class="row">
+                <div class="col-2 border-end d-flex align-items-center justify-content-center text-secondary">
+                  <span class="fw-bold fs-5">M</span>
                 </div>
                 <div class="col-8 py-2">
-                    <ng-container *ngIf="isMealLog(log) else SymptomsLogContent">
-                        <div *ngFor="let pq of log.mealLog.productQuantity" style="text-align: left;"
-                        [routerLink]="['/add-meal-log', log.mealLog.id]">
-                                <span>{{pq.product.name}}</span>
-        
-                        </div>
-                    </ng-container>
-                    <ng-template #SymptomsLogContent>
-                        <div  *ngFor="let s of log.symptomsLog.symptoms" class="row">
-                            <div class="col-4">
-                                {{symptomType[s.symptomType]}}
-                        
-                            </div>
-                            <div class="col-8 py-2">
-                                <input disabled="true"  type="range" class="form-range" min="0" max="5"  [ngModel]="s.symptomScale">
-                                <div [ngClass]="{'text-success': s.symptomScale == 0, 'text-warning': s.symptomScale > 0 && s.symptomScale < 4,
-                                   'text-danger': s.symptomScale >= 4}"
-                                 class="fs-7"> {{symptomScale[s.symptomScale]}}</div>
-                        
-                            </div>
-                        
-                        </div>
-                    </ng-template>
-    
-                    
+                  <div *ngFor="let pq of log.mealLog.productQuantity" style="text-align: left;">
+                    <span>{{pq.product.name}}</span>
+                  </div>
                 </div>
                 <div class="col-2 border-start d-flex align-items-center justify-content-center">
-                    {{log.date | date: 'shortTime'}}
+                  {{log.date | date: 'shortTime'}}
                 </div>
-                
-            </div>
-        </ng-container>
+              </div>
+            </a>
+            <a *ngIf="!isMealLog(log)" [routerLink]="['/add-symptoms-log', log.symptomsLog.id]" class="row-link">
+              <div [ngClass]="{'bg-light': i % 2 != 0}" class="row">
+                <div class="col-2 border-end d-flex align-items-center justify-content-center text-secondary">
+                  <span class="fw-bold fs-5">S</span>
+                </div>
+                <div class="col-8 py-2">
+                  <div *ngFor="let s of log.symptomsLog.symptoms" class="row">
+                    <div class="col-4">
+                      {{symptomType[s.symptomType]}}
+                    </div>
+                    <div class="col-8 py-2">
+                      <input disabled="true" type="range" class="form-range" min="0" max="5" [ngModel]="s.symptomScale">
+                      <div [ngClass]="{
+                        'text-success': s.symptomScale == 0,
+                        'text-warning': s.symptomScale > 0 && s.symptomScale < 4,
+                        'text-danger': s.symptomScale >= 4
+                      }" class="fs-7">
+                        {{symptomScale[s.symptomScale]}}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-2 border-start d-flex align-items-center justify-content-center">
+                  {{log.date | date: 'shortTime'}}
+                </div>
+              </div>
+            </a>
+          </ng-container>
     </div>
+    
 
             <div class="mb-5 mx-5 fixed-bottom d-flex justify-content-end align-items-end">
                 <fa-icon data-bs-toggle="modal" data-bs-target="#LogAddModal" class="text-success" size="3x" [icon]="faPlusCircle"></fa-icon>

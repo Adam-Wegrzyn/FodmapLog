@@ -183,6 +183,20 @@ namespace DataAccess.Repositories
             await _context.SaveChangesAsync();
             return symptomsLog;
         }
+
+        public async Task<SymptomsLog> GetSymptomsLogById(int id, CancellationToken cancellationToken)
+        {
+           return await _context.SymptomsLogs
+                .Include(s => s.Symptoms)
+                .FirstOrDefaultAsync(s => s.Id == id);
+        }
+
+        public async Task<SymptomsLog> UpdateSymptomsLog(SymptomsLog symptomsLog, CancellationToken cancellationToken)
+        {
+           _context.SymptomsLogs.Update(symptomsLog);
+           await _context.SaveChangesAsync();
+           return symptomsLog;
+        }
     }
 }
 

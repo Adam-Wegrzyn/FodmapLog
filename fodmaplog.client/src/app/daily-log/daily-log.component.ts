@@ -47,7 +47,7 @@ export class DailyLogComponent implements OnInit {
   }
 
   GetDailyLog(date: string) {
-    this.fodmapLogService.GetDailyLogsByDate(date).subscribe(
+    this.fodmapLogService.getDailyLogsByDate(date).subscribe(
       data => {
         this.logs = data;
       },

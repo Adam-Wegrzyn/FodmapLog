@@ -25,6 +25,7 @@ namespace Core.Interfaces
 
         Task<IEnumerable<DailyLogDto>> GetDailyLogsByDate(DateTime date, CancellationToken cancellationToken);
         Task<SymptomsLogDto> AddSymptomsLog(SymptomsLogDto symptomsLogDto, CancellationToken cancellationToken);
-
+        Task<SymptomsLog> GetSymptomsLogById(int id, CancellationToken cancellationToken);
+        Task<SymptomsLog> UpdateSymptomsLog(SymptomsLogDto symptomsLogDto, CancellationToken cancellationToken);
     }
 }

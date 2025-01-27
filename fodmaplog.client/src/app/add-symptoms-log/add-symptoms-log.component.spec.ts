@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AddSymptomsLogComponent } from './add-symptoms-log.component.js';
+import { addSymptomsLogComponent } from './add-symptoms-log.component.js';
 
-describe('AddSymptomsLogComponent', () => {
-  let component: AddSymptomsLogComponent;
-  let fixture: ComponentFixture<AddSymptomsLogComponent>;
+describe('addSymptomsLogComponent', () => {
+  let component: addSymptomsLogComponent;
+  let fixture: ComponentFixture<addSymptomsLogComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [AddSymptomsLogComponent]
+      declarations: [addSymptomsLogComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(AddSymptomsLogComponent);
+    fixture = TestBed.createComponent(addSymptomsLogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

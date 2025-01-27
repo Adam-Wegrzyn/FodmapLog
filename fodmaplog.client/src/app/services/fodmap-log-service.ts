@@ -13,35 +13,42 @@ export class FodmapLogService {
     url: string = "https://localhost:44349/api/FodmapLog"
     constructor(private httpClient: HttpClient) { }
 
-    UpdateMealLog(mealLog: MealLog): Observable<MealLog> {
+    updateMealLog(mealLog: MealLog): Observable<MealLog> {
         return this.httpClient.put<MealLog>(`${this.url}/updateMealLog`, mealLog);
       }
-    AddMealLog(mealLog: MealLog): Observable<MealLog> {
+    addMealLog(mealLog: MealLog): Observable<MealLog> {
         return this.httpClient.post<MealLog>(`${this.url}/addMealLog`, mealLog);
     }
 
-    GetAllMealLogs(): Observable<MealLog[]> {
+    getAllMealLogs(): Observable<MealLog[]> {
         return this.httpClient.get<MealLog[]>(`${this.url}/getAllMealLogs`);
     }
 
-    GetMealLogById(id: number): Observable<MealLog> {
+    getMealLogById(id: number): Observable<MealLog> {
         return this.httpClient.get<MealLog>(`${this.url}/getMealLogById/${id}`);
     }
 
-    GetDailyLogsByDate(date: string): Observable<DailyLog[]> {
+    getDailyLogsByDate(date: string): Observable<DailyLog[]> {
         return this.httpClient.get<DailyLog[]>(`${this.url}/getDailyLogsByDate/${date}`);
     }
     
     // SymptomsLog methods
-    AddSymptomsLog(symptomsLog: SymptomsLog): Observable<SymptomsLog> {
+    addSymptomsLog(symptomsLog: SymptomsLog): Observable<SymptomsLog> {
         return this.httpClient.post<SymptomsLog>(`${this.url}/addSymptomsLog`, symptomsLog);
     }
 
-    GetAllSymptomsLogs(): Observable<SymptomsLog[]> {
+    getAllSymptomsLogs(): Observable<SymptomsLog[]> {
         return this.httpClient.get<SymptomsLog[]>(`${this.url}/getAllSymptomsLogs`);
     }
 
-    GetDailySymptomsByDate(date: string): Observable<SymptomsLog[]> {
+    getDailySymptomsByDate(date: string): Observable<SymptomsLog[]> {
         return this.httpClient.get<SymptomsLog[]>(`${this.url}/getDailySymptomsByDate/${date}`);
     }
+    getSymptomsLogById(id: string): Observable<SymptomsLog> {
+        return this.httpClient.get<SymptomsLog>(`${this.url}/getSymptomsLogById/${id}`);
+      }
+    updateSymptomsLog(symptomsLog: SymptomsLog): Observable<SymptomsLog> {
+        return this.httpClient.put<SymptomsLog>(`${this.url}/updateSymptomsLog`, symptomsLog);
+      }
+    
 }

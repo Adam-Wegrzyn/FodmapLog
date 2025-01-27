@@ -10,7 +10,7 @@ export class ProductsApiService{
     url: string = "https://localhost:44349/api/ProductsApi"
     constructor(private httpClient: HttpClient) { }
 
-    GetProductsByKeyword(keyword: string): Observable<Product[]> {
+    getProductsByKeyword(keyword: string): Observable<Product[]> {
         return this.httpClient.get<Product[]>(`${this.url}/getProductsByKeyword/${keyword}`);
     }
 }

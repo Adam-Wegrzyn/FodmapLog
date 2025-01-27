@@ -8,13 +8,15 @@ import { MealLog } from '../domain/MealLog';
 import { FodmapLogService } from '../services/fodmap-log-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxMaterialTimepickerComponent } from 'ngx-material-timepicker';
+import { DateTimeInputComponent } from '../date-time-input/date-time-input.component';
+
 
 @Component({
   selector: 'app-add-meal-log',
   templateUrl: './add-meal-log.component.html',
   styleUrl: './add-meal-log.component.css'
 })
-export class AddMealLogComponent implements OnInit {
+export class addMealLogComponent implements OnInit {
 
   @ViewChild('closeModalBtn') closeModalBtn: ElementRef;
   @ViewChild('timePicker') timePicker: NgxMaterialTimepickerComponent; 
@@ -58,7 +60,7 @@ export class AddMealLogComponent implements OnInit {
       // check if this is existing record
       if (params['id']) {
         this.isNew = false;
-        this.fodmapLogService.GetMealLogById(params['id']).subscribe(
+        this.fodmapLogService.getMealLogById(params['id']).subscribe(
           data => {
             this.form.patchValue(data);
             this.setProductQuantities(data.productQuantity);
@@ -66,7 +68,7 @@ export class AddMealLogComponent implements OnInit {
             this.currTime = new Date(data.date).toLocaleTimeString([], {
               hour: '2-digit',
               minute: '2-digit',
-              hour12: true
+              hour12: false
             });
           },
           () => {},
@@ -101,14 +103,14 @@ export class AddMealLogComponent implements OnInit {
     return this.form.get('productQuantity') as FormArray;
   }
 
-  SearchProduct(){
-    this.GetProduct();
+  searchProduct(){
+    this.getProduct();
   }
 
 
 
-GetProduct(){
-    this.productsApiService.GetProductsByKeyword(this.name)
+getProduct(){
+    this.productsApiService.getProductsByKeyword(this.name)
     .subscribe((results: Product[]) => {
       this.products = results;
       console.log(results);
@@ -136,29 +138,28 @@ GetProduct(){
   }
 
   SaveMealLog(): void{
-    this.mealLog = this.form.value;
-    const combinedDateTime = new Date(`${this.currDate}T${this.currTime}`);
-    this.form.controls['date'].setValue(`${this.currDate}T${this.currTime}`);
-    this.form.controls['date'].setValue(new Date());
-    
+//     const [year, month, day] = this.currDate.split('-');
+// const [hour, minute] = this.currTime.split(':');
+// const customDate = new Date(+year, +month - 1, +day, +hour, +minute, 0);
+   // this.form.controls['date'].setValue(customDate);
     console.log('SaveMealLog');
     console.log(this.mealLog)
     console.log(this.form.value);
     if (this.isNew) {
-      this.fodmapLogService.AddMealLog(this.form.value).subscribe(
+      this.fodmapLogService.addMealLog(this.form.value).subscribe(
         () => {},
         () => {},
         () => {
-          this.router.navigate(['/daily-log']);
+          this.router.navigate(['/daily-log', this.currDate]);
         }
       );   
     } 
     else {
-      this.fodmapLogService.UpdateMealLog(this.mealLog).subscribe(
+      this.fodmapLogService.updateMealLog(this.form.value).subscribe(
         () => {},
         () => {},
         () => {
-           this.router.navigate(['/daily-log']);
+           this.router.navigate(['/daily-log', this.currDate]);
         }
       );   
     }
@@ -174,8 +175,12 @@ GetProduct(){
     }
   }
 
-  Cancel(): void{
+  cancel(): void{
     this.form.reset();
+  }
+
+  onDateTimeChanged(newDate: Date) {
+    this.form.controls['date'].setValue(newDate);
   }
 
 }

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Core.Services
 {
-    public class FodmapLogService :IFodmapLogService
+    public class FodmapLogService : IFodmapLogService
     {
         private readonly IFodmapLogRepository _fodmapLogRepository;
         private readonly IMapper _mapper;
@@ -22,7 +22,7 @@ namespace Core.Services
         {
             _fodmapLogRepository = fodmapLogRepository;
             _mapper = autoMapper;
-            
+
         }
 
         public async Task<MealLogDto> AddMealLog(MealLogDto mealLogDto, CancellationToken cancellationToken)
@@ -108,6 +108,12 @@ namespace Core.Services
             return _mapper.Map<ProductDto>(product);
         }
 
+        public async Task<SymptomsLog> GetSymptomsLogById(int id, CancellationToken cancellationToken)
+        {
+            var symptomsLog = await _fodmapLogRepository.GetSymptomsLogById(id, cancellationToken);
+            return _mapper.Map<SymptomsLog>(symptomsLog);
+        }
+
         public async Task<MealLogDto> UpdateMealLog(MealLogDto mealLogDto, CancellationToken cancellationToken)
         {
             var mealLog = _mapper.Map<MealLog>(mealLogDto);
@@ -121,5 +127,15 @@ namespace Core.Services
             var updatedProduct = await _fodmapLogRepository.UpdateProduct(product, cancellationToken);
             return _mapper.Map<ProductDto>(updatedProduct);
         }
+
+
+        public async Task<SymptomsLog> UpdateSymptomsLog(SymptomsLogDto symptomsLogDto, CancellationToken cancellationToken)
+        {
+            var symptomsLog = _mapper.Map<SymptomsLog>(symptomsLogDto);
+            var updatedSymptomsLog = await _fodmapLogRepository.UpdateSymptomsLog(symptomsLog, cancellationToken);
+            return _mapper.Map<SymptomsLog>(updatedSymptomsLog);
+        }
+
+
     }
 }

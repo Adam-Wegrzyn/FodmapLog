@@ -3,7 +3,7 @@
 
 <div class="row">
   <div class="col-6 p-0">
-    <button [routerLink]="['/daily-log', currDate]" (click)="Cancel()" class="btn btn-success w-100 no-radius">Cancel</button>
+    <button [routerLink]="['/daily-log', currDate]" (click)="cancel()" class="btn btn-success w-100 no-radius">cancel</button>
     
   </div>
     <div class="col-6 p-0">
@@ -12,16 +12,8 @@
 
 
 </div>
-<div class="row mt-5">
-<div class="col-2">
-  <input type="date" name="currDate" [(ngModel)]="currDate">
-</div>
-<div class="col-2 mx-4">
-  <input type="datetime" name="currTime" [(ngModel)]="currTime" [ngxTimepicker]="timePicker">
-</div>
-  
-<ngx-material-timepicker  #timePicker></ngx-material-timepicker>
-</div>
+
+<app-date-time-input [(date)]="currDate" [(time)]="currTime" (dateTimeChange)="onDateTimeChanged($event)"></app-date-time-input>
 
 <ng-container *ngIf="productQuantityArr.length > 0">
   <div class="list-group" style='text-align: left;' *ngFor="let p of productQuantityArr.controls; let i = index">
@@ -54,7 +46,7 @@
         <input class="w-100 p-0" type="text" [(ngModel)]="name" placeholder="Name">
     </div>
     <div class="col-2">
-        <button class="w-100 p-0" (click)="SearchProduct()">search</button>
+        <button class="w-100 p-0" (click)="searchProduct()">search</button>
     </div>
     
 

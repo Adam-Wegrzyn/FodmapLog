@@ -25,5 +25,7 @@ namespace DataAccess.Interfaces
         public Task<IEnumerable<MealLog>> GetMealLogsByDate(DateTime date, CancellationToken cancellationToken);
         public Task<IEnumerable<SymptomsLog>> GetSymptomsLogsByDate(DateTime date, CancellationToken cancellationToken);
         public Task<SymptomsLog> AddSymptomsLog(SymptomsLog symptomsLog, CancellationToken cancellationToken);
+        public Task<SymptomsLog> GetSymptomsLogById(int id, CancellationToken cancellationToken);
+        public Task<SymptomsLog> UpdateSymptomsLog(SymptomsLog symptomsLog, CancellationToken cancellationToken);
     }
 }

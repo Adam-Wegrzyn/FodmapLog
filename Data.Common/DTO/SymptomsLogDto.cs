@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Data.Common.DTO
 {
-    public class SymptomsLogDto
+    public class SymptomsLogDto: BaseDto
     {
         public DateTime Date { get; set; }
         public List<SymptomDto> Symptoms { get; set; }
