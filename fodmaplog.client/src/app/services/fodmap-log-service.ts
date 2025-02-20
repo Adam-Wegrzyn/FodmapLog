@@ -5,12 +5,13 @@ import { Injectable } from "@angular/core";
 import { MealLog } from "../domain/MealLog";
 import { DailyLog } from "../domain/DailyLog";
 import { SymptomsLog } from "../domain/SymptomsLog";
+import { environment } from "../../environments/environment.prod";
 
 @Injectable({
     providedIn: 'root'
 })
 export class FodmapLogService {
-    url: string = "https://localhost:44349/api/FodmapLog"
+    url: string = environment.apiUrl
     constructor(private httpClient: HttpClient) { }
 
     updateMealLog(mealLog: MealLog): Observable<MealLog> {
