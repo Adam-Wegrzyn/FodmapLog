@@ -29,13 +29,9 @@ builder.Services.AddHttpClient<IProductsApiService, ProductApiService>();
 builder.Services.AddScoped<IFodmapLogService, FodmapLogService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-
-
-var app = builder.Build();
-
 builder.Services.AddDbContext<FodmapLogDbContext>(options =>
 {
-    if(builder.Environment.IsDevelopment())
+    if (builder.Environment.IsDevelopment())
     {
         options.UseSqlServer(builder.Configuration.GetConnectionString("prodConnection"));
     }
@@ -46,6 +42,10 @@ builder.Services.AddDbContext<FodmapLogDbContext>(options =>
     }
 
 });
+
+var app = builder.Build();
+
+
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
