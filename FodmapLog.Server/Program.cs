@@ -5,6 +5,7 @@ using DataAccess.Interfaces;
 using DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -37,7 +38,7 @@ builder.Services.AddDbContext<FodmapLogDbContext>(options =>
     }
     else
     {
-        options.UseSqlServer(builder.Configuration.GetConnectionString("devConnection"));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("prodConnection"));
 
     }
 
