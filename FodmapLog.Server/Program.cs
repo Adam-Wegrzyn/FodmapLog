@@ -4,9 +4,13 @@ using DataAccess;
 using DataAccess.Interfaces;
 using DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.ApplicationInsights.Extensibility;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["ApplicationInsights:InstrumentationKey"]);
+
 
 // Add services to the container.
 builder.Services.AddCors(options =>

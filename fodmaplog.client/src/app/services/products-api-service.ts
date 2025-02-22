@@ -2,12 +2,13 @@ import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { Product } from "../domain/Product";
 import { Injectable } from "@angular/core";
+import { environment } from "../../environments/environment.prod";
 
 @Injectable({
     providedIn: 'root'
 })
 export class ProductsApiService{
-    url: string = "https://localhost:44349/api/ProductsApi"
+    url = environment.apiOpenFood;
     constructor(private httpClient: HttpClient) { }
 
     getProductsByKeyword(keyword: string): Observable<Product[]> {
