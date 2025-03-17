@@ -47,8 +47,8 @@ jobs:
 
       - name: Copy Angular build to wwwroot
         run: |
-          mkdir -p "${{env.DOTNET_ROOT}}/myapp/wwwroot"
-          cp -r ./fodmaplog.client/dist/your-angular-app/* "${{env.DOTNET_ROOT}}/myapp/wwwroot"
+            rm -rf "${{env.DOTNET_ROOT}}/myapp/wwwroot/*"
+            cp -r ./fodmaplog.client/dist/fodmaplog.client/* "${{env.DOTNET_ROOT}}/myapp/wwwroot"
       
 
       - name: Upload artifact for deployment job
