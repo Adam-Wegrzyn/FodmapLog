@@ -48,7 +48,7 @@ jobs:
       - name: Copy Angular build to wwwroot
         run: |
               Remove-Item -Recurse -Force "C:\Program Files\dotnet\myapp\wwwroot\*"
-              Copy-Item -Recurse -Force "./ClientApp/dist/fodmaplog.client/*" "C:\Program Files\dotnet\myapp\wwwroot"
+              Copy-Item -Recurse -Force "./fodmaplog.client/dist/fodmaplog.client/*" "C:\Program Files\dotnet\myapp\wwwroot"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
