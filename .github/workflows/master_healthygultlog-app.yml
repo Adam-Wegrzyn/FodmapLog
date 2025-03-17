@@ -36,7 +36,7 @@ jobs:
         working-directory: ./fodmaplog.client
 
       - name: Build Angular app
-        run: ng build --prod
+        run: ng build --configuration production
         working-directory: ./fodmaplog.client
 
       - name: Build with dotnet
