@@ -33,11 +33,11 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: ./path-to-your-angular-app
+        working-directory: ./fodmaplog.client
 
       - name: Build Angular app
         run: ng build --prod
-        working-directory: ./path-to-your-angular-app
+        working-directory: ./fodmaplog.client
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
@@ -48,7 +48,7 @@ jobs:
       - name: Copy Angular build to wwwroot
         run: |
           mkdir -p "${{env.DOTNET_ROOT}}/myapp/wwwroot"
-          cp -r ./path-to-your-angular-app/dist/your-angular-app/* "${{env.DOTNET_ROOT}}/myapp/wwwroot"
+          cp -r ./fodmaplog.client/dist/your-angular-app/* "${{env.DOTNET_ROOT}}/myapp/wwwroot"
       
 
       - name: Upload artifact for deployment job
