@@ -88,9 +88,6 @@ jobs:
   deploy-client:
     runs-on: windows-latest
     needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     
     steps:
       - name: Download artifact from artifact for deployment job
@@ -104,5 +101,5 @@ jobs:
         with:
           app-name: 'healthygutlog-client'
           slot-name: 'Production'
-          package: .
+          package: ${{ runner.workspace }}/angular-app
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CLIENT }}
