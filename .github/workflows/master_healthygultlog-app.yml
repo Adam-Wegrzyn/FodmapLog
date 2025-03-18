@@ -55,6 +55,12 @@ jobs:
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
+          
+      - name: Upload Angular build artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: angular-app
+          path: ./fodmaplog.client/dist/fodmaplog.client
 
   deploy:
     runs-on: windows-latest
@@ -87,10 +93,10 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact from artifact for deployment job
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
+          name: angular-app
       
       - name: Deploy Client to Azure Web App
         id: deploy-to-webapp
@@ -98,5 +104,5 @@ jobs:
         with:
           app-name: 'healthygutlog-client'
           slot-name: 'Production'
-          package: .
+          package: ./fodmaplog.client/dist/fodmaplog.client
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CLIENT }}
