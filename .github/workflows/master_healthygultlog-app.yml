@@ -101,5 +101,5 @@ jobs:
         with:
           app-name: 'healthygutlog-client'
           slot-name: 'Production'
-          package: ${{ runner.workspace }}/angular-app
+          package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CLIENT }}
