@@ -91,5 +91,5 @@ jobs:
         with:
           app-name: 'healthygutlog-client'
           slot-name: 'Production'
-          package: ./fodmaplog.client/dist/fodmaplog.client
+          package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CLIENT }}
