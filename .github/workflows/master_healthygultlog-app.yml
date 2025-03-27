@@ -24,11 +24,8 @@ jobs:
       - name: Use Pre-installed Node.js
         run: node --version # Verify pre-installed Node.js version
 
-      - name: Install Angular CLI (if not already installed)
-        run: |
-          if (!(ng version > $null 2>&1)) {
-            npm install -g @angular/cli
-          }
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli
 
       - name: Install dependencies
         run: npm install
@@ -44,13 +41,13 @@ jobs:
       - name: dotnet publish
         run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
-      - name: Upload artifact for deployment job
+      - name: Upload artifact for .NET app
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
           
-      - name: Upload Angular build artifact for deployment job
+      - name: Upload Angular build artifact
         uses: actions/upload-artifact@v4
         with:
           name: angular-app
@@ -64,12 +61,12 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact for .NET app
         uses: actions/download-artifact@v4
         with:
           name: .net-app
       
-      - name: Deploy to Azure Web App
+      - name: Deploy .NET App to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
@@ -83,12 +80,12 @@ jobs:
     needs: build
     
     steps:
-      - name: Download artifact from artifact for deployment job
+      - name: Download artifact for Angular app
         uses: actions/download-artifact@v4
         with:
           name: angular-app
       
-      - name: Deploy Client to Azure Web App
+      - name: Deploy Angular App to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
