@@ -13,23 +13,22 @@ jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read # This is required for actions/checkout
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '9.x'
+      - name: Use Pre-installed .NET Core
+        run: dotnet --version # Verify pre-installed .NET version
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
+      - name: Use Pre-installed Node.js
+        run: node --version # Verify pre-installed Node.js version
 
-      - name: Install Angular CLI
-        run: npm install -g @angular/cli
+      - name: Install Angular CLI (if not already installed)
+        run: |
+          if (!(ng version > $null 2>&1)) {
+            npm install -g @angular/cli
+          }
 
       - name: Install dependencies
         run: npm install
@@ -44,11 +43,6 @@ jobs:
 
       - name: dotnet publish
         run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
-
-      - name: Copy Angular build to wwwroot
-        run: |
-          rm -rf /home/site/wwwroot/*
-          cp -r ./fodmaplog.client/dist/fodmaplog.client/* /home/site/wwwroot/
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -84,9 +78,8 @@ jobs:
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3DB2C653394541C595F4B640CF3FF3E8 }}
 
-
   deploy-client:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest # Use Linux runner for deployment
     needs: build
     
     steps:
@@ -101,5 +94,5 @@ jobs:
         with:
           app-name: 'healthygutlog-client'
           slot-name: 'Production'
-          package: .
+          package: ./fodmaplog.client/dist/fodmaplog.client
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CLIENT }}
