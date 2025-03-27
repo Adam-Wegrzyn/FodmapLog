@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: angular-app
-          path: ./fodmaplog.client/dist/fodmaplog.client
+          path: ./fodmaplog.client/dist/fodmaplog.client/browser
 
   deploy:
     runs-on: windows-latest
