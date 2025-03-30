@@ -1,0 +1,9 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.showBuildDuringDeployPrompt": false,
+    "appService.defaultWebAppToDeploy": "/subscriptions/0b689075-d9a1-41e7-869c-771917c85831/resourceGroups/healthygutlog-rg/providers/Microsoft.Web/sites/healthygutlog-client",
+    "appService.deploySubpath": "."
+}

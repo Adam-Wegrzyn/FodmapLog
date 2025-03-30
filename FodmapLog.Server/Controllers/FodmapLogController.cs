@@ -1,5 +1,6 @@
 ﻿using Core.Interfaces;
 using Data.Common.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FodmapLog.Server.Controllers
@@ -15,10 +16,15 @@ namespace FodmapLog.Server.Controllers
             _fodmapLogService = fodmapLogService;
 
         }
+       
         [HttpGet]
+        [Authorize]
         [Route("getMealLogById/{id}")]
         public async Task<IActionResult> GetMealLogById(int id, CancellationToken cancellationToken)
         {
+            var userId = User.FindFirst("oid")?.Value;
+            var userName = User?.Identity?.Name;
+            var userRoles = User?.FindAll("roles").Select(r => r.Value).ToList();
             var result = await  _fodmapLogService.GetMealLogById(id, cancellationToken);
             return Ok(result);
         }
@@ -59,9 +65,13 @@ namespace FodmapLog.Server.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [Route("addSymptomsLog")]
         public async Task<IActionResult> AddSymptomsLog([FromBody] SymptomsLogDto symptomsLogDto, CancellationToken cancellationToken)
         {
+            var userId = User.FindFirst("oid")?.Value;
+            var userName = User?.Identity?.Name;
+            var userRoles = User?.FindAll("roles").Select(r => r.Value).ToList();
             var result = await _fodmapLogService.AddSymptomsLog(symptomsLogDto, cancellationToken);
             return Ok(result);
         }

@@ -5,6 +5,8 @@ using DataAccess.Interfaces;
 using DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Identity.Web;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,6 +50,9 @@ builder.Services.AddDbContext<FodmapLogDbContext>(options =>
 
 });
 
+builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
+
 var app = builder.Build();
 
 
@@ -68,6 +73,8 @@ app.UseCors();
     app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
