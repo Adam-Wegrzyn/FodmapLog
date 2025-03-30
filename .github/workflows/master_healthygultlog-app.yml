@@ -13,15 +13,27 @@ jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read # This is required for actions/checkout
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '9.x'
+      - name: Use Pre-installed .NET Core
+        run: dotnet --version # Verify pre-installed .NET version
+
+      - name: Use Pre-installed Node.js
+        run: node --version # Verify pre-installed Node.js version
+
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./fodmaplog.client
+
+      - name: Build Angular app
+        run: ng build --configuration production
+        working-directory: ./fodmaplog.client
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
@@ -29,11 +41,17 @@ jobs:
       - name: dotnet publish
         run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
-      - name: Upload artifact for deployment job
+      - name: Upload artifact for .NET app
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
+          
+      - name: Upload Angular build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: angular-app
+          path: ./fodmaplog.client/dist/fodmaplog.client/browser
 
   deploy:
     runs-on: windows-latest
@@ -43,12 +61,12 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact for .NET app
         uses: actions/download-artifact@v4
         with:
           name: .net-app
       
-      - name: Deploy to Azure Web App
+      - name: Deploy .NET App to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
@@ -56,3 +74,22 @@ jobs:
           slot-name: 'Production'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3DB2C653394541C595F4B640CF3FF3E8 }}
+
+  deploy-client:
+    runs-on: ubuntu-latest # Use Linux runner for deployment
+    needs: build
+    
+    steps:
+      - name: Download artifact for Angular app
+        uses: actions/download-artifact@v4
+        with:
+          name: angular-app
+      
+      - name: Deploy Angular App to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'healthygutlog-client'
+          slot-name: 'Production'
+          package: .
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CLIENT }}
