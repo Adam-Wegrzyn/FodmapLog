@@ -8,6 +8,7 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using Azure.Identity;
+using Azure.Messaging.ServiceBus;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -47,7 +48,7 @@ builder.Services.AddDbContext<FodmapLogDbContext>(options =>
 {
     if (builder.Environment.IsDevelopment())
     {
-        options.UseSqlServer(builder.Configuration.GetConnectionString("prodConnection"));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("devConnection"));
     }
     else
     {
@@ -56,6 +57,8 @@ builder.Services.AddDbContext<FodmapLogDbContext>(options =>
     }
 
 });
+
+builder.Services.AddSingleton(new ServiceBusClient(builder.Configuration["serviceBusSecret2"]));
 
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(options =>

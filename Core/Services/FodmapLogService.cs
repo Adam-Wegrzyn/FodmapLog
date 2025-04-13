@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure.Messaging.ServiceBus;
 using Core.Interfaces;
 using Data.Common.DTO;
 using DataAccess.Entities;
@@ -16,19 +17,25 @@ namespace Core.Services
     {
         private readonly IFodmapLogRepository _fodmapLogRepository;
         private readonly IMapper _mapper;
+        private readonly ServiceBusClient _serviceBusClient;
 
         public FodmapLogService(IFodmapLogRepository fodmapLogRepository,
-            IMapper autoMapper)
+            IMapper autoMapper,
+            ServiceBusClient serviceBusClient)
         {
             _fodmapLogRepository = fodmapLogRepository;
             _mapper = autoMapper;
-
+            _serviceBusClient = serviceBusClient;
+            _serviceBusClient = serviceBusClient;
         }
 
         public async Task<MealLogDto> AddMealLog(MealLogDto mealLogDto, CancellationToken cancellationToken)
         {
             var mealLog = _mapper.Map<MealLog>(mealLogDto);
             var addedMealLog = await _fodmapLogRepository.AddMealLog(mealLog, cancellationToken);
+
+            var sender = _serviceBusClient.CreateSender("main-queue");
+            await sender.SendMessageAsync(new ServiceBusMessage("New mealLog has been added!"));
             return _mapper.Map<MealLogDto>(addedMealLog);
         }
 
