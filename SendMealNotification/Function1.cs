@@ -20,6 +20,7 @@ namespace SendMealNotification
         [Function(nameof(Function1))]
         public void Run([ServiceBusTrigger("sample-topic", "sample-subscription", Connection = "serviceBusSecret2")] ServiceBusReceivedMessage message)
         {
+            Console.WriteLine(message);
             var connectionString = _configuration["serviceBusSecret2"];
             _logger.LogInformation($"Service Bus Connection String: {connectionString}");
             _logger.LogInformation("Message ID: {id}", message.MessageId);
