@@ -4,10 +4,12 @@ import { RouterModule, Routes } from '@angular/router';
 import { addMealLogComponent } from './add-meal-log/add-meal-log.component';
 import { DailyLogComponent } from './daily-log/daily-log.component';
 import { addSymptomsLogComponent } from './add-symptoms-log/add-symptoms-log.component';
+import { MsalGuard } from '@azure/msal-angular';
 
 const routes: Routes = [
   {
     path: "", redirectTo: "/daily-log", pathMatch: "full"
+    , 
   },
   {
     path: "add-meal-log", component: addMealLogComponent
@@ -22,7 +24,8 @@ const routes: Routes = [
     path: "daily-log/:date", component: DailyLogComponent
   },
   {
-    path: "add-symptoms-log", component: addSymptomsLogComponent
+    path: "add-symptoms-log", component: addSymptomsLogComponent,
+    canActivate: [MsalGuard]
   },
   {
     path: "add-symptoms-log/:id", component: addSymptomsLogComponent

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
+using FodmapLog.Server.Controllers;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,6 +44,7 @@ builder.Services.AddScoped<IFodmapLogRepository, FodmapLogRepository>();
 builder.Services.AddHttpClient<IProductsApiService, ProductApiService>();
 builder.Services.AddScoped<IFodmapLogService, FodmapLogService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddScoped<IMyRepository, MyRepository>();
 
 builder.Services.AddDbContext<FodmapLogDbContext>(options =>
 {

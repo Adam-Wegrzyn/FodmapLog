@@ -15,6 +15,8 @@ import { CommonModule } from '@angular/common';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { DateTimeInputComponent } from './date-time-input/date-time-input.component';
+import { MsalModule } from '@azure/msal-angular';
+import { InteractionType, PublicClientApplication } from '@azure/msal-browser';
 
 @NgModule({
   declarations: [
@@ -35,7 +37,30 @@ import { DateTimeInputComponent } from './date-time-input/date-time-input.compon
     CommonModule,
     FontAwesomeModule,
     NgxMaterialTimepickerModule,
-    DateTimeInputComponent
+    DateTimeInputComponent,
+    MsalModule.forRoot(
+      new PublicClientApplication({
+        auth: {
+          clientId: '5fc4f8ff-fbac-4258-8d19-c5da09bffda4', // Replace with your Angular app's client ID
+          authority: 'https://login.microsoftonline.com/49754875-8b65-4c47-afc3-ecb6e859ac5e', // Replace with your Azure AD tenant ID
+          redirectUri: 'http://localhost:4200', // Replace with your redirect URI
+        },
+        cache: {
+          cacheLocation: 'localStorage',
+          storeAuthStateInCookie: true,
+        },
+      }),
+      {
+        interactionType: InteractionType.Popup,
+        authRequest: {
+          scopes: ['openid', 'profile', 'email'], // Replace with your API scope
+        },
+      },
+      {
+        interactionType: InteractionType.Redirect,
+        protectedResourceMap: new Map([]),
+      }
+    ),
   ],
   providers: [
     provideAnimationsAsync('noop')
