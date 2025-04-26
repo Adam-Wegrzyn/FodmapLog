@@ -16,12 +16,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["ApplicationInsights:InstrumentationKey"]);
 
-var keyVaultName = builder.Configuration["KeyVaultName"];
-if (!string.IsNullOrEmpty(keyVaultName))
-{
-    var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
-    builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
-}
+//var keyVaultName = builder.Configuration["KeyVaultName"];
+//if (!string.IsNullOrEmpty(keyVaultName))
+//{
+//    var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
+//    builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
+//}
 
 // Add services to the container.
 builder.Services.AddCors(options =>
@@ -44,7 +44,6 @@ builder.Services.AddScoped<IFodmapLogRepository, FodmapLogRepository>();
 builder.Services.AddHttpClient<IProductsApiService, ProductApiService>();
 builder.Services.AddScoped<IFodmapLogService, FodmapLogService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddScoped<IMyRepository, MyRepository>();
 
 builder.Services.AddDbContext<FodmapLogDbContext>(options =>
 {
