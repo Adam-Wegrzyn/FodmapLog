@@ -21,7 +21,7 @@ name: Deploy DotNet project to Azure Function App
 on:
   push:
     paths:
-      - 'SendMailNotification/**'
+      - 'SendMealNotification/**'
 
 env:
   AZURE_FUNCTIONAPP_NAME: 'example-functione'   # set this to your function app name on Azure

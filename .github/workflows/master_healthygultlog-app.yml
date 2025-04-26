@@ -5,8 +5,9 @@ name: Build and deploy ASP.Net Core app to Azure Web App - healthygultlog-app
 
 on:
   push:
-    branches:
-      - master
+    paths:
+      - 'FodmapLog.Server/**'
+      - 'fodmaplog.client/**'
   workflow_dispatch:
 
 jobs:
