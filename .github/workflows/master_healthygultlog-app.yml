@@ -7,7 +7,6 @@ on:
   push:
     paths:
       - 'FodmapLog.Server/**'
-      - 'fodmaplog.client/**'
   workflow_dispatch:
 
 jobs:
@@ -21,21 +20,7 @@ jobs:
 
       - name: Use Pre-installed .NET Core
         run: dotnet --version # Verify pre-installed .NET version
-
-      - name: Use Pre-installed Node.js
-        run: node --version # Verify pre-installed Node.js version
-
-      - name: Install Angular CLI
-        run: npm install -g @angular/cli
-
-      - name: Install dependencies
-        run: npm install
-        working-directory: ./fodmaplog.client
-
-      - name: Build Angular app
-        run: ng build --configuration production
-        working-directory: ./fodmaplog.client
-
+        
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
@@ -47,12 +32,6 @@ jobs:
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
-          
-      - name: Upload Angular build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: angular-app
-          path: ./fodmaplog.client/dist/fodmaplog.client/browser
 
   deploy:
     runs-on: windows-latest
@@ -75,22 +54,3 @@ jobs:
           slot-name: 'Production'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3DB2C653394541C595F4B640CF3FF3E8 }}
-
-  deploy-client:
-    runs-on: ubuntu-latest # Use Linux runner for deployment
-    needs: build
-    
-    steps:
-      - name: Download artifact for Angular app
-        uses: actions/download-artifact@v4
-        with:
-          name: angular-app
-      
-      - name: Deploy Angular App to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'healthygutlog-client'
-          slot-name: 'Production'
-          package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CLIENT }}
