@@ -20,7 +20,9 @@ var keyVaultName = builder.Configuration["KeyVaultName"];
 if (!string.IsNullOrEmpty(keyVaultName))
 {
     var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
-    builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
+    builder.Configuration.AddAzureKeyVault(
+        keyVaultUri,
+        new DefaultAzureCredential());
 }
 
 // Add services to the container.
