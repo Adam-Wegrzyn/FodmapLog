@@ -1,3 +1,13 @@
 <div class="container-fluid">
+    <div *ngIf="isLoggedIn()" class="row justify-content-end">
+        <div class="col-2">
+            <span>Logged as: {{ username }}</span>
+        </div>
+        <div class="col-1">
+            <button class="btn btn-primary" *ngIf="isLoggedIn()" (click)="logout()" >Logout</button>
+        </div>
+    </div>
+    
+     <button (click)="checkAccount()">Check Account</button>
     <router-outlet></router-outlet>
 </div>

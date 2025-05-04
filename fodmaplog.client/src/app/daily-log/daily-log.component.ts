@@ -7,6 +7,7 @@ import { SymptomType } from '../domain/SymptomType';
 import { SymptomScale } from '../domain/SymptomScale';
 import { faCircleChevronRight, faCircleChevronLeft, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { ActivatedRoute } from '@angular/router';
+import { MsalService } from '@azure/msal-angular';
 @Component({
   selector: 'app-daily-log',
   templateUrl: './daily-log.component.html',
@@ -17,6 +18,7 @@ export class DailyLogComponent implements OnInit {
     private fodmapLogService: FodmapLogService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
+    private msalService: MsalService,
   ) { }
 
   logs: DailyLog[];
@@ -38,7 +40,7 @@ export class DailyLogComponent implements OnInit {
         console.log(params);
       }
     })
-      
+
     
     this.GetDailyLog(this.setDateCalendar);
     console.log(this.logs + 'test2')

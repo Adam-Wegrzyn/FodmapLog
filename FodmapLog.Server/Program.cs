@@ -10,6 +10,8 @@ using Microsoft.Identity.Web;
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using FodmapLog.Server.Controllers;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +26,12 @@ if (!string.IsNullOrEmpty(keyVaultName))
         keyVaultUri,
         new DefaultAzureCredential());
 }
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: true));
+    });
 
 // Add services to the container.
 builder.Services.AddCors(options =>

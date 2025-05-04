@@ -15,6 +15,6 @@ namespace Data.Common.DTO
         public float? TotalCarbohydrates { get; set; }  
         public float? TotalProteins { get; set; }  
         public float? TotalFat { get; set; }  
-        public float? TotalFibre { get; set; }
+        public float? TotalFiber { get; set; }
     }
 }
