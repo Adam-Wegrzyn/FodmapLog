@@ -99,7 +99,6 @@ getProduct(){
     .subscribe((results: Product[]) => {
       this.products = results;
       console.log(results);
-      console.log(this.products[0].servingQuantity)
     });
   }
 
@@ -108,7 +107,6 @@ getProduct(){
       symptomType: symptomType,
       symptomScale: 0
     }));
-    // console.log(this.symptomsArr);
     this.quantityInput = 0;
     console.log(this.symptomType)
     

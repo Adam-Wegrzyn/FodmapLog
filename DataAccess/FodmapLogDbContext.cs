@@ -13,6 +13,7 @@ namespace DataAccess
         public FodmapLogDbContext(DbContextOptions<FodmapLogDbContext> options) : base(options)
         {
         }
+   
 
         public DbSet<MealLog> MealLogs { get; set; }
         public DbSet<Product> Products { get; set; }

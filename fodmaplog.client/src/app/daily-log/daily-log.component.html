@@ -17,8 +17,9 @@
                   <span class="fw-bold fs-5">M</span>
                 </div>
                 <div class="col-8 py-2">
-                  <div *ngFor="let pq of log.mealLog.productQuantity" style="text-align: left;">
+                  <div *ngFor="let pq of log.mealLog.productQuantity" style="text-align: left;" class="d-flex justify-content-between">
                     <span>{{pq.product.name}}</span>
+                    <span>{{pq.quantity}} x {{pq.unit}}</span>
                   </div>
                 </div>
                 <div class="col-2 border-start d-flex align-items-center justify-content-center">
@@ -34,7 +35,7 @@
                 <div class="col-8 py-2">
                   <div *ngFor="let s of log.symptomsLog.symptoms" class="row">
                     <div class="col-4">
-                      {{symptomType[s.symptomType]}}
+                      {{s.symptomType}}
                     </div>
                     <div class="col-8 py-2">
                       <input disabled="true" type="range" class="form-range" min="0" max="5" [ngModel]="s.symptomScale">
@@ -61,7 +62,7 @@
                 <fa-icon data-bs-toggle="modal" data-bs-target="#LogAddModal" class="text-success" size="3x" [icon]="faPlusCircle"></fa-icon>
             </div>
 
-  
+  <app-audio-recorder (transcription)="GenerateMealLogFromAI($event)"></app-audio-recorder>
 <!-- Modal -->
 <div class="modal fade" id="LogAddModal" tabindex="-1" aria-labelledby="LogAddModalLabel" aria-hidden="true">
     <div class="modal-dialog custom-modal-position">

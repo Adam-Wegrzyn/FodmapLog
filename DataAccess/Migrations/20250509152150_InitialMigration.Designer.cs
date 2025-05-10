@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(FodmapLogDbContext))]
-    [Migration("20241227103040_Init")]
-    partial class Init
+    [Migration("20250509152150_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "9.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -41,78 +41,6 @@ namespace DataAccess.Migrations
                     b.ToTable("MealLogs");
                 });
 
-            modelBuilder.Entity("DataAccess.Entities.Nutriments", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<float?>("Carbohydrates")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("Carbohydrates100g")
-                        .HasColumnType("real");
-
-                    b.Property<string>("CarbohydratesUnit")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float?>("EnergyKcal100g")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("EnergyKcalServing")
-                        .HasColumnType("real");
-
-                    b.Property<string>("EnergyKcalUnit")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float?>("Fat")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("Fat100g")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("FatServing")
-                        .HasColumnType("real");
-
-                    b.Property<string>("FatUnit")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float?>("Proteins")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("Proteins100g")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("ProteinsServing")
-                        .HasColumnType("real");
-
-                    b.Property<string>("ProteinsUnit")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float?>("Sugars")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("Sugars100g")
-                        .HasColumnType("real");
-
-                    b.Property<float?>("SugarsServing")
-                        .HasColumnType("real");
-
-                    b.Property<string>("SugarsUnit")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Nutriments");
-                });
-
             modelBuilder.Entity("DataAccess.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -121,36 +49,16 @@ namespace DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("IdExternal")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("NutrimentsId")
-                        .HasColumnType("int");
 
                     b.Property<string>("ProductQuantity")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProductQuantityUnit")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ServingQuantity")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ServingQuantityUnit")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("NutrimentsId");
 
                     b.ToTable("Products");
                 });
@@ -181,7 +89,31 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductQuantity");
+                    b.ToTable("ProductQuantities");
+                });
+
+            modelBuilder.Entity("DataAccess.Entities.Symptom", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("SymptomScale")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SymptomType")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SymptomsLogId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SymptomsLogId");
+
+                    b.ToTable("Symptoms");
                 });
 
             modelBuilder.Entity("DataAccess.Entities.SymptomsLog", b =>
@@ -192,26 +124,12 @@ namespace DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Symptom")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SymptomScale")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.ToTable("SymptomsLogs");
-                });
-
-            modelBuilder.Entity("DataAccess.Entities.Product", b =>
-                {
-                    b.HasOne("DataAccess.Entities.Nutriments", "Nutriments")
-                        .WithMany()
-                        .HasForeignKey("NutrimentsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Nutriments");
                 });
 
             modelBuilder.Entity("DataAccess.Entities.ProductQuantity", b =>
@@ -229,9 +147,21 @@ namespace DataAccess.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("DataAccess.Entities.Symptom", b =>
+                {
+                    b.HasOne("DataAccess.Entities.SymptomsLog", null)
+                        .WithMany("Symptoms")
+                        .HasForeignKey("SymptomsLogId");
+                });
+
             modelBuilder.Entity("DataAccess.Entities.MealLog", b =>
                 {
                     b.Navigation("ProductQuantity");
+                });
+
+            modelBuilder.Entity("DataAccess.Entities.SymptomsLog", b =>
+                {
+                    b.Navigation("Symptoms");
                 });
 #pragma warning restore 612, 618
         }

@@ -27,11 +27,11 @@ if (!string.IsNullOrEmpty(keyVaultName))
         new DefaultAzureCredential());
 }
 
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: true));
-    });
+//builder.Services.AddControllers()
+//    .AddJsonOptions(options =>
+//    {
+//        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: true));
+//    });
 
 // Add services to the container.
 builder.Services.AddCors(options =>
@@ -39,10 +39,10 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
                builder =>
                {
-            builder.WithOrigins("http://localhost:4200")
-                                .AllowAnyHeader()
-                                .AllowAnyMethod()
-                                .AllowAnyOrigin();
+                   builder.WithOrigins("http://localhost:4200")
+                                       .AllowAnyHeader()
+                                       .AllowAnyMethod();
+        //                        .AllowAnyOrigin();
         });
 });
 builder.Services.AddControllers();
@@ -51,7 +51,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IFodmapLogRepository, FodmapLogRepository>();
-builder.Services.AddHttpClient<IProductsApiService, ProductApiService>();
 builder.Services.AddScoped<IFodmapLogService, FodmapLogService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -71,12 +70,12 @@ builder.Services.AddDbContext<FodmapLogDbContext>(options =>
 
 builder.Services.AddSingleton(new ServiceBusClient(builder.Configuration["serviceBusSecret2"]));
 
-builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApp(options =>
-    {
-        builder.Configuration.Bind("AzureAd", options);
-        options.ClientSecret = builder.Configuration["AzureAdClientSecret"];
-    });
+//builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+//    .AddMicrosoftIdentityWebApp(options =>
+//    {
+//        builder.Configuration.Bind("AzureAd", options);
+//        options.ClientSecret = builder.Configuration["AzureAdClientSecret"];
+//    });
 
 var app = builder.Build();
 
@@ -99,9 +98,9 @@ app.UseCors();
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
+//app.UseAuthentication();
 
-app.UseAuthorization();
+//app.UseAuthorization();
 
 app.MapControllers();
 

@@ -33,7 +33,6 @@ namespace DataAccess.Repositories
             return await _context.MealLogs
                 .Include(m => m.ProductQuantity)
                 .ThenInclude(pq => pq.Product)
-                .ThenInclude(p => p.Nutriments)
                 .SingleOrDefaultAsync(m => m.Id == id);
         }
         public async Task<IEnumerable<MealLog>> GetMealLogsByDate(DateTime date, CancellationToken cancellationToken)
@@ -47,18 +46,18 @@ namespace DataAccess.Repositories
 
         public async Task<MealLog> AddMealLog(MealLog mealLog, CancellationToken cancellationToken)
         {
-            foreach (var productQuantity in mealLog.ProductQuantity)
-            {
-                var existingProduct = await GetProductById(productQuantity.Product.Id, cancellationToken);
-                if (existingProduct != null)
-                {
-                    productQuantity.Product = existingProduct;
-                }
-                else
-                {
-                    throw new InvalidOperationException("Product not found");
-                }
-            }   
+            //foreach (var productQuantity in mealLog.ProductQuantity)
+            //{
+            //    var existingProduct = await GetProductById(productQuantity.Product.Id, cancellationToken);
+            //    if (existingProduct != null)
+            //    {
+            //        productQuantity.Product = existingProduct;
+            //    }
+            //    else
+            //    {
+            //        throw new InvalidOperationException("Product not found");
+            //    }
+            //}   
             _context.MealLogs.Add(mealLog);
             await _context.SaveChangesAsync(cancellationToken);
             return mealLog;
@@ -133,16 +132,9 @@ namespace DataAccess.Repositories
         public async Task<Product> GetProductById(int id, CancellationToken cancellationToken)
         {
             return await _context.Products
-                .Include(p => p.Nutriments)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task<Product> GetProductByExternalId(string id, CancellationToken cancellationToken)
-        {
-            return await _context.Products
-                .Include(p => p.Nutriments)
-                .FirstOrDefaultAsync(p => p.IdExternal == id);
-        }
 
         public async Task<Product> AddProduct(Product product, CancellationToken cancellationToken)
         {

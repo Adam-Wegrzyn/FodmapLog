@@ -11,6 +11,7 @@ import { environment } from "../../environments/environment";
     providedIn: 'root'
 })
 export class FodmapLogService {
+
     url: string = environment.apiUrl
     constructor(private httpClient: HttpClient) { }
 

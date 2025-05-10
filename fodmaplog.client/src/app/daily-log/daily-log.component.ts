@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FodmapLogService } from '../services/fodmap-log-service';
 import { FormBuilder } from '@angular/forms';
 import { MealLog } from '../domain/MealLog';
@@ -7,7 +7,7 @@ import { SymptomType } from '../domain/SymptomType';
 import { SymptomScale } from '../domain/SymptomScale';
 import { faCircleChevronRight, faCircleChevronLeft, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { ActivatedRoute } from '@angular/router';
-import { MsalService } from '@azure/msal-angular';
+import { OpenAiService } from '../services/openAi-service';
 @Component({
   selector: 'app-daily-log',
   templateUrl: './daily-log.component.html',
@@ -18,7 +18,8 @@ export class DailyLogComponent implements OnInit {
     private fodmapLogService: FodmapLogService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private msalService: MsalService,
+    private openAiService: OpenAiService,
+    private cdr: ChangeDetectorRef 
   ) { }
 
   logs: DailyLog[];
@@ -30,6 +31,7 @@ export class DailyLogComponent implements OnInit {
   faCircleChevronRight = faCircleChevronRight;
   faCircleChevronLeft = faCircleChevronLeft;
   faPlusCircle = faPlusCircle;
+  symptomScaleValues = Object.values(SymptomScale);
   
   
 
@@ -40,14 +42,34 @@ export class DailyLogComponent implements OnInit {
         console.log(params);
       }
     })
-
+    console.log(this.getSymptomScaleValue('Low'))
     
     this.GetDailyLog(this.setDateCalendar);
-    console.log(this.logs + 'test2')
-    
+    //this.GetDailyLogFromAI()
+
     ;
   }
 
+
+  GenerateMealLogFromAI(transcription: string) {
+    this.openAiService.generateMealLogFromAI(transcription).subscribe(
+      data => {
+        // this.logs = data;
+        this.logs = data;
+        console.log(this.logs);
+        this.cdr.detectChanges();
+      }
+      , error => {
+        console.log(error);
+      }
+      , () => {
+        console.log(this.logs);
+      }
+    )
+  }
+  getSymptomScaleValue(key: string): number {
+    return SymptomScale[key as keyof typeof SymptomScale];
+  }
   GetDailyLog(date: string) {
     this.fodmapLogService.getDailyLogsByDate(date).subscribe(
       data => {
