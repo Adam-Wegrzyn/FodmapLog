@@ -8,6 +8,12 @@ namespace FodmapLog.Server.Controllers
     [ApiController]
     public class OpenAIController : ControllerBase
     {
+        private string? _apiKey;
+
+        public OpenAIController(IConfiguration configuration)
+        {
+            _apiKey = configuration["openAIApiKey"];
+        }
         [HttpPost]
         [Route("GeneratemealLogFromAI")]
         public async Task<IActionResult> GeneratemealLogFromAI([FromBody] TranscribedInput input)
@@ -62,8 +68,8 @@ namespace FodmapLog.Server.Controllers
         ""id"": 0
       }
     ]";
-            var apiKey = "";
-            ChatClient client = new(model: "gpt-4o", apiKey: apiKey);
+            
+            ChatClient client = new(model: "gpt-4o", apiKey: _apiKey);
 
             var prompt =
                 $@"Convert the following user input (Meal and symptom dairy) into a JSON format with no additional text,
