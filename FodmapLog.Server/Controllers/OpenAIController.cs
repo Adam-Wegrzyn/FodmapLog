@@ -54,7 +54,7 @@ namespace FodmapLog.Server.Controllers
             },
             {
               ""symptomType"": ""Burping"",
-              ""symptomscale"": 2
+              ""symptomScale"": 2
             }
           ],
           ""id"": 4
