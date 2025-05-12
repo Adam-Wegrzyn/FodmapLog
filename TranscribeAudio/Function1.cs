@@ -24,30 +24,55 @@ namespace TranscribeAudio
         [Function("Function1")]
         public async Task<IActionResult> Run([Microsoft.Azure.Functions.Worker.HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req)
         {
-            _logger.LogInformation("Processing audio file transcryption");
+            _logger.LogInformation("Processing audio file transcription");
 
             try
             {
+                // Read and log the request body
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                _logger.LogInformation("Request body successfully read.");
+
                 dynamic data = JsonConvert.DeserializeObject(requestBody);
 
                 if (data?.audio == null)
                 {
+                    _logger.LogWarning("Audio file is missing in the request.");
                     return new BadRequestObjectResult("Audio file is required.");
                 }
 
-                byte[] audioBytes = Convert.FromBase64String((string)data.audio);
-                string tempFilePath = Path.GetTempFileName();
-                await File.WriteAllBytesAsync(tempFilePath, audioBytes);
+                // Decode the base64 audio and log details
+                _logger.LogInformation("Decoding base64 audio data...");
+                byte[] audioBytes;
+                try
+                {
+                    audioBytes = Convert.FromBase64String((string)data.audio);
+                    _logger.LogInformation($"Audio data successfully decoded. Size: {audioBytes.Length} bytes.");
+                }
+                catch (FormatException ex)
+                {
+                    _logger.LogError($"Error decoding base64 audio data: {ex.Message}");
+                    return new BadRequestObjectResult("Invalid base64 audio data.");
+                }
 
+                // Write audio to a temporary file and log the file path
+                string tempFilePath = Path.GetTempFileName();
+                _logger.LogInformation($"Temporary file created at: {tempFilePath}");
+                await File.WriteAllBytesAsync(tempFilePath, audioBytes);
+                _logger.LogInformation("Audio data successfully written to temporary file.");
+
+                // Configure Azure Speech SDK
                 var config = SpeechConfig.FromSubscription(_configuration["AzureSpeechApiKey"], "eastus");
                 config.SpeechRecognitionLanguage = "en-US";
+                _logger.LogInformation("Azure Speech SDK configured successfully.");
 
+                // Perform speech recognition
                 using var audioInput = AudioConfig.FromWavFileInput(tempFilePath);
                 using var recognizer = new SpeechRecognizer(config, audioInput);
 
+                _logger.LogInformation("Starting speech recognition...");
                 var result = await recognizer.RecognizeOnceAsync();
 
+                // Handle recognition results
                 if (result.Reason == ResultReason.RecognizedSpeech)
                 {
                     _logger.LogInformation($"Transcription successful: {result.Text}");
@@ -79,9 +104,10 @@ namespace TranscribeAudio
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error processing audio file: {ex.Message}");
+                _logger.LogError($"Unexpected error processing audio file: {ex.Message}");
+                _logger.LogError($"Stack Trace: {ex.StackTrace}");
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }
-        }
     }
+}
