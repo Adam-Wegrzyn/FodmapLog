@@ -43,6 +43,7 @@ namespace FodmapLog.Server.Controllers
         public async Task<IActionResult> GetDailyLogsByDate(string date, CancellationToken cancellationToken)
         {
             var result = await _fodmapLogService.GetDailyLogsByDate(DateTime.Parse(date), cancellationToken);
+            var json = result.ToString();
             return Ok(result);
         }
 
@@ -65,7 +66,6 @@ namespace FodmapLog.Server.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         [Route("addSymptomsLog")]
         public async Task<IActionResult> AddSymptomsLog([FromBody] SymptomsLogDto symptomsLogDto, CancellationToken cancellationToken)
         {

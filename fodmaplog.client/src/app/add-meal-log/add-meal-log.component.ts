@@ -34,8 +34,6 @@ export class addMealLogComponent implements OnInit {
     minute: '2-digit',
     hour12: true
   });
- //currDate: string = "12:23"
-
 
   constructor(private productsApiService: ProductsApiService,
     private fodmapLogService: FodmapLogService,
@@ -50,11 +48,6 @@ export class addMealLogComponent implements OnInit {
       date: new Date(),
       productQuantity: this.fb.array([
       ]),
-      totalKcal: 0,
-      totalCarbohydrates: 0,
-      totalProteins: 0,
-      totalFat: 0,
-      totalFiber: 0
     })
     this.route.params.subscribe(params => {
       // check if this is existing record
@@ -103,22 +96,14 @@ export class addMealLogComponent implements OnInit {
     return this.form.get('productQuantity') as FormArray;
   }
 
-  searchProduct(){
-    this.getProduct();
-  }
 
-
-
-getProduct(){
-    this.productsApiService.getProductsByKeyword(this.name)
-    .subscribe((results: Product[]) => {
-      this.products = results;
-      console.log(results);
-      console.log(this.products[0].servingQuantity)
-    });
-  }
-
-  AddProduct(product: Product, quantity: number): void{
+  AddProduct(productName: string, quantity: number): void{
+    let product: Product = {
+      id: 0,
+      name: productName,
+    //  productQuantity: quantity.toString(),
+    //  productQuantityUnit: this.selectedUnit,
+    }
     this.productQuantityArr.push(this.fb.group({
       product: product,
       quantity: quantity,
@@ -138,10 +123,6 @@ getProduct(){
   }
 
   SaveMealLog(): void{
-//     const [year, month, day] = this.currDate.split('-');
-// const [hour, minute] = this.currTime.split(':');
-// const customDate = new Date(+year, +month - 1, +day, +hour, +minute, 0);
-   // this.form.controls['date'].setValue(customDate);
     console.log('SaveMealLog');
     console.log(this.mealLog)
     console.log(this.form.value);
@@ -165,15 +146,6 @@ getProduct(){
     }
   }
   
-  TotalKcalConverter(energyKcal100g: number, totalGrams: number): number {
-    if (Number.isNaN(totalGrams))  {
-      console.log('test')
-      return 0;
-    }  
-    else {
-      return energyKcal100g * totalGrams / 100;
-    }
-  }
 
   cancel(): void{
     this.form.reset();

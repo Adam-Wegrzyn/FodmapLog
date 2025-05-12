@@ -20,8 +20,6 @@ namespace DataAccess.Interfaces
         public Task<Product> UpdateProduct(Product product, CancellationToken cancellationToken);
         public Task<Product> DeleteProduct(int id, CancellationToken cancellationToken);
 
-        public Task<Product> GetProductByExternalId(string externalId, CancellationToken cancellationToken);
-
         public Task<IEnumerable<MealLog>> GetMealLogsByDate(DateTime date, CancellationToken cancellationToken);
         public Task<IEnumerable<SymptomsLog>> GetSymptomsLogsByDate(DateTime date, CancellationToken cancellationToken);
         public Task<SymptomsLog> AddSymptomsLog(SymptomsLog symptomsLog, CancellationToken cancellationToken);

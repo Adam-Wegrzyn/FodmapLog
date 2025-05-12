@@ -29,6 +29,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Identity.Client" Version="4.71.1" />
     <PackageReference Include="Microsoft.Identity.Web" Version="3.8.4" />
+    <PackageReference Include="OpenAI" Version="2.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
   </ItemGroup>
 

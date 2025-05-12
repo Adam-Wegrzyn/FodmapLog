@@ -1,8 +1,8 @@
 export enum SymptomScale{
-    None,
-    Low,
-    Mild,
-    Moderate,
-    Severe,
-    Serious
+    None = 0,
+    Low = 1,
+    Mild = 2,
+    Moderate = 3,
+    Severe = 4,
+    Serious = 5
 }

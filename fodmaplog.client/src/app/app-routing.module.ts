@@ -4,8 +4,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { addMealLogComponent } from './add-meal-log/add-meal-log.component';
 import { DailyLogComponent } from './daily-log/daily-log.component';
 import { addSymptomsLogComponent } from './add-symptoms-log/add-symptoms-log.component';
-import { MsalGuard } from '@azure/msal-angular';
 import { LogoutComponent } from './logout/logout.component';
+import { AudioRecorderComponent } from './audio-recorder/audio-recorder.component';
 
 const routes: Routes = [
   {
@@ -26,10 +26,13 @@ const routes: Routes = [
   },
   {
     path: "add-symptoms-log", component: addSymptomsLogComponent,
-    // canActivate: [MsalGuard]
+
   },
   {
     path: "add-symptoms-log/:id", component: addSymptomsLogComponent
+  },
+  {
+    path: "audio-rec", component: AudioRecorderComponent
   },
   {
     path: "logout", component: LogoutComponent
