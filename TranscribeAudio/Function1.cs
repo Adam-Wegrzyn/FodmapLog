@@ -61,7 +61,8 @@ namespace TranscribeAudio
                 _logger.LogInformation("Audio data successfully written to temporary file.");
 
                 // Configure Azure Speech SDK
-                var config = SpeechConfig.FromSubscription(_configuration["AzureSpeechApiKey"], "eastus");
+                var apiKey = Environment.GetEnvironmentVariable("AzureSpeechApiKey");
+                var config = SpeechConfig.FromSubscription(apiKey, "eastus");
                 config.SpeechRecognitionLanguage = "en-US";
                 _logger.LogInformation("Azure Speech SDK configured successfully.");
 
