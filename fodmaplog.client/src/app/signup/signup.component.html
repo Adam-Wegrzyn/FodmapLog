@@ -1,0 +1,28 @@
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+  <form (ngSubmit)="signup()" class="p-4 rounded shadow bg-white" style="min-width: 340px; max-width: 400px; width: 100%;">
+    <h2 class="mb-4 text-center text-primary">Create Account</h2>
+    <div class="mb-3">
+      <label class="form-label" for="email">Email</label>
+      <input class="form-control" [(ngModel)]="email" type="email" id="email" name="email" required autocomplete="email" placeholder="Enter your email">
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="password">Password</label>
+      <input class="form-control" [(ngModel)]="password" type="password" id="password" name="password" required autocomplete="new-password" placeholder="Create a password">
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="confirmPassword">Confirm Password</label>
+      <input class="form-control" [(ngModel)]="confirmPassword" type="password" id="confirmPassword" name="confirmPassword" required autocomplete="new-password" placeholder="Repeat your password">
+    </div>
+    <div class="alert alert-danger p-2" [class.invisible]="!errorMessages.length" [style.minHeight.px]="38" role="alert">
+      <div *ngFor="let e of errorMessages">{{e}}</div>
+    </div>
+    <div class="alert alert-success p-2" [class.invisible]="!successMessage" [style.minHeight.px]="38" role="alert">
+      {{successMessage}}
+    </div>
+    <button type="submit" class="btn btn-primary w-100 mt-3">Sign Up</button>
+    <div class="text-center mt-3">
+      <span class="text-muted">Already have an account?</span>
+      <a routerLink="/login" class="ms-1 text-decoration-none">Log in</a>
+    </div>
+  </form>
+</div>

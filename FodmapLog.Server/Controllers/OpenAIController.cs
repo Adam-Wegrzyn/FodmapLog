@@ -68,8 +68,8 @@ namespace FodmapLog.Server.Controllers
         ""id"": 0
       }
     ]";
-            
-            ChatClient client = new(model: "gpt-4o", apiKey: _apiKey);
+            var apiKey = "";
+            ChatClient client = new(model: "gpt-4o", apiKey: apiKey);
 
             var prompt =
                 $@"Convert the following user input (Meal and symptom dairy) into a JSON format with no additional text,

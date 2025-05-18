@@ -6,10 +6,14 @@ import { DailyLogComponent } from './daily-log/daily-log.component';
 import { addSymptomsLogComponent } from './add-symptoms-log/add-symptoms-log.component';
 import { LogoutComponent } from './logout/logout.component';
 import { AudioRecorderComponent } from './audio-recorder/audio-recorder.component';
+import { LoginComponent } from './login/login.component';
+import { SignupComponent } from './signup/signup.component';
+import { AuthGuard } from './AuthGuard';
+import { LoginCallbackComponent } from './login-callback/login-callback.component';
 
 const routes: Routes = [
   {
-    path: "", redirectTo: "/daily-log", pathMatch: "full"
+    path: "", redirectTo: "/login", pathMatch: "full"
     , 
   },
   {
@@ -19,14 +23,14 @@ const routes: Routes = [
     path: "add-meal-log/:id", component: addMealLogComponent
   },
   {
-    path: "daily-log", component: DailyLogComponent
+    path: "daily-log", component: DailyLogComponent,
+    canActivate: [AuthGuard] 
   },
   {
     path: "daily-log/:date", component: DailyLogComponent
   },
   {
     path: "add-symptoms-log", component: addSymptomsLogComponent,
-
   },
   {
     path: "add-symptoms-log/:id", component: addSymptomsLogComponent
@@ -35,7 +39,16 @@ const routes: Routes = [
     path: "audio-rec", component: AudioRecorderComponent
   },
   {
+    path: "login", component: LoginComponent
+  },
+  {
+    path: "signup", component: SignupComponent
+  },
+  {
     path: "logout", component: LogoutComponent
+  },
+  {
+   path: 'login-callback', component: LoginCallbackComponent  
   }
 
   
