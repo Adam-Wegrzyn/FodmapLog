@@ -5,5 +5,6 @@ export const environment = {
     apiOpenAi: 'https://localhost:44349/api/OpenAi',
     authApiUrl: 'https://localhost:44349/api/Auth',
     authIdentityApiUrl: 'https://localhost:44349',
-    frontendBaseUrl: 'http://localhost:4200'
+    frontendBaseUrl: 'http://localhost:4200',
+    apiAudioTranscription: 'https://localhost:44349/api/AudioTranscription',
   };
