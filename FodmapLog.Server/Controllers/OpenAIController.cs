@@ -68,7 +68,6 @@ namespace FodmapLog.Server.Controllers
         ""id"": 0
       }
     ]";
-            
             ChatClient client = new(model: "gpt-4o", apiKey: _apiKey);
 
             var prompt =

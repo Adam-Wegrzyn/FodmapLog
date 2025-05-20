@@ -57,9 +57,11 @@ export class AudioRecorderComponent {
         new Uint8Array(reader.result as ArrayBuffer)
           .reduce((data, byte) => data + String.fromCharCode(byte), '')
       );
-  
+    const headers = {
+      'x-functions-key': ''
+    }; 
       this.http
-        .post('http://localhost:7004/api/Function1/', { audio: base64Audio })
+        .post('https://example-function-h7ggcqceauheceb9.polandcentral-01.azurewebsites.net/api/Function1/', { audio: base64Audio }, { headers })
         .subscribe((response: any) => {
           this.transcription.emit(response.transcription);;
           console.log('Transcription:', this.transcription);

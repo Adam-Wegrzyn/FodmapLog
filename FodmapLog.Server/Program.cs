@@ -12,6 +12,15 @@ using Azure.Messaging.ServiceBus;
 using FodmapLog.Server.Controllers;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+//using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Authentication.Google;
+//using Microsoft.AspNetCore.Identity;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,6 +63,8 @@ builder.Services.AddScoped<IFodmapLogRepository, FodmapLogRepository>();
 builder.Services.AddScoped<IFodmapLogService, FodmapLogService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.AddScoped<JwtTokenService>();
+
 builder.Services.AddDbContext<FodmapLogDbContext>(options =>
 {
     if (builder.Environment.IsDevelopment())
@@ -69,13 +80,63 @@ builder.Services.AddDbContext<FodmapLogDbContext>(options =>
 });
 
 builder.Services.AddSingleton(new ServiceBusClient(builder.Configuration["serviceBusSecret2"]));
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 
-//builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-//    .AddMicrosoftIdentityWebApp(options =>
-//    {
-//        builder.Configuration.Bind("AzureAd", options);
-//        options.ClientSecret = builder.Configuration["AzureAdClientSecret"];
-//    });
+
+
+
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+{
+    // Password settings
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 6;
+    // User settings
+    options.User.RequireUniqueEmail = true;
+    // Lockout settings
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+})
+.AddApiEndpoints()
+.AddEntityFrameworkStores<FodmapLogDbContext>();
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    // Default Lockout settings.
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+    options.SignIn.RequireConfirmedAccount = false;
+});
+
+
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+{
+    ValidateIssuer = true,
+    ValidateAudience = true,
+    ValidateLifetime = true,
+    ValidateIssuerSigningKey = true,
+    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+    ValidAudience = builder.Configuration["Jwt:Audience"],
+    IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+})
+.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    options.ClientSecret = builder.Configuration["googleAuthSecret"];
+    //options.CallbackPath = "/signin-google"; // The path where Google will redirect after authentication
+    //options.SaveTokens = true; // Save the tokens to the authentication properties
+})
+;    
 
 var app = builder.Build();
 
@@ -98,11 +159,12 @@ app.UseCors();
 
 app.UseHttpsRedirection();
 
-//app.UseAuthentication();
+app.UseAuthentication();
 
-//app.UseAuthorization();
+app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers(); 
+app.MapIdentityApi<IdentityUser>();
 
 app.MapFallbackToFile("/index.html");
 

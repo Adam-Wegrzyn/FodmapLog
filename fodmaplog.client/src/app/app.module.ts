@@ -1,4 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -17,6 +17,10 @@ import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { DateTimeInputComponent } from './date-time-input/date-time-input.component';
 import { LogoutComponent } from './logout/logout.component';
 import { AudioRecorderComponent } from './audio-recorder/audio-recorder.component';
+import { LoginComponent } from './login/login.component';
+import { SignupComponent } from './signup/signup.component';
+import { authInterceptor } from './auth.interceptor';
+import { LoginCallbackComponent } from './login-callback/login-callback.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +32,9 @@ import { AudioRecorderComponent } from './audio-recorder/audio-recorder.componen
     AddLogBaseComponent,
     LogoutComponent,
     AudioRecorderComponent,
+    LoginComponent,
+    SignupComponent,
+    LoginCallbackComponent,
     //DateTimeInputComponent,
   ],
   imports: [
@@ -78,6 +85,7 @@ import { AudioRecorderComponent } from './audio-recorder/audio-recorder.componen
    ],
   providers: [
     provideAnimationsAsync('noop'),
+    provideHttpClient(withInterceptors([authInterceptor])),
   ],
   bootstrap: [AppComponent]
 })

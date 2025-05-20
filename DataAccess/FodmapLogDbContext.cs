@@ -1,4 +1,5 @@
 ﻿using DataAccess.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess
 {
-    public class FodmapLogDbContext: DbContext
+    public class FodmapLogDbContext: IdentityDbContext
     {
         public FodmapLogDbContext(DbContextOptions<FodmapLogDbContext> options) : base(options)
         {
