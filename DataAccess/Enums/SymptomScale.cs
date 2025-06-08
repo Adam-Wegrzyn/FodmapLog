@@ -8,11 +8,11 @@ namespace DataAccess.Enums
 {
     public enum SymptomScale
     {
-        None,
-        Low,
+        Great,
+        VeryGood,
+        Good,
         Mild,
-        Moderate,
-        Severe,
-        Serious
+        Bad,
+        Awful
     }
 }

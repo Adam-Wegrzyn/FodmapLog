@@ -9,6 +9,7 @@ import { FodmapLogService } from '../services/fodmap-log-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxMaterialTimepickerComponent } from 'ngx-material-timepicker';
 import { DateTimeInputComponent } from '../date-time-input/date-time-input.component';
+import { MealLogTransferService } from '../services/meal-log-transfer.service';
 
 
 @Component({
@@ -34,12 +35,14 @@ export class addMealLogComponent implements OnInit {
     minute: '2-digit',
     hour12: true
   });
+  isPending: boolean = false;
 
   constructor(private productsApiService: ProductsApiService,
     private fodmapLogService: FodmapLogService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private mealLogTransferService: MealLogTransferService,
   ) { }
     
   ngOnInit(): void {
@@ -70,20 +73,27 @@ export class addMealLogComponent implements OnInit {
           }
         )
       }
+      else if (this.route.snapshot.queryParamMap.get('isPending') == 'true') {
+        var pendingMealLog = this.mealLogTransferService.mealLog;
+        if (pendingMealLog) {
+          this.form.patchValue(pendingMealLog);
+          this.setProductQuantities(pendingMealLog.productQuantity);
+        }
+      }
     });
    // this.timePicker.nativeElement.open();
 
 
   }
-  ngAfterViewInit(){
-    if(this.isNew){
-      setTimeout(() => {
-        this.timePicker.updateTime(this.currDate);
-        this.timePicker.open();
-      });
-    }
+  // // ngAfterViewInit(){
+  // //   if(this.isNew){
+  // //     setTimeout(() => {
+  // //       this.timePicker.updateTime(this.currDate);
+  // //       this.timePicker.open();
+  // //     });
+  // //   }
 
-  }
+  // }
   setProductQuantities(productQuantity: any[]) {
     const productQuantityFormGroups = productQuantity.map(productQuantity => this.fb.group(productQuantity));
     const productQuantityFormArray = this.fb.array(productQuantityFormGroups);
@@ -129,7 +139,8 @@ export class addMealLogComponent implements OnInit {
     if (this.isNew) {
       this.fodmapLogService.addMealLog(this.form.value).subscribe(
         () => {},
-        () => {},
+        () =>{},
+          
         () => {
           this.router.navigate(['/daily-log', this.currDate]);
         }

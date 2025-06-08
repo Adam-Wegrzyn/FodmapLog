@@ -61,7 +61,10 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IFodmapLogRepository, FodmapLogRepository>();
 builder.Services.AddScoped<IFodmapLogService, FodmapLogService>();
+builder.Services.AddScoped<IAudioTranscriptionService, AudioTranscriptionService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<JwtTokenService>();
 
@@ -69,7 +72,7 @@ builder.Services.AddDbContext<FodmapLogDbContext>(options =>
 {
     if (builder.Environment.IsDevelopment())
     {
-        options.UseSqlServer(builder.Configuration.GetConnectionString("devConnection"));
+        options.UseSqlServer(builder.Configuration["devConnectionAzure"]);
     }
     else
     {

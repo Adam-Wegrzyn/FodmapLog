@@ -11,8 +11,9 @@
     </div>
     <div class="row">
         <ng-container *ngFor="let log of logs; let i = index">
-            <a *ngIf="isMealLog(log)" [routerLink]="['/add-meal-log', log.mealLog.id]" class="row-link">
-              <div [ngClass]="{'bg-light': i % 2 != 0}" class="row">
+            <a *ngIf="isMealLog(log)"  class="row-link">
+              <div [ngClass]="{'bg-light': i % 2 != 0,
+                                'bg-warning': log.isPending}" class="row">
                 <div class="col-2 border-end d-flex align-items-center justify-content-center text-secondary">
                   <span class="fw-bold fs-5">M</span>
                 </div>
@@ -23,8 +24,16 @@
                   </div>
                 </div>
                 <div class="col-2 border-start d-flex align-items-center justify-content-center">
+                  <div>
                   {{log.date | date: 'shortTime'}}
+                  </div>
+                                                          <div *ngIf="log.isPending" class="mt-2">
+          <button style="min-width: 60px; max-height: 25px;" class="btn btn-outline-primary btn-sm" (click)="saveMealLog(log)" *ngIf="isMealLog(log)">Save</button>
+          <button style="min-width: 60px; max-height: 25px;" class="btn btn-outline-primary btn-sm" (click)="editPendingMealLog(log.mealLog)">Edit</button>
+        </div>
+                  
                 </div>
+
               </div>
             </a>
             <a *ngIf="!isMealLog(log)" [routerLink]="['/add-symptoms-log', log.symptomsLog.id]" class="row-link">
@@ -52,6 +61,10 @@
                 <div class="col-2 border-start d-flex align-items-center justify-content-center">
                   {{log.date | date: 'shortTime'}}
                 </div>
+                        <!-- <div *ngIf="log.isPending" class="mt-2">
+          <button class="btn btn-success btn-sm me-1" (click)="saveMealLog(log)" *ngIf="isMealLog(log)">Save</button>
+          <button class="btn btn-primary btn-sm" (click)="editMealLog(log.mealLog)">Edit</button>
+        </div> -->
               </div>
             </a>
           </ng-container>
@@ -79,3 +92,7 @@
       </div>
     </div>
   </div>
+
+  <!-- Review Modal for AI-generated Log -->
+<!--  -->
+<!-- ...existing code... -->

@@ -21,6 +21,7 @@ import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
 import { authInterceptor } from './auth.interceptor';
 import { LoginCallbackComponent } from './login-callback/login-callback.component';
+import { errorInterceptor } from '../error.interceptor';
 
 @NgModule({
   declarations: [
@@ -85,7 +86,7 @@ import { LoginCallbackComponent } from './login-callback/login-callback.componen
    ],
   providers: [
     provideAnimationsAsync('noop'),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
   ],
   bootstrap: [AppComponent]
 })

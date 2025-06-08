@@ -74,6 +74,7 @@ namespace FodmapLog.Server.Controllers
                 $@"Convert the following user input (Meal and symptom dairy) into a JSON format with no additional text,
                 without any formatting, code blocks, or extra characters.. Return only the JSON.
                 User Input: '{input.Transcript}'
+                Symptom scale please convert to int -> 0 (excellent) - 10 (the worst)
                 JSON Format Example:
                 {jsonExample}
                 Output only the JSON in this format based on the provided input.";

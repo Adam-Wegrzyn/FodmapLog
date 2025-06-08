@@ -6,8 +6,11 @@ import { DailyLog } from '../domain/DailyLog';
 import { SymptomType } from '../domain/SymptomType';
 import { SymptomScale } from '../domain/SymptomScale';
 import { faCircleChevronRight, faCircleChevronLeft, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { OpenAiService } from '../services/openAi-service';
+import { DailyLogUI } from '../domain/DailyLogUI';
+import { SymptomsLog } from '../domain/SymptomsLog';
+import { MealLogTransferService } from '../services/meal-log-transfer.service';
 @Component({
   selector: 'app-daily-log',
   templateUrl: './daily-log.component.html',
@@ -18,11 +21,15 @@ export class DailyLogComponent implements OnInit {
     private fodmapLogService: FodmapLogService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
+    private router: Router,
     private openAiService: OpenAiService,
-    private cdr: ChangeDetectorRef 
+    private cdr: ChangeDetectorRef ,
+    private mealLogTransferService: MealLogTransferService
   ) { }
 
-  logs: DailyLog[];
+  logs: DailyLogUI[];
+  showReviewModal = false;
+  tempLogs: DailyLog[];
   symptomType = SymptomType;
   symptomScale = SymptomScale;
   currentDate: Date = new Date();
@@ -49,14 +56,25 @@ export class DailyLogComponent implements OnInit {
 
     ;
   }
-
-
+  
+  editPendingMealLog(mealLog: MealLog): void {
+    this.mealLogTransferService.mealLog = mealLog;
+    this.router.navigate(
+      ['/add-meal-log'],
+      { queryParams: {isPending: true} }
+    );
+  }
   GenerateMealLogFromAI(transcription: string) {
     this.openAiService.generateMealLogFromAI(transcription).subscribe(
       data => {
-        // this.logs = data;
-        this.logs = data;
+        for(const mealLog of data){
+        const newDailyLog: DailyLogUI = new DailyLog(0, mealLog.date, mealLog.mealLog, mealLog.symptomsLog);
+        newDailyLog.isPending = true;
+        this.logs = [newDailyLog, ...this.logs];
+        }
+        this.tempLogs = data;
         console.log(this.logs);
+        this.showReviewModal = true;
         this.cdr.detectChanges();
       }
       , error => {
@@ -73,6 +91,7 @@ export class DailyLogComponent implements OnInit {
   GetDailyLog(date: string) {
     this.fodmapLogService.getDailyLogsByDate(date).subscribe(
       data => {
+
         this.logs = data;
       },
       error => {
@@ -113,5 +132,32 @@ export class DailyLogComponent implements OnInit {
 getOnlyStringDate(date: Date): string { 
   return date.toISOString().split('T')[0];
 }
+
+saveMealLog(mealLog: DailyLogUI): void {
+}
+
+
+
+// SaveReviewLog() {
+//     if (!this.tempLogs) return;
+//     if (this.tempLogs.mealLog) {
+//       this.fodmapLogService.saveMealLog(this.tempLog.mealLog).subscribe(
+//         () => {
+//           this.showReviewModal = false;
+//           this.tempLog = null;
+//           this.GetDailyLog(this.setDateCalendar);
+//         },
+//         error => {
+//           console.log(error);
+//         }
+//       );
+//     }
+//     // Add similar logic for symptomsLog if needed
+//   }
+
+  // cancelReviewLog() {
+  //   this.showReviewModal = false;
+  //   this.tempLog = null;
+  // }
 }
 

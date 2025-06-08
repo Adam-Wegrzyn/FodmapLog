@@ -9,7 +9,7 @@ namespace DataAccess.Entities
 {
     public class Symptom: BaseEntity
     {
-        public SymptomType SymptomType { get; set; }
-        public SymptomScale SymptomScale { get; set; }
+        public required SymptomType SymptomType { get; set; }
+        public required SymptomScale SymptomScale { get; set; }
     }
 }

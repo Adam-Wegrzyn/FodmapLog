@@ -10,6 +10,6 @@ namespace DataAccess.Entities
     public class SymptomsLog: BaseEntity
     {
         public DateTime Date { get; set; } 
-        public List<Symptom> Symptoms { get; set; }
+        public required List<Symptom> Symptoms { get; set; }
     }
 }

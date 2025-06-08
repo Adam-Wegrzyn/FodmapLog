@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Output } from '@angular/core';
 import toWav from 'audiobuffer-to-wav';
+import { AudioTranscriptionService } from '../services/audio-transcription.service';
+import { AudioBase64 } from '../domain/AudioBase64';
 
 @Component({
   selector: 'app-audio-recorder',
@@ -13,7 +15,7 @@ export class AudioRecorderComponent {
   private audioChunks: Blob[] = [];
   //transcription: string;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,private audioTrascriptionService: AudioTranscriptionService) {}
 
   startRecording(): void {
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
@@ -53,23 +55,33 @@ export class AudioRecorderComponent {
     const reader = new FileReader();
     reader.readAsArrayBuffer(audioBlob);
     reader.onloadend = () => {
-      const base64Audio = btoa(
+      const converted64 = btoa(
         new Uint8Array(reader.result as ArrayBuffer)
           .reduce((data, byte) => data + String.fromCharCode(byte), '')
       );
-    const headers = {
-      'x-functions-key': ''
-    }; 
-      this.http
-        .post('https://example-function-h7ggcqceauheceb9.polandcentral-01.azurewebsites.net/api/Function1/', { audio: base64Audio }, { headers })
-        .subscribe((response: any) => {
-          this.transcription.emit(response.transcription);;
-          console.log('Transcription:', this.transcription);
 
-        },
-        (error) => {
-          console.error('Error sending audio to Azure:', error);
+    var audioBase64 = {
+      value: converted64};
 
-        });  
-    };
-  }}
+    this.audioTrascriptionService.transcribeAudio(audioBase64).subscribe(
+      (response: any) => {console.log('Transcription:', response.transcription);
+        this.transcription.emit(response.transcription);
+      },
+      error => console.error('Error sending audio to Azure:', error)
+    );
+    // const headers = {
+    //   'x-functions-key': ''
+    // }; 
+    //   this.http
+    //     .post('https://example-function-h7ggcqceauheceb9.polandcentral-01.azurewebsites.net/api/Function1/', { audio: base64Audio }, { headers })
+    //     .subscribe((response: any) => {
+    //       this.transcription.emit(response.transcription);;
+    //       console.log('Transcription:', this.transcription);
+
+    //     },
+    //     (error) => {
+    //       console.error('Error sending audio to Azure:', error);
+
+    //     });  
+    // };
+    }}}

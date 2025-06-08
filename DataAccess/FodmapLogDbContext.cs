@@ -20,6 +20,8 @@ namespace DataAccess
         public DbSet<Product> Products { get; set; }
         public DbSet<SymptomsLog> SymptomsLogs { get; set; }
         public DbSet<Symptom> Symptoms { get; set; }
+        public DbSet<SymptomType> SymptomTypes { get; set; }
+        public DbSet<Unit> Units { get; set; }
         public DbSet<ProductQuantity> ProductQuantities { get; set; }
     }
 }
