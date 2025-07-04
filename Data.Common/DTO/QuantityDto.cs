@@ -1,4 +1,5 @@
-﻿using DataAccess.Enums;
+﻿using DataAccess.Entities;
+using DataAccess.Enums;
 
 namespace Data.Common.DTO
 {

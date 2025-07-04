@@ -9,9 +9,9 @@ namespace Data.Common.DTO
 {
     internal static class UnitConverter
     {
-        internal static double ConvertToGrams(double quantity, Unit unit)
-        {
-            return quantity * (double)unit;
-        }
+        //internal static double ConvertToGrams(double quantity, Unit unit)
+        //{
+        //    return quantity * (double)unit;
+        //}
     }
 }

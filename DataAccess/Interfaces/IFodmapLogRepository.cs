@@ -25,5 +25,7 @@ namespace DataAccess.Interfaces
         public Task<SymptomsLog> AddSymptomsLog(SymptomsLog symptomsLog, CancellationToken cancellationToken);
         public Task<SymptomsLog> GetSymptomsLogById(int id, CancellationToken cancellationToken);
         public Task<SymptomsLog> UpdateSymptomsLog(SymptomsLog symptomsLog, CancellationToken cancellationToken);
+        public Task<IEnumerable<SymptomType>> GetAllSymptomTypes(CancellationToken cancellationToken);
+        Task<IEnumerable<Unit>> GetAllUnits(CancellationToken cancellationToken);
     }
 }

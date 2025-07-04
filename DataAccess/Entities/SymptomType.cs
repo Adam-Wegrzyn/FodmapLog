@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Entities
 {
-    public class SymptomType
+    public class SymptomType: BaseEntity
     {
         public required string Name { get; set; }
     }

@@ -10,6 +10,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgxMaterialTimepickerComponent } from 'ngx-material-timepicker';
 import { DateTimeInputComponent } from '../date-time-input/date-time-input.component';
 import { MealLogTransferService } from '../services/meal-log-transfer.service';
+import { SymptomsLogTransferService } from '../services/symptoms-log-transfer.service';
+import { Symptom } from '../domain/Symptom';
+import { UnitService } from '../services/unit.service';
 
 
 @Component({
@@ -20,14 +23,14 @@ import { MealLogTransferService } from '../services/meal-log-transfer.service';
 export class addMealLogComponent implements OnInit {
 
   @ViewChild('closeModalBtn') closeModalBtn: ElementRef;
-  @ViewChild('timePicker') timePicker: NgxMaterialTimepickerComponent; 
+  @ViewChild('timePicker') timePicker: NgxMaterialTimepickerComponent;
   form: FormGroup;
   name: string;
-  units = Object.keys(Unit).filter(key => isNaN(Number(key))).map(key => ({ label: key, value: Unit[key as keyof typeof Unit] }));
-  selectedUnit: string = "1";
+  units: Unit[];
+  selectedUnit: Unit;
   quantityInput: number = 1;
   mealLog: MealLog;
-  unit = Unit;
+  unit: Unit;
   isNew: boolean = true;
   currDate = new Date().toISOString().split('T')[0];
   currTime = new Date().toLocaleTimeString([], {
@@ -43,9 +46,11 @@ export class addMealLogComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private mealLogTransferService: MealLogTransferService,
+    private unitService: UnitService,
   ) { }
-    
+
   ngOnInit(): void {
+    this.fillUnits();
     this.form = this.fb.group({
       id: 0,
       date: new Date(),
@@ -67,7 +72,7 @@ export class addMealLogComponent implements OnInit {
               hour12: false
             });
           },
-          () => {},
+          () => { },
           () => {
             console.log(this.form.value)
           }
@@ -76,12 +81,20 @@ export class addMealLogComponent implements OnInit {
       else if (this.route.snapshot.queryParamMap.get('isPending') == 'true') {
         var pendingMealLog = this.mealLogTransferService.mealLog;
         if (pendingMealLog) {
+            this.currTime = new Date(pendingMealLog.date).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          });
+          pendingMealLog.date = this.currDate + 'T' + this.currTime;
+          pendingMealLog
           this.form.patchValue(pendingMealLog);
+
           this.setProductQuantities(pendingMealLog.productQuantity);
         }
       }
     });
-   // this.timePicker.nativeElement.open();
+    // this.timePicker.nativeElement.open();
 
 
   }
@@ -101,64 +114,64 @@ export class addMealLogComponent implements OnInit {
   }
 
   products: Product[];
-  
+
   get productQuantityArr(): FormArray {
     return this.form.get('productQuantity') as FormArray;
   }
 
 
-  AddProduct(productName: string, quantity: number): void{
+  AddProduct(productName: string, quantity: number): void {
     let product: Product = {
       id: 0,
       name: productName,
-    //  productQuantity: quantity.toString(),
-    //  productQuantityUnit: this.selectedUnit,
+      //  productQuantity: quantity.toString(),
+      //  productQuantityUnit: this.selectedUnit,
     }
     this.productQuantityArr.push(this.fb.group({
       product: product,
       quantity: quantity,
-       unit: Number(this.selectedUnit),
-       totalGrams: quantity * Number(this.selectedUnit),
+      unit: this.selectedUnit,
+      //  totalGrams: quantity * Number(this.selectedUnit),
     }));
-    console.log(product)
+    console.log(this.selectedUnit)
     console.log(this.productQuantityArr);
     this.quantityInput = 0;
     this.closeModalBtn.nativeElement.click();
-    
+
   }
 
-  DeleteProduct(index: number): void{
+  DeleteProduct(index: number): void {
     this.productQuantityArr.removeAt(index);
     console.log(this.productQuantityArr);
   }
 
-  SaveMealLog(): void{
+  SaveMealLog(): void {
     console.log('SaveMealLog');
     console.log(this.mealLog)
     console.log(this.form.value);
     if (this.isNew) {
       this.fodmapLogService.addMealLog(this.form.value).subscribe(
-        () => {},
-        () =>{},
-          
+        () => { },
+        () => { },
+
         () => {
           this.router.navigate(['/daily-log', this.currDate]);
         }
-      );   
-    } 
+      );
+    }
     else {
       this.fodmapLogService.updateMealLog(this.form.value).subscribe(
-        () => {},
-        () => {},
+        () => { },
+        () => { },
         () => {
-           this.router.navigate(['/daily-log', this.currDate]);
+          this.router.navigate(['/daily-log', this.currDate]);
         }
-      );   
+      );
     }
   }
-  
 
-  cancel(): void{
+
+  cancel(): void {
     this.form.reset();
   }
 
@@ -166,4 +179,13 @@ export class addMealLogComponent implements OnInit {
     this.form.controls['date'].setValue(newDate);
   }
 
+  fillUnits(): void {
+    this.unitService.getAllUnits().subscribe(
+      (data) => { this.units = data; },
+      () => { console.log('Error fetching units'); },
+    );
+  }
+
 }
+
+

@@ -7,15 +7,15 @@ export class ProductQuantity extends BaseClass {
     product: Product;
     quantity: number;
     unit: Unit;
-    totalGrams: number;
-    totalKcal: number;
+    // totalGrams: number;
+    // totalKcal: number;
 
     constructor(id: number, product: Product, quantity: number, unit: Unit) {
         super(id);
         this.product = product;
         this.quantity = quantity;
         this.unit = unit;
-        this.totalGrams = this.quantity * this.unit;
+    //    this.totalGrams = this.quantity * this.unit;
     }
 }
 

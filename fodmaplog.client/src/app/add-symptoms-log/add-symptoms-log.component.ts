@@ -9,6 +9,8 @@ import { SymptomsLog } from '../domain/SymptomsLog';
 import { SymptomType } from '../domain/SymptomType';
 import { SymptomScale } from '../domain/SymptomScale';
 import { ActivatedRoute, Router } from '@angular/router';
+import { SymptomTypesService } from '../services/symptom-types.service';
+import { SymptomsLogTransferService } from '../services/symptoms-log-transfer.service';
 
 @Component({
   selector: 'app-add-symptoms-log',
@@ -20,13 +22,13 @@ export class addSymptomsLogComponent implements OnInit {
   @ViewChild('closeModalBtn') closeModalBtn: ElementRef;
   form: FormGroup;
   name: string;
-  symptomTypes = Object.keys(SymptomType).filter(key => isNaN(Number(key))).map(key => ({ label: key, value: SymptomType[key as keyof typeof SymptomType] }));
+  symptomTypes: SymptomType[];
   selectedUnit: string = "1";
   quantityInput: number = 1;
   symptomsLog: SymptomsLog;
-  symptomType = SymptomType;
+  symptomType: SymptomType;
   symptomRange: number;
-  symptomScale = SymptomScale
+  symptomScale = SymptomScale;
   currDate = new Date().toISOString().split('T')[0];
   currTime = new Date().toLocaleTimeString([], {
     hour: '2-digit',
@@ -37,9 +39,11 @@ export class addSymptomsLogComponent implements OnInit {
 
   constructor(private productsApiService: ProductsApiService,
     private fodmapLogService: FodmapLogService,
+    private symptomTypeService: SymptomTypesService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private SymptomsLogTransferService: SymptomsLogTransferService
   ) { }
     
   ngOnInit(): void {
@@ -71,11 +75,27 @@ export class addSymptomsLogComponent implements OnInit {
           }
         )
       }
+        else if (this.route.snapshot.queryParamMap.get('isPending') == 'true') {
+        var pendingSymptomsLog = this.SymptomsLogTransferService.symptomsLog;
+        if (pendingSymptomsLog){
+                      this.currTime = new Date(pendingSymptomsLog.date).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          });
+          pendingSymptomsLog.date = this.currDate + 'T' + this.currTime;
+          this.form.patchValue(pendingSymptomsLog);
+          this.populateSymptoms(pendingSymptomsLog.symptoms);
+        }
+      }
     });
 
-        console.log(this.products)
-        console.log(this.symptomType[2])
-    }
+    //fill symptom types
+    this.symptomTypeService.getSymptomTypes().subscribe(
+      (result: SymptomType[]) => this.symptomTypes = result,
+      (error) => console.log(error),  
+    )
+  }
   populateSymptoms(symptoms: Symptom[]): void {
     const symptomsFormGroups = symptoms.map(symptoms => this.fb.group(symptoms));
     const symptomsFormArray = this.fb.array(symptomsFormGroups);

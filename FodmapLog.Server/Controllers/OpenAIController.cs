@@ -27,26 +27,24 @@ namespace FodmapLog.Server.Controllers
             {
               ""product"": {
                 ""name"": ""płatki ryżowe"",
-                ""id"": 6
               },
               ""quantity"": 100,
-              ""unit"": ""Glass"",
-              ""id"": 6
+              ""unit"":{
+                    ""name"" : ""Kilogram""
+                },
             },
             {
               ""product"": {
                 ""name"": ""mleko"",
-                ""id"": 7
               },
               ""quantity"": 1,
-              ""unit"": 250,
-              ""id"": 7
+              ""unit"": {
+                    ""name"" : ""Liter""
+                },
             }
           ],
-          ""id"": 5
         },
         ""symptomsLog"": null,
-        ""id"": 0
       },
       {
         ""date"": ""2025-05-10T08:31:00"",
@@ -55,17 +53,19 @@ namespace FodmapLog.Server.Controllers
           ""date"": ""2025-05-10T08:31:00"",
           ""symptoms"": [
             {
-              ""symptomType"": ""Nausea"",
+              ""symptomType"": {
+                    ""name"" : ""Nausea""
+                },
               ""symptomScale"": 1
             },
             {
-              ""symptomType"": ""Burping"",
+              ""symptomType"": {
+                    ""name"" : ""Burping""
+                },
               ""symptomScale"": 2
             }
           ],
-          ""id"": 4
         },
-        ""id"": 0
       }
     ]";
             ChatClient client = new(model: "gpt-4o", apiKey: _apiKey);

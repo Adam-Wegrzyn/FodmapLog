@@ -11,6 +11,7 @@ import { OpenAiService } from '../services/openAi-service';
 import { DailyLogUI } from '../domain/DailyLogUI';
 import { SymptomsLog } from '../domain/SymptomsLog';
 import { MealLogTransferService } from '../services/meal-log-transfer.service';
+import { SymptomsLogTransferService } from '../services/symptoms-log-transfer.service';
 @Component({
   selector: 'app-daily-log',
   templateUrl: './daily-log.component.html',
@@ -24,7 +25,8 @@ export class DailyLogComponent implements OnInit {
     private router: Router,
     private openAiService: OpenAiService,
     private cdr: ChangeDetectorRef ,
-    private mealLogTransferService: MealLogTransferService
+    private mealLogTransferService: MealLogTransferService,
+    private symptomsLogTransferService: SymptomsLogTransferService
   ) { }
 
   logs: DailyLogUI[];
@@ -39,6 +41,7 @@ export class DailyLogComponent implements OnInit {
   faCircleChevronLeft = faCircleChevronLeft;
   faPlusCircle = faPlusCircle;
   symptomScaleValues = Object.values(SymptomScale);
+  transcriptionText: string = '';
   
   
 
@@ -61,6 +64,15 @@ export class DailyLogComponent implements OnInit {
     this.mealLogTransferService.mealLog = mealLog;
     this.router.navigate(
       ['/add-meal-log'],
+      { queryParams: {isPending: true} }
+    );
+  }
+
+    editPendingSymptomsLog(symptomsLog: SymptomsLog): void {
+      console.log(symptomsLog);
+    this.symptomsLogTransferService.symptomsLog = symptomsLog;
+    this.router.navigate(
+      ['/add-symptoms-log'],
       { queryParams: {isPending: true} }
     );
   }
@@ -134,6 +146,9 @@ getOnlyStringDate(date: Date): string {
 }
 
 saveMealLog(mealLog: DailyLogUI): void {
+}
+deleteLog(log: DailyLogUI): void {
+  
 }
 
 

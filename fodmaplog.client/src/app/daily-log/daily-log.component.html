@@ -1,98 +1,121 @@
-    <div class="row mb-5">
-        <div class="col-2">
-            <fa-icon (click)="decreaseDate()" size="2x" class="text-success" [icon]="faCircleChevronLeft"></fa-icon>    </div>
-        <div class="col-8">
-            <input [(ngModel)]="setDateCalendar" (ngModelChange)="onDateChange($event)" type="date" id="calendar" name="calendar">
+<div class="row mb-5">
+  <div class="col-2">
+    <fa-icon (click)="decreaseDate()" size="2x" class="text-success" [icon]="faCircleChevronLeft"></fa-icon>
+  </div>
+  <div class="col-8">
+    <input [(ngModel)]="setDateCalendar" (ngModelChange)="onDateChange($event)" type="date" id="calendar"
+      name="calendar">
+  </div>
+  <div class="col-2">
+    <fa-icon (click)="increaseDate()" size="2x" class="text-success" [icon]="faCircleChevronRight"></fa-icon>
+  </div>
+
+</div>
+<div class="row">
+  <ng-container *ngFor="let log of logs; let i = index">
+    <a *ngIf="isMealLog(log)" class="row-link">
+      <div [ngClass]="{'bg-light': i % 2 != 0,
+                       'border-warning': log.isPending}" class="row border">
+        <div class="col-2 border-end d-flex align-items-center justify-content-center text-secondary">
+          <span class="fw-bold fs-5">M</span>
         </div>
-        <div class="col-2">
-            <fa-icon (click)="increaseDate()" size="2x" class="text-success" [icon]="faCircleChevronRight"></fa-icon>
+        <div class="col-8 py-2">
+          <div *ngFor="let pq of log.mealLog.productQuantity" style="text-align: left;"
+            class="d-flex justify-content-between">
+            <span>{{pq.product.name}}</span>
+            <span>{{pq.quantity}} x {{pq.unit.name}}</span>
+          </div>
+        </div>
+        <div class="col-2 border-start d-flex align-items-center justify-content-center position-relative ">
+          <div><span class="text-danger deleteButton" (click)="deleteLog">x</span></div>
+          <div>
+            {{log.date | date: 'shortTime'}}
+          </div>
+          <div *ngIf="log.isPending" class="mx-2 mt-2">
+            <a href="#" class="text-primary text-decoration-none me-3 small"
+              (click)="saveMealLog(log)" *ngIf="isMealLog(log)">Save</a>
+          </div>
+
         </div>
 
-    </div>
-    <div class="row">
-        <ng-container *ngFor="let log of logs; let i = index">
-            <a *ngIf="isMealLog(log)"  class="row-link">
-              <div [ngClass]="{'bg-light': i % 2 != 0,
-                                'bg-warning': log.isPending}" class="row">
-                <div class="col-2 border-end d-flex align-items-center justify-content-center text-secondary">
-                  <span class="fw-bold fs-5">M</span>
-                </div>
-                <div class="col-8 py-2">
-                  <div *ngFor="let pq of log.mealLog.productQuantity" style="text-align: left;" class="d-flex justify-content-between">
-                    <span>{{pq.product.name}}</span>
-                    <span>{{pq.quantity}} x {{pq.unit}}</span>
-                  </div>
-                </div>
-                <div class="col-2 border-start d-flex align-items-center justify-content-center">
-                  <div>
-                  {{log.date | date: 'shortTime'}}
-                  </div>
-                                                          <div *ngIf="log.isPending" class="mt-2">
-          <button style="min-width: 60px; max-height: 25px;" class="btn btn-outline-primary btn-sm" (click)="saveMealLog(log)" *ngIf="isMealLog(log)">Save</button>
-          <button style="min-width: 60px; max-height: 25px;" class="btn btn-outline-primary btn-sm" (click)="editPendingMealLog(log.mealLog)">Edit</button>
+      </div>
+    </a>
+    <a (click)="editPendingSymptomsLog(log.symptomsLog)" *ngIf="!isMealLog(log)" class="row-link">
+      <div [ngClass]="{'bg-light': i % 2 != 0,
+                      'border-warning': log.isPending
+                      }" class="row border">
+        <div class="col-2 border-end d-flex align-items-center justify-content-center text-secondary">
+          
+          <span class="fw-bold fs-5">S</span>
         </div>
-                  
-                </div>
-
-              </div>
-            </a>
-            <a *ngIf="!isMealLog(log)" [routerLink]="['/add-symptoms-log', log.symptomsLog.id]" class="row-link">
-              <div [ngClass]="{'bg-light': i % 2 != 0}" class="row">
-                <div class="col-2 border-end d-flex align-items-center justify-content-center text-secondary">
-                  <span class="fw-bold fs-5">S</span>
-                </div>
-                <div class="col-8 py-2">
-                  <div *ngFor="let s of log.symptomsLog.symptoms" class="row">
-                    <div class="col-4">
-                      {{s.symptomType}}
-                    </div>
-                    <div class="col-8 py-2">
-                      <input disabled="true" type="range" class="form-range" min="0" max="5" [ngModel]="s.symptomScale">
-                      <div [ngClass]="{
+        <div class="col-8 py-2 ">
+          <div *ngFor="let s of log.symptomsLog.symptoms" class="row">
+            <div class="col-4 d-flex align-items-center justify-content-center">
+              {{s.symptomType.name}}
+            </div>
+            <div class="col-8 py-2 d-flex flex-column justify-content-center">
+              <input disabled="true" type="range" class="form-range" min="0" max="5" [ngModel]="s.symptomScale">
+              <div [ngClass]="{
                         'text-success': s.symptomScale == 0,
                         'text-warning': s.symptomScale > 0 && s.symptomScale < 4,
                         'text-danger': s.symptomScale >= 4
                       }" class="fs-7">
-                        {{symptomScale[s.symptomScale]}}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-2 border-start d-flex align-items-center justify-content-center">
-                  {{log.date | date: 'shortTime'}}
-                </div>
-                        <!-- <div *ngIf="log.isPending" class="mt-2">
-          <button class="btn btn-success btn-sm me-1" (click)="saveMealLog(log)" *ngIf="isMealLog(log)">Save</button>
-          <button class="btn btn-primary btn-sm" (click)="editMealLog(log.mealLog)">Edit</button>
-        </div> -->
+                {{symptomScale[s.symptomScale]}}
               </div>
-            </a>
-          </ng-container>
-    </div>
-    
-
-            <div class="selectModalIcon">
-                <fa-icon data-bs-toggle="modal" data-bs-target="#LogAddModal" class="text-success" size="3x" [icon]="faPlusCircle"></fa-icon>
+            </div>
+          </div>
+          
+        </div>
+                    <div class="col-2 border-start d-flex align-items-center justify-content-center position-relative">
+              <div>
+                          <div><span class="text-danger deleteButton" (click)="deleteLog">x</span></div>
+              {{log.date | date: 'shortTime'}}
+              </div>
+               <div *ngIf="log.isPending" class="mx-2 mt-2">
+              <a class="text-primary text-decoration-none me-3 small"
+                (click)="saveMealLog(log)">Save</a>
+              <a class="text-secondary text-decoration-none me-3 small"
+                >Edit</a>
+            </div>
+              
             </div>
 
-  <app-audio-recorder (transcription)="GenerateMealLogFromAI($event)"></app-audio-recorder>
+
+
+
+
+
+      </div>
+    </a>
+  </ng-container>
+</div>
+
+
+<div class="selectModalIcon">
+  <fa-icon data-bs-toggle="modal" data-bs-target="#LogAddModal" class="text-success" size="3x"
+    [icon]="faPlusCircle"></fa-icon>
+</div>
+
+<app-audio-recorder (transcription)="GenerateMealLogFromAI($event)"></app-audio-recorder>
+<input type="text" [(ngModel)]="transcriptionText" placeholder="Transcription Text">
+<button (click)="GenerateMealLogFromAI(transcriptionText)" class="btn btn-primary">Generate Meal Log</button>
 <!-- Modal -->
 <div class="modal fade" id="LogAddModal" tabindex="-1" aria-labelledby="LogAddModalLabel" aria-hidden="true">
-    <div class="modal-dialog custom-modal-position">
-      <div class="modal-content">
+  <div class="modal-dialog custom-modal-position">
+    <div class="modal-content">
 
-        <div class="modal-body">
-            <div class="list-group list-group-flush">
-                <a routerLink="/add-meal-log" class="list-group-item list-group-item-action"
-                data-bs-dismiss="modal" >Add Meal</a>
-                <a routerLink="/add-symptoms-log" class="list-group-item list-group-item-action"
-                data-bs-dismiss="modal" >Add Symptoms</a>
-              </div>
+      <div class="modal-body">
+        <div class="list-group list-group-flush">
+          <a routerLink="/add-meal-log" class="list-group-item list-group-item-action" data-bs-dismiss="modal">Add
+            Meal</a>
+          <a routerLink="/add-symptoms-log" class="list-group-item list-group-item-action" data-bs-dismiss="modal">Add
+            Symptoms</a>
+        </div>
 
       </div>
     </div>
   </div>
 
   <!-- Review Modal for AI-generated Log -->
-<!--  -->
-<!-- ...existing code... -->
+  <!--  -->
+  <!-- ...existing code... -->

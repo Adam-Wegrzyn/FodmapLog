@@ -8,10 +8,28 @@
     text-decoration: none;
     color: inherit;
     display: block;
+    cursor: pointer;
   }
 .selectModalIcon{
     position: absolute;
     bottom: 5rem;
     right: 2rem;
 
+}
+.row-link:not(:first-child) .row {
+  border-top: none !important;
+}
+
+.pendingButtons{
+    min-width: 60px;
+    max-height: 25px;
+}
+.deleteButton {
+    cursor: pointer;
+    color: red;
+    font-weight: bold;
+    position: absolute;
+    top: 0; 
+    right: 10px;
+    
 }

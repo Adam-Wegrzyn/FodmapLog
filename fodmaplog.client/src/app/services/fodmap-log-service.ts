@@ -6,11 +6,13 @@ import { MealLog } from "../domain/MealLog";
 import { DailyLog } from "../domain/DailyLog";
 import { SymptomsLog } from "../domain/SymptomsLog";
 import { environment } from "../../environments/environment";
+import { SymptomType } from "../domain/SymptomType";
 
 @Injectable({
     providedIn: 'root'
 })
 export class FodmapLogService {
+
 
     url: string = environment.apiUrl
     constructor(private httpClient: HttpClient) { }

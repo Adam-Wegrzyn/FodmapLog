@@ -4,6 +4,7 @@ using DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(FodmapLogDbContext))]
-    partial class FodmapLogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250608180622_Init2")]
+    partial class Init2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -126,113 +129,6 @@ namespace DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SymptomTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Nausea"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Burping"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Diarrhea"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Constipation"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Bloating"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Abdominal Pain"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "Heartburn"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Name = "Gas"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Name = "Cramps"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Name = "Vomiting"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Name = "Appetite"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            Name = "Headache"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            Name = "Fatigue"
-                        },
-                        new
-                        {
-                            Id = 14,
-                            Name = "Mood"
-                        },
-                        new
-                        {
-                            Id = 15,
-                            Name = "Energy"
-                        },
-                        new
-                        {
-                            Id = 16,
-                            Name = "Sleep Quality"
-                        },
-                        new
-                        {
-                            Id = 17,
-                            Name = "Stress"
-                        },
-                        new
-                        {
-                            Id = 18,
-                            Name = "Concentration"
-                        },
-                        new
-                        {
-                            Id = 19,
-                            Name = "Motivation"
-                        },
-                        new
-                        {
-                            Id = 20,
-                            Name = "Physical Activity"
-                        },
-                        new
-                        {
-                            Id = 21,
-                            Name = "General Well-being"
-                        });
                 });
 
             modelBuilder.Entity("DataAccess.Entities.SymptomsLog", b =>
@@ -266,113 +162,6 @@ namespace DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Units");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Gram"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Kilogram"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Milligram"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Liter"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Milliliter"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Teaspoon"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "Tablespoon"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Name = "Cup"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Name = "Piece"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Name = "Slice"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Name = "Drop"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            Name = "Pinch"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            Name = "Ounce"
-                        },
-                        new
-                        {
-                            Id = 14,
-                            Name = "Pound"
-                        },
-                        new
-                        {
-                            Id = 15,
-                            Name = "Fluid Ounce"
-                        },
-                        new
-                        {
-                            Id = 16,
-                            Name = "Pint"
-                        },
-                        new
-                        {
-                            Id = 17,
-                            Name = "Quart"
-                        },
-                        new
-                        {
-                            Id = 18,
-                            Name = "Gallon"
-                        },
-                        new
-                        {
-                            Id = 19,
-                            Name = "Can"
-                        },
-                        new
-                        {
-                            Id = 20,
-                            Name = "Package"
-                        },
-                        new
-                        {
-                            Id = 21,
-                            Name = "Bottle"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

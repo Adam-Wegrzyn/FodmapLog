@@ -7,6 +7,7 @@
     <SpaRoot>..\fodmaplog.client</SpaRoot>
     <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
     <SpaProxyServerUrl>https://localhost:4200</SpaProxyServerUrl>
+    <UserSecretsId>7c0e8527-3921-4c01-a78c-c38c00c95cfd</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

@@ -47,6 +47,7 @@ export class AudioRecorderComponent {
   
       // Send to Azure
       this.sendAudioToAzure(wavBlob);
+  
 
     };
   }

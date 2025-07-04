@@ -13,6 +13,7 @@ namespace Core
             CreateMap<ProductQuantityDto, ProductQuantity>().ReverseMap();
             CreateMap<SymptomsLog, SymptomsLogDto>().ReverseMap();
             CreateMap<Symptom, SymptomDto>().ReverseMap();
+            CreateMap<SymptomType, SymptomTypeDto>().ReverseMap();
       
 
         }

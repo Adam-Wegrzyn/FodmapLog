@@ -1,5 +1,6 @@
 ﻿using Core.Interfaces;
 using Data.Common.DTO;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +11,13 @@ namespace FodmapLog.Server.Controllers
     public class FodmapLogController : ControllerBase
     {
         private IFodmapLogService _fodmapLogService;
-        public FodmapLogController(IFodmapLogService fodmapLogService)
+        private readonly IMediator _mediator;
+
+        public FodmapLogController(IFodmapLogService fodmapLogService,IMediator mediator)
         {
 
             _fodmapLogService = fodmapLogService;
+            _mediator = mediator;
 
         }
        
@@ -92,5 +96,12 @@ namespace FodmapLog.Server.Controllers
             return Ok(result);
         }
 
+        [HttpGet]
+        [Route("symptomTypes")]
+        public async Task<IActionResult> symptomTypes()
+        {
+            var result = await _mediator.Send(new Core.CQRS.GetSymptomTypesQuery(), CancellationToken.None);
+            return Ok(result);
+        }
     }
 }

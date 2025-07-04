@@ -1,25 +1,26 @@
+using Azure.Identity;
+using Azure.Messaging.ServiceBus;
+using Core.CQRS;
 using Core.Interfaces;
 using Core.Services;
 using DataAccess;
 using DataAccess.Interfaces;
 using DataAccess.Repositories;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.Identity.Web;
-using Azure.Identity;
-using Azure.Messaging.ServiceBus;
 using FodmapLog.Server.Controllers;
-using System.Text.Json.Serialization;
-using System.Text.Json;
+using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Identity;
 //using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Authentication.Google;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 //using Microsoft.AspNetCore.Identity;
 
 
@@ -27,13 +28,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["ApplicationInsights:InstrumentationKey"]);
 
+var tenantId = builder.Configuration["AzureAd:TenantId"];
+var clientId = builder.Configuration["AzureAd:ClientId"];
+var clientSecret = builder.Configuration["AzureAd:ClientSecret"];
+var credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
+
 var keyVaultName = builder.Configuration["KeyVaultName"];
 if (!string.IsNullOrEmpty(keyVaultName))
 {
     var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
     builder.Configuration.AddAzureKeyVault(
         keyVaultUri,
-        new DefaultAzureCredential());
+        credential);
 }
 
 //builder.Services.AddControllers()
@@ -84,6 +90,7 @@ builder.Services.AddDbContext<FodmapLogDbContext>(options =>
 
 builder.Services.AddSingleton(new ServiceBusClient(builder.Configuration["serviceBusSecret2"]));
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetSymptomTypesQueryHandler>());
 
 
 

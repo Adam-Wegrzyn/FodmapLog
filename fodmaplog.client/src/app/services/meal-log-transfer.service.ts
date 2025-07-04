@@ -5,6 +5,6 @@ import { MealLog } from '../domain/MealLog';
   providedIn: 'root'
 })
 export class MealLogTransferService {
-  mealLog: MealLog | null = null;
+  mealLog: MealLog | null = null;  
   constructor() { }
 }

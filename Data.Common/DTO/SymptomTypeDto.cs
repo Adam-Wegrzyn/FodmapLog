@@ -1,8 +1,7 @@
 namespace Data.Common.DTO
 {
-    public class SymptomTypeDto
+    public class SymptomTypeDto: BaseDto
     {
-        public int Id { get; set; }
         public string Name { get; set; }
     }
 }
