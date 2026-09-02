@@ -11,12 +11,14 @@ namespace FodmapLog.Server.Controllers
     public class OpenAIController : ControllerBase
     {
         private readonly string? _apiKey;
+        private readonly bool _useAiStubs;
         private readonly ILogger<OpenAIController> _logger;
         private const int MaxTranscriptLength = 8000;
 
         public OpenAIController(IConfiguration configuration, ILogger<OpenAIController> logger)
         {
             _apiKey = configuration["openAIApiKey"];
+            _useAiStubs = configuration.GetValue("UseAiStubs", false);
             _logger = logger;
         }
 
@@ -34,8 +36,15 @@ namespace FodmapLog.Server.Controllers
                 return BadRequest(new { error = $"Transcript exceeds {MaxTranscriptLength} characters." });
             }
 
-            if (string.IsNullOrWhiteSpace(_apiKey))
+            if (_useAiStubs || string.IsNullOrWhiteSpace(_apiKey))
             {
+                if (_useAiStubs)
+                {
+                    _logger.LogInformation("UseAiStubs enabled — returning local stub daily logs. TranscriptLength={Length}", input.Transcript.Length);
+                    await Task.Delay(350, cancellationToken);
+                    return Content(BuildStubDailyLogsJson(), "application/json");
+                }
+
                 return StatusCode(StatusCodes.Status503ServiceUnavailable, new { error = "OpenAI is not configured." });
             }
 
@@ -117,7 +126,6 @@ namespace FodmapLog.Server.Controllers
                     return UnprocessableEntity(new { error = "AI response was not a JSON array." });
                 }
 
-                // Return typed JSON array (not a quoted string) for the Angular client.
                 return Content(cleaned, "application/json");
             }
             catch (JsonException)
@@ -125,6 +133,52 @@ namespace FodmapLog.Server.Controllers
                 _logger.LogWarning("OpenAI returned unparseable JSON. Length={Length}", cleaned.Length);
                 return UnprocessableEntity(new { error = "AI response could not be parsed as JSON." });
             }
+        }
+
+        private static string BuildStubDailyLogsJson()
+        {
+            var day = DateTime.Today;
+            var mealAt = day.AddHours(8);
+            var symptomAt = day.AddHours(10);
+            var mealIso = mealAt.ToString("yyyy-MM-ddTHH:mm:ss");
+            var symptomIso = symptomAt.ToString("yyyy-MM-ddTHH:mm:ss");
+
+            return $$"""
+            [
+              {
+                "date": "{{mealIso}}",
+                "mealLog": {
+                  "date": "{{mealIso}}",
+                  "productQuantity": [
+                    {
+                      "product": { "name": "Oatmeal" },
+                      "quantity": 1,
+                      "unit": { "name": "Bowl" }
+                    },
+                    {
+                      "product": { "name": "Milk" },
+                      "quantity": 200,
+                      "unit": { "name": "ml" }
+                    }
+                  ]
+                },
+                "symptomsLog": null
+              },
+              {
+                "date": "{{symptomIso}}",
+                "mealLog": null,
+                "symptomsLog": {
+                  "date": "{{symptomIso}}",
+                  "symptoms": [
+                    {
+                      "symptomType": { "name": "Bloating" },
+                      "symptomScale": 3
+                    }
+                  ]
+                }
+              }
+            ]
+            """;
         }
 
         private static string StripMarkdownFences(string text)
