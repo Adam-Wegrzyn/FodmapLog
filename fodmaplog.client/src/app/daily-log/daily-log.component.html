@@ -6,7 +6,7 @@
     </div>
     <div class="col-8">
       <input [(ngModel)]="setDateCalendar" (ngModelChange)="onDateChange($event)" type="date" id="calendar"
-        name="calendar" class="form-control text-center">
+        name="calendar" class="form-control text-center date-input">
     </div>
     <div class="col-2">
       <fa-icon (click)="increaseDate()" size="2x" class="text-success date-chevron"
@@ -19,38 +19,45 @@
     <p class="empty-example">{{ emptyExample }}</p>
   </div>
 
-  <div class="row log-list" *ngIf="savedLogs.length > 0">
-    <ng-container *ngFor="let log of savedLogs; let i = index">
-      <div *ngIf="isMealLog(log)" class="log-row" [class.log-row--alt]="i % 2 !== 0">
-        <div class="log-badge">M</div>
-        <div class="log-body">
-          <div *ngFor="let pq of log.mealLog.productQuantity" class="log-line">
-            <span>{{ pq.product.name }}</span>
-            <span>{{ pq.quantity }} × {{ pq.unit.name }}</span>
-          </div>
+  <div class="log-list" *ngIf="savedLogs.length > 0">
+    <ng-container *ngFor="let log of savedLogs">
+      <article *ngIf="isMealLog(log)" class="log-entry log-entry--meal">
+        <div class="log-entry-rail" aria-hidden="true">
+          <span class="type-dot type-dot--meal"></span>
         </div>
-        <div class="log-time">{{ log.date | date: 'shortTime' }}</div>
-      </div>
+        <div class="log-entry-main">
+          <header class="log-entry-meta">
+            <span class="type-label type-label--meal">Meal</span>
+            <time class="log-entry-time">{{ log.date | date: 'shortTime' }}</time>
+          </header>
+          <ul class="food-list">
+            <li *ngFor="let pq of log.mealLog.productQuantity" class="food-item">
+              <span class="food-name">{{ pq.product.name }}</span>
+              <span class="food-amount">{{ formatAmount(pq.quantity, pq.unit?.name) }}</span>
+            </li>
+          </ul>
+        </div>
+      </article>
 
-      <div *ngIf="!isMealLog(log)" class="log-row" [class.log-row--alt]="i % 2 !== 0">
-        <div class="log-badge">S</div>
-        <div class="log-body">
-          <div *ngFor="let s of log.symptomsLog.symptoms" class="symptom-line">
-            <span class="symptom-name">{{ s.symptomType.name }}</span>
-            <div class="symptom-scale">
-              <input disabled type="range" class="form-range" min="0" max="5" [ngModel]="s.symptomScale">
-              <div [ngClass]="{
-                'text-success': s.symptomScale == 0,
-                'text-warning': s.symptomScale > 0 && s.symptomScale < 4,
-                'text-danger': s.symptomScale >= 4
-              }" class="fs-7">
-                {{ symptomScale[s.symptomScale] }}
-              </div>
-            </div>
-          </div>
+      <article *ngIf="!isMealLog(log)" class="log-entry log-entry--symptom">
+        <div class="log-entry-rail" aria-hidden="true">
+          <span class="type-dot type-dot--symptom"></span>
         </div>
-        <div class="log-time">{{ log.date | date: 'shortTime' }}</div>
-      </div>
+        <div class="log-entry-main">
+          <header class="log-entry-meta">
+            <span class="type-label type-label--symptom">Symptom</span>
+            <time class="log-entry-time">{{ log.date | date: 'shortTime' }}</time>
+          </header>
+          <ul class="symptom-list">
+            <li *ngFor="let s of log.symptomsLog.symptoms" class="symptom-item">
+              <span class="symptom-name">{{ s.symptomType.name }}</span>
+              <span class="severity-pill" [attr.data-tone]="severityTone(s.symptomScale)">
+                {{ severityLabel(s.symptomScale) }}
+              </span>
+            </li>
+          </ul>
+        </div>
+      </article>
     </ng-container>
   </div>
 
@@ -76,7 +83,6 @@
     </div>
   </div>
 
-  <!-- Manual add (demoted from bottom nav) -->
   <div class="modal fade" id="LogAddModal" tabindex="-1" aria-labelledby="LogAddModalLabel" aria-hidden="true">
     <div class="modal-dialog custom-modal-position">
       <div class="modal-content">
@@ -92,7 +98,6 @@
     </div>
   </div>
 
-  <!-- UI-3 Review sheet -->
   <div *ngIf="showReviewSheet" class="review-backdrop" (click)="closeReviewSheet()"></div>
   <aside *ngIf="showReviewSheet" class="review-sheet" role="dialog" aria-modal="true"
     aria-labelledby="reviewSheetTitle">
@@ -151,31 +156,37 @@
 </div>
 
 <ng-template #pendingItem let-log>
-  <div class="pending-item" [class.pending-item--meal]="isMealLog(log)">
+  <div class="pending-item" [class.pending-item--meal]="isMealLog(log)"
+    [class.pending-item--symptom]="!isMealLog(log)">
     <div class="pending-item-top">
-      <span class="pending-badge">{{ isMealLog(log) ? 'Meal' : 'Symptoms' }}</span>
-      <span class="pending-time">{{ log.date | date: 'shortTime' }}</span>
+      <span class="type-label" [class.type-label--meal]="isMealLog(log)"
+        [class.type-label--symptom]="!isMealLog(log)">
+        {{ isMealLog(log) ? 'Meal' : 'Symptom' }}
+      </span>
+      <time class="log-entry-time">{{ log.date | date: 'shortTime' }}</time>
       <button type="button" class="btn btn-sm btn-link text-danger pending-discard"
         (click)="discardPending(log, $event)">Remove</button>
     </div>
     <div *ngIf="isMealLog(log)" class="pending-body">
-      <div *ngFor="let pq of log.mealLog.productQuantity" class="log-line">
-        <span>{{ pq.product.name }}</span>
-        <span>{{ pq.quantity }} × {{ pq.unit?.name || '' }}</span>
-      </div>
-      <button type="button" class="btn btn-sm btn-link px-0"
+      <ul class="food-list">
+        <li *ngFor="let pq of log.mealLog.productQuantity" class="food-item">
+          <span class="food-name">{{ pq.product.name }}</span>
+          <span class="food-amount">{{ formatAmount(pq.quantity, pq.unit?.name) }}</span>
+        </li>
+      </ul>
+      <button type="button" class="btn btn-sm btn-link px-0 edit-link"
         (click)="editPendingMealLog(log.mealLog)">Edit</button>
     </div>
     <div *ngIf="!isMealLog(log)" class="pending-body">
-      <div *ngFor="let s of log.symptomsLog.symptoms" class="symptom-line">
-        <span class="symptom-name">{{ s.symptomType.name }}</span>
-        <span [ngClass]="{
-          'text-success': s.symptomScale == 0,
-          'text-warning': s.symptomScale > 0 && s.symptomScale < 4,
-          'text-danger': s.symptomScale >= 4
-        }">{{ symptomScale[s.symptomScale] || s.symptomScale }}</span>
-      </div>
-      <button type="button" class="btn btn-sm btn-link px-0"
+      <ul class="symptom-list">
+        <li *ngFor="let s of log.symptomsLog.symptoms" class="symptom-item">
+          <span class="symptom-name">{{ s.symptomType.name }}</span>
+          <span class="severity-pill" [attr.data-tone]="severityTone(s.symptomScale)">
+            {{ severityLabel(s.symptomScale) }}
+          </span>
+        </li>
+      </ul>
+      <button type="button" class="btn btn-sm btn-link px-0 edit-link"
         (click)="editPendingSymptomsLog(log.symptomsLog)">Edit</button>
     </div>
   </div>

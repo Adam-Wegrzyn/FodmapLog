@@ -191,6 +191,36 @@ export class DailyLogComponent implements OnInit {
     return log.mealLog != undefined && log.mealLog != null;
   }
 
+  /** Friendly amount like "1 bowl" / "200 ml" (food-diary style). */
+  formatAmount(quantity: number | string, unitName?: string): string {
+    const qty = quantity ?? '';
+    const unit = (unitName || '').trim();
+    if (!unit) {
+      return `${qty}`;
+    }
+    const compact = unit
+      .replace(/^Milliliter$/i, 'ml')
+      .replace(/^Millilitre$/i, 'ml')
+      .replace(/^Gram$/i, 'g')
+      .replace(/^Kilogram$/i, 'kg')
+      .replace(/^Liter$/i, 'L')
+      .replace(/^Litre$/i, 'L');
+    const lower = compact.length <= 3 && compact === compact.toUpperCase()
+      ? compact
+      : compact.toLowerCase();
+    return `${qty} ${lower}`;
+  }
+
+  severityLabel(scale: number): string {
+    return this.symptomScale[scale] ?? `${scale}`;
+  }
+
+  severityTone(scale: number): 'calm' | 'mild' | 'hot' {
+    if (scale <= 0) return 'calm';
+    if (scale < 4) return 'mild';
+    return 'hot';
+  }
+
   onDateChange(newDate: string): void {
     this.currentDate = new Date(newDate + 'T12:00:00');
     this.GetDailyLog(newDate);
