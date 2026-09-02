@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccess.Entities
 {
-    public class MealLog: BaseEntity
+    public class MealLog : BaseEntity
     {
+        /// <summary>
+        /// ASP.NET Identity user id (JWT <c>sub</c>). Null isolates legacy rows created before user scoping.
+        /// </summary>
+        public string? UserId { get; set; }
+
         public DateTime Date { get; set; }
         public ICollection<ProductQuantity> ProductQuantity { get; set; }
     }

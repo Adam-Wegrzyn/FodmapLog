@@ -27,7 +27,7 @@ var host = new HostBuilder()
             var secretClient = new SecretClient(keyVaultUri, clientSecretCredential);
             var serviceBusConnectionString = GetServiceBusConnectionString(secretClient, "serviceBusSecret2");
             buildConfig["Values:serviceBusSecret2"] = serviceBusConnectionString;
-            Console.WriteLine($"Retrieved Service Bus Connection String: {serviceBusConnectionString}");
+            Console.WriteLine("Retrieved Service Bus connection string from Key Vault.");
         }
     })
     .ConfigureFunctionsWorkerDefaults()
