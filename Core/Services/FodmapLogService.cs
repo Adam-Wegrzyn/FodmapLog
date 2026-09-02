@@ -33,8 +33,11 @@ namespace Core.Services
             mealLog.UserId = userId;
             var addedMealLog = await _fodmapLogRepository.AddMealLog(mealLog, cancellationToken);
 
-            var sender = _serviceBusClient.CreateSender("main-queue");
-            await sender.SendMessageAsync(new ServiceBusMessage("New mealLog has been added!"), cancellationToken);
+            if (_serviceBusClient is not null)
+            {
+                var sender = _serviceBusClient.CreateSender("main-queue");
+                await sender.SendMessageAsync(new ServiceBusMessage("New mealLog has been added!"), cancellationToken);
+            }
             return _mapper.Map<MealLogDto>(addedMealLog);
         }
 
