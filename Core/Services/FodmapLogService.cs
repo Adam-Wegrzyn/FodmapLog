@@ -4,11 +4,9 @@ using Core.Interfaces;
 using Data.Common.DTO;
 using DataAccess.Entities;
 using DataAccess.Interfaces;
-using DataAccess.Repositories;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Core.Services
@@ -19,23 +17,24 @@ namespace Core.Services
         private readonly IMapper _mapper;
         private readonly ServiceBusClient _serviceBusClient;
 
-        public FodmapLogService(IFodmapLogRepository fodmapLogRepository,
+        public FodmapLogService(
+            IFodmapLogRepository fodmapLogRepository,
             IMapper autoMapper,
             ServiceBusClient serviceBusClient)
         {
             _fodmapLogRepository = fodmapLogRepository;
             _mapper = autoMapper;
             _serviceBusClient = serviceBusClient;
-            _serviceBusClient = serviceBusClient;
         }
 
-        public async Task<MealLogDto> AddMealLog(MealLogDto mealLogDto, CancellationToken cancellationToken)
+        public async Task<MealLogDto> AddMealLog(MealLogDto mealLogDto, string userId, CancellationToken cancellationToken)
         {
             var mealLog = _mapper.Map<MealLog>(mealLogDto);
+            mealLog.UserId = userId;
             var addedMealLog = await _fodmapLogRepository.AddMealLog(mealLog, cancellationToken);
 
             var sender = _serviceBusClient.CreateSender("main-queue");
-            await sender.SendMessageAsync(new ServiceBusMessage("New mealLog has been added!"));
+            await sender.SendMessageAsync(new ServiceBusMessage("New mealLog has been added!"), cancellationToken);
             return _mapper.Map<MealLogDto>(addedMealLog);
         }
 
@@ -46,17 +45,18 @@ namespace Core.Services
             return _mapper.Map<ProductDto>(addedProduct);
         }
 
-        public async Task<SymptomsLogDto> AddSymptomsLog(SymptomsLogDto symptomsLogDto, CancellationToken cancellationToken)
+        public async Task<SymptomsLogDto> AddSymptomsLog(SymptomsLogDto symptomsLogDto, string userId, CancellationToken cancellationToken)
         {
             var symptomsLog = _mapper.Map<SymptomsLog>(symptomsLogDto);
+            symptomsLog.UserId = userId;
             var addedSymptomsLog = await _fodmapLogRepository.AddSymptomsLog(symptomsLog, cancellationToken);
             return _mapper.Map<SymptomsLogDto>(addedSymptomsLog);
         }
 
-        public async Task<MealLogDto> DeleteMealLog(int id, CancellationToken cancellationToken)
+        public async Task<MealLogDto?> DeleteMealLog(int id, string userId, CancellationToken cancellationToken)
         {
-            var deletedMealLog = await _fodmapLogRepository.DeleteMealLog(id, cancellationToken);
-            return _mapper.Map<MealLogDto>(deletedMealLog);
+            var deletedMealLog = await _fodmapLogRepository.DeleteMealLog(id, userId, cancellationToken);
+            return deletedMealLog == null ? null : _mapper.Map<MealLogDto>(deletedMealLog);
         }
 
         public async Task<ProductDto> DeleteProduct(int id, CancellationToken cancellationToken)
@@ -65,9 +65,9 @@ namespace Core.Services
             return _mapper.Map<ProductDto>(deletedProduct);
         }
 
-        public async Task<IEnumerable<MealLogDto>> GetAllMealLogs(CancellationToken cancellationToken)
+        public async Task<IEnumerable<MealLogDto>> GetAllMealLogs(string userId, CancellationToken cancellationToken)
         {
-            var mealLogs = await _fodmapLogRepository.GetAllMealLogs(cancellationToken);
+            var mealLogs = await _fodmapLogRepository.GetAllMealLogs(userId, cancellationToken);
             return _mapper.Map<IEnumerable<MealLogDto>>(mealLogs);
         }
 
@@ -77,11 +77,11 @@ namespace Core.Services
             return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
-        public async Task<IEnumerable<DailyLogDto>> GetDailyLogsByDate(DateTime date, CancellationToken cancellationToken)
+        public async Task<IEnumerable<DailyLogDto>> GetDailyLogsByDate(DateTime date, string userId, CancellationToken cancellationToken)
         {
             var dailyLogs = new List<DailyLogDto>();
-            var mealLogs = await _fodmapLogRepository.GetMealLogsByDate(date, cancellationToken);
-            var symptomsLogs = await _fodmapLogRepository.GetSymptomsLogsByDate(date, cancellationToken);
+            var mealLogs = await _fodmapLogRepository.GetMealLogsByDate(date, userId, cancellationToken);
+            var symptomsLogs = await _fodmapLogRepository.GetSymptomsLogsByDate(date, userId, cancellationToken);
 
             foreach (var mealLog in mealLogs)
             {
@@ -98,15 +98,14 @@ namespace Core.Services
                     Date = symptomLog.Date,
                     SymptomsLog = _mapper.Map<SymptomsLogDto>(symptomLog)
                 });
-
             }
             return dailyLogs;
         }
 
-        public async Task<MealLogDto> GetMealLogById(int id, CancellationToken cancellationToken)
+        public async Task<MealLogDto?> GetMealLogById(int id, string userId, CancellationToken cancellationToken)
         {
-            var mealLog = await _fodmapLogRepository.GetMealLogById(id, cancellationToken);
-            return _mapper.Map<MealLogDto>(mealLog);
+            var mealLog = await _fodmapLogRepository.GetMealLogById(id, userId, cancellationToken);
+            return mealLog == null ? null : _mapper.Map<MealLogDto>(mealLog);
         }
 
         public async Task<ProductDto> GetProductById(int id, CancellationToken cancellationToken)
@@ -115,16 +114,17 @@ namespace Core.Services
             return _mapper.Map<ProductDto>(product);
         }
 
-        public async Task<SymptomsLog> GetSymptomsLogById(int id, CancellationToken cancellationToken)
+        public async Task<SymptomsLogDto?> GetSymptomsLogById(int id, string userId, CancellationToken cancellationToken)
         {
-            var symptomsLog = await _fodmapLogRepository.GetSymptomsLogById(id, cancellationToken);
-            return _mapper.Map<SymptomsLog>(symptomsLog);
+            var symptomsLog = await _fodmapLogRepository.GetSymptomsLogById(id, userId, cancellationToken);
+            return symptomsLog == null ? null : _mapper.Map<SymptomsLogDto>(symptomsLog);
         }
 
-        public async Task<MealLogDto> UpdateMealLog(MealLogDto mealLogDto, CancellationToken cancellationToken)
+        public async Task<MealLogDto> UpdateMealLog(MealLogDto mealLogDto, string userId, CancellationToken cancellationToken)
         {
             var mealLog = _mapper.Map<MealLog>(mealLogDto);
-            var updatedMealLog = await _fodmapLogRepository.UpdateMealLog(mealLog, cancellationToken);
+            mealLog.UserId = userId;
+            var updatedMealLog = await _fodmapLogRepository.UpdateMealLog(mealLog, userId, cancellationToken);
             return _mapper.Map<MealLogDto>(updatedMealLog);
         }
 
@@ -135,14 +135,12 @@ namespace Core.Services
             return _mapper.Map<ProductDto>(updatedProduct);
         }
 
-
-        public async Task<SymptomsLog> UpdateSymptomsLog(SymptomsLogDto symptomsLogDto, CancellationToken cancellationToken)
+        public async Task<SymptomsLogDto?> UpdateSymptomsLog(SymptomsLogDto symptomsLogDto, string userId, CancellationToken cancellationToken)
         {
             var symptomsLog = _mapper.Map<SymptomsLog>(symptomsLogDto);
-            var updatedSymptomsLog = await _fodmapLogRepository.UpdateSymptomsLog(symptomsLog, cancellationToken);
-            return _mapper.Map<SymptomsLog>(updatedSymptomsLog);
+            symptomsLog.UserId = userId;
+            var updatedSymptomsLog = await _fodmapLogRepository.UpdateSymptomsLog(symptomsLog, userId, cancellationToken);
+            return _mapper.Map<SymptomsLogDto>(updatedSymptomsLog);
         }
-
-
     }
 }

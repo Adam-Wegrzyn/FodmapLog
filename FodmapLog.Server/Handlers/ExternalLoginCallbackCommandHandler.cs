@@ -24,8 +24,8 @@ namespace FodmapLog.Server.Handlers
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
-                // Handle error, maybe redirect with an error message
-                return $"{request.ReturnUrl}?error=ExternalLoginFailed";
+                var errorSeparator = request.ReturnUrl.Contains('#') ? "&" : "#";
+                return $"{request.ReturnUrl}{errorSeparator}error=ExternalLoginFailed";
             }
 
             // Try to sign in the user with this external login provider
@@ -55,9 +55,9 @@ namespace FodmapLog.Server.Handlers
             var roles = await _userManager.GetRolesAsync(user);
             var token = _jwtTokenService.GenerateJwtToken(user.Id, user.Email, roles);
 
-            // Redirect to frontend with token (e.g., as a query parameter or fragment)
-            return $"{request.ReturnUrl}?token={token}";
+            // Pass JWT in URL fragment so it is not sent to servers via Referer/query logs
+            var separator = request.ReturnUrl.Contains('#') ? "&" : "#";
+            return $"{request.ReturnUrl}{separator}token={Uri.EscapeDataString(token)}";
         }
     }
- 
 }
