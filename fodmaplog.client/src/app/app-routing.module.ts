@@ -17,26 +17,32 @@ const routes: Routes = [
     , 
   },
   {
-    path: "add-meal-log", component: addMealLogComponent
+    path: "add-meal-log", component: addMealLogComponent,
+    canActivate: [AuthGuard]
   },
   {
-    path: "add-meal-log/:id", component: addMealLogComponent
+    path: "add-meal-log/:id", component: addMealLogComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: "daily-log", component: DailyLogComponent,
     canActivate: [AuthGuard] 
   },
   {
-    path: "daily-log/:date", component: DailyLogComponent
+    path: "daily-log/:date", component: DailyLogComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: "add-symptoms-log", component: addSymptomsLogComponent,
+    canActivate: [AuthGuard]
   },
   {
-    path: "add-symptoms-log/:id", component: addSymptomsLogComponent
+    path: "add-symptoms-log/:id", component: addSymptomsLogComponent,
+    canActivate: [AuthGuard]
   },
   {
-    path: "audio-rec", component: AudioRecorderComponent
+    path: "audio-rec", component: AudioRecorderComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: "login", component: LoginComponent

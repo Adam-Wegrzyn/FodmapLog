@@ -1,121 +1,182 @@
-<div class="row mb-5">
-  <div class="col-2">
-    <fa-icon (click)="decreaseDate()" size="2x" class="text-success" [icon]="faCircleChevronLeft"></fa-icon>
-  </div>
-  <div class="col-8">
-    <input [(ngModel)]="setDateCalendar" (ngModelChange)="onDateChange($event)" type="date" id="calendar"
-      name="calendar">
-  </div>
-  <div class="col-2">
-    <fa-icon (click)="increaseDate()" size="2x" class="text-success" [icon]="faCircleChevronRight"></fa-icon>
+<div class="daily-log-page">
+  <div class="row mb-3 date-row align-items-center">
+    <div class="col-2">
+      <fa-icon (click)="decreaseDate()" size="2x" class="text-success date-chevron"
+        [icon]="faCircleChevronLeft"></fa-icon>
+    </div>
+    <div class="col-8">
+      <input [(ngModel)]="setDateCalendar" (ngModelChange)="onDateChange($event)" type="date" id="calendar"
+        name="calendar" class="form-control text-center">
+    </div>
+    <div class="col-2">
+      <fa-icon (click)="increaseDate()" size="2x" class="text-success date-chevron"
+        [icon]="faCircleChevronRight"></fa-icon>
+    </div>
   </div>
 
-</div>
-<div class="row">
-  <ng-container *ngFor="let log of logs; let i = index">
-    <a *ngIf="isMealLog(log)" class="row-link">
-      <div [ngClass]="{'bg-light': i % 2 != 0,
-                       'border-warning': log.isPending}" class="row border">
-        <div class="col-2 border-end d-flex align-items-center justify-content-center text-secondary">
-          <span class="fw-bold fs-5">M</span>
-        </div>
-        <div class="col-8 py-2">
-          <div *ngFor="let pq of log.mealLog.productQuantity" style="text-align: left;"
-            class="d-flex justify-content-between">
-            <span>{{pq.product.name}}</span>
-            <span>{{pq.quantity}} x {{pq.unit.name}}</span>
-          </div>
-        </div>
-        <div class="col-2 border-start d-flex align-items-center justify-content-center position-relative ">
-          <div><span class="text-danger deleteButton" (click)="deleteLog">x</span></div>
-          <div>
-            {{log.date | date: 'shortTime'}}
-          </div>
-          <div *ngIf="log.isPending" class="mx-2 mt-2">
-            <a href="#" class="text-primary text-decoration-none me-3 small"
-              (click)="saveMealLog(log)" *ngIf="isMealLog(log)">Save</a>
-          </div>
+  <div *ngIf="isEmptyDay" class="empty-state" role="status">
+    <p class="empty-title">Tap the mic and say what happened</p>
+    <p class="empty-example">{{ emptyExample }}</p>
+  </div>
 
+  <div class="row log-list" *ngIf="savedLogs.length > 0">
+    <ng-container *ngFor="let log of savedLogs; let i = index">
+      <div *ngIf="isMealLog(log)" class="log-row" [class.log-row--alt]="i % 2 !== 0">
+        <div class="log-badge">M</div>
+        <div class="log-body">
+          <div *ngFor="let pq of log.mealLog.productQuantity" class="log-line">
+            <span>{{ pq.product.name }}</span>
+            <span>{{ pq.quantity }} × {{ pq.unit.name }}</span>
+          </div>
         </div>
-
+        <div class="log-time">{{ log.date | date: 'shortTime' }}</div>
       </div>
-    </a>
-    <a (click)="editPendingSymptomsLog(log.symptomsLog)" *ngIf="!isMealLog(log)" class="row-link">
-      <div [ngClass]="{'bg-light': i % 2 != 0,
-                      'border-warning': log.isPending
-                      }" class="row border">
-        <div class="col-2 border-end d-flex align-items-center justify-content-center text-secondary">
-          
-          <span class="fw-bold fs-5">S</span>
-        </div>
-        <div class="col-8 py-2 ">
-          <div *ngFor="let s of log.symptomsLog.symptoms" class="row">
-            <div class="col-4 d-flex align-items-center justify-content-center">
-              {{s.symptomType.name}}
-            </div>
-            <div class="col-8 py-2 d-flex flex-column justify-content-center">
-              <input disabled="true" type="range" class="form-range" min="0" max="5" [ngModel]="s.symptomScale">
+
+      <div *ngIf="!isMealLog(log)" class="log-row" [class.log-row--alt]="i % 2 !== 0">
+        <div class="log-badge">S</div>
+        <div class="log-body">
+          <div *ngFor="let s of log.symptomsLog.symptoms" class="symptom-line">
+            <span class="symptom-name">{{ s.symptomType.name }}</span>
+            <div class="symptom-scale">
+              <input disabled type="range" class="form-range" min="0" max="5" [ngModel]="s.symptomScale">
               <div [ngClass]="{
-                        'text-success': s.symptomScale == 0,
-                        'text-warning': s.symptomScale > 0 && s.symptomScale < 4,
-                        'text-danger': s.symptomScale >= 4
-                      }" class="fs-7">
-                {{symptomScale[s.symptomScale]}}
+                'text-success': s.symptomScale == 0,
+                'text-warning': s.symptomScale > 0 && s.symptomScale < 4,
+                'text-danger': s.symptomScale >= 4
+              }" class="fs-7">
+                {{ symptomScale[s.symptomScale] }}
               </div>
             </div>
           </div>
-          
         </div>
-                    <div class="col-2 border-start d-flex align-items-center justify-content-center position-relative">
-              <div>
-                          <div><span class="text-danger deleteButton" (click)="deleteLog">x</span></div>
-              {{log.date | date: 'shortTime'}}
-              </div>
-               <div *ngIf="log.isPending" class="mx-2 mt-2">
-              <a class="text-primary text-decoration-none me-3 small"
-                (click)="saveMealLog(log)">Save</a>
-              <a class="text-secondary text-decoration-none me-3 small"
-                >Edit</a>
-            </div>
-              
-            </div>
-
-
-
-
-
-
+        <div class="log-time">{{ log.date | date: 'shortTime' }}</div>
       </div>
-    </a>
-  </ng-container>
-</div>
+    </ng-container>
+  </div>
 
+  <div *ngIf="pendingCount > 0 && !showReviewSheet" class="pending-banner">
+    <span>{{ pendingCount }} unsaved voice {{ pendingCount === 1 ? 'event' : 'events' }}</span>
+    <button type="button" class="btn btn-sm btn-success" (click)="showReviewSheet = true">Review</button>
+  </div>
 
-<div class="selectModalIcon">
-  <fa-icon data-bs-toggle="modal" data-bs-target="#LogAddModal" class="text-success" size="3x"
-    [icon]="faPlusCircle"></fa-icon>
-</div>
+  <p *ngIf="aiError" class="ai-error" role="alert">{{ aiError }}</p>
 
-<app-audio-recorder (transcription)="GenerateMealLogFromAI($event)"></app-audio-recorder>
-<input type="text" [(ngModel)]="transcriptionText" placeholder="Transcription Text">
-<button (click)="GenerateMealLogFromAI(transcriptionText)" class="btn btn-primary">Generate Meal Log</button>
-<!-- Modal -->
-<div class="modal fade" id="LogAddModal" tabindex="-1" aria-labelledby="LogAddModalLabel" aria-hidden="true">
-  <div class="modal-dialog custom-modal-position">
-    <div class="modal-content">
+  <div class="manual-add-fab">
+    <fa-icon data-bs-toggle="modal" data-bs-target="#LogAddModal" class="text-success" size="2x"
+      [icon]="faPlusCircle" title="Add manually"></fa-icon>
+  </div>
 
-      <div class="modal-body">
-        <div class="list-group list-group-flush">
-          <a routerLink="/add-meal-log" class="list-group-item list-group-item-action" data-bs-dismiss="modal">Add
-            Meal</a>
-          <a routerLink="/add-symptoms-log" class="list-group-item list-group-item-action" data-bs-dismiss="modal">Add
-            Symptoms</a>
+  <app-audio-recorder (transcription)="onTranscript($event)"></app-audio-recorder>
+
+  <div *ngIf="isUnderstanding" class="understanding-overlay" role="status" aria-live="polite">
+    <div class="understanding-panel">
+      <div class="spinner-border text-light mb-3" role="status"></div>
+      <p class="understanding-label">Understanding…</p>
+      <p class="understanding-hint">Finding meals and symptoms</p>
+    </div>
+  </div>
+
+  <!-- Manual add (demoted from bottom nav) -->
+  <div class="modal fade" id="LogAddModal" tabindex="-1" aria-labelledby="LogAddModalLabel" aria-hidden="true">
+    <div class="modal-dialog custom-modal-position">
+      <div class="modal-content">
+        <div class="modal-body">
+          <div class="list-group list-group-flush">
+            <a routerLink="/add-meal-log" class="list-group-item list-group-item-action" data-bs-dismiss="modal">Add
+              Meal</a>
+            <a routerLink="/add-symptoms-log" class="list-group-item list-group-item-action" data-bs-dismiss="modal">Add
+              Symptoms</a>
+          </div>
         </div>
-
       </div>
     </div>
   </div>
 
-  <!-- Review Modal for AI-generated Log -->
-  <!--  -->
-  <!-- ...existing code... -->
+  <!-- UI-3 Review sheet -->
+  <div *ngIf="showReviewSheet" class="review-backdrop" (click)="closeReviewSheet()"></div>
+  <aside *ngIf="showReviewSheet" class="review-sheet" role="dialog" aria-modal="true"
+    aria-labelledby="reviewSheetTitle">
+    <header class="review-header">
+      <div>
+        <h2 id="reviewSheetTitle" class="review-title">
+          {{ pendingCount }} {{ pendingCount === 1 ? 'event' : 'events' }}
+        </h2>
+        <p class="review-subtitle">Review before saving</p>
+      </div>
+      <button type="button" class="btn-close" aria-label="Close" (click)="closeReviewSheet()"></button>
+    </header>
+
+    <button type="button" class="transcript-toggle" (click)="toggleTranscript()"
+      *ngIf="lastTranscript">
+      <span>Transcript</span>
+      <fa-icon [icon]="transcriptExpanded ? faChevronUp : faChevronDown"></fa-icon>
+    </button>
+    <p *ngIf="transcriptExpanded && lastTranscript" class="transcript-body">{{ lastTranscript }}</p>
+
+    <p *ngIf="truncatedPendingCount > 0" class="soft-cap-note">
+      Showing first {{ pendingCount }}; {{ truncatedPendingCount }} more were omitted.
+    </p>
+
+    <div class="review-scroll">
+      <ng-container *ngIf="!useTimeGroups">
+        <ng-container *ngFor="let log of pendingLogs">
+          <ng-container *ngTemplateOutlet="pendingItem; context: { $implicit: log }"></ng-container>
+        </ng-container>
+      </ng-container>
+
+      <ng-container *ngIf="useTimeGroups">
+        <section *ngFor="let group of pendingGroups" class="time-group">
+          <h3 class="time-group-label">{{ group.label }}</h3>
+          <ng-container *ngFor="let log of group.logs">
+            <ng-container *ngTemplateOutlet="pendingItem; context: { $implicit: log }"></ng-container>
+          </ng-container>
+        </section>
+      </ng-container>
+    </div>
+
+    <p *ngIf="reviewError" class="review-error" role="alert">{{ reviewError }}</p>
+
+    <footer class="review-footer">
+      <button type="button" class="btn btn-outline-secondary flex-fill" (click)="reRecord()"
+        [disabled]="isSavingAll">
+        Re-record
+      </button>
+      <button type="button" class="btn btn-success flex-fill" (click)="saveAllPending()"
+        [disabled]="isSavingAll || pendingCount === 0">
+        <span *ngIf="isSavingAll" class="spinner-border spinner-border-sm me-1" role="status"></span>
+        Save all
+      </button>
+    </footer>
+  </aside>
+</div>
+
+<ng-template #pendingItem let-log>
+  <div class="pending-item" [class.pending-item--meal]="isMealLog(log)">
+    <div class="pending-item-top">
+      <span class="pending-badge">{{ isMealLog(log) ? 'Meal' : 'Symptoms' }}</span>
+      <span class="pending-time">{{ log.date | date: 'shortTime' }}</span>
+      <button type="button" class="btn btn-sm btn-link text-danger pending-discard"
+        (click)="discardPending(log, $event)">Remove</button>
+    </div>
+    <div *ngIf="isMealLog(log)" class="pending-body">
+      <div *ngFor="let pq of log.mealLog.productQuantity" class="log-line">
+        <span>{{ pq.product.name }}</span>
+        <span>{{ pq.quantity }} × {{ pq.unit?.name || '' }}</span>
+      </div>
+      <button type="button" class="btn btn-sm btn-link px-0"
+        (click)="editPendingMealLog(log.mealLog)">Edit</button>
+    </div>
+    <div *ngIf="!isMealLog(log)" class="pending-body">
+      <div *ngFor="let s of log.symptomsLog.symptoms" class="symptom-line">
+        <span class="symptom-name">{{ s.symptomType.name }}</span>
+        <span [ngClass]="{
+          'text-success': s.symptomScale == 0,
+          'text-warning': s.symptomScale > 0 && s.symptomScale < 4,
+          'text-danger': s.symptomScale >= 4
+        }">{{ symptomScale[s.symptomScale] || s.symptomScale }}</span>
+      </div>
+      <button type="button" class="btn btn-sm btn-link px-0"
+        (click)="editPendingSymptomsLog(log.symptomsLog)">Edit</button>
+    </div>
+  </div>
+</ng-template>

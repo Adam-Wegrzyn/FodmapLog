@@ -1,58 +1,47 @@
-<ng-container *ngIf="isLoggedIn()"> <nav class="navbar navbar-expand-lg navbar-dark bg-primary d-none d-lg-flex">
-  <div class="container-fluid">
-    <a class="navbar-brand" routerLink="/">FodmapLog</a>
-    <div class="collapse navbar-collapse show" id="mainNavbar">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/daily-log" routerLinkActive="active">Daily Log</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/add-meal-log" routerLinkActive="active">Add Meal</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/add-symptoms-log" routerLinkActive="active">Add Symptoms</a>
-        </li>
-        <li class="nav-item" *ngIf="!isLoggedIn()">
-          <a class="nav-link" routerLink="/login" routerLinkActive="active">Login</a>
-        </li>
-        <li class="nav-item" *ngIf="!isLoggedIn()">
-          <a class="nav-link" routerLink="/signup" routerLinkActive="active">Sign Up</a>
-        </li>
-        <li class="nav-item dropdown" *ngIf="isLoggedIn()">
-          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            {{ username || 'Account' }}
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-            <li><a class="dropdown-item" (click)="logout()" style="cursor:pointer;">Logout</a></li>
-          </ul>
-        </li>
-      </ul>
+<ng-container *ngIf="isLoggedIn()">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary d-none d-lg-flex">
+    <div class="container-fluid">
+      <a class="navbar-brand" routerLink="/daily-log">FodmapLog</a>
+      <div class="collapse navbar-collapse show" id="mainNavbar">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/daily-log" routerLinkActive="active">Daily Log</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="manualAddDropdown" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              Manual
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="manualAddDropdown">
+              <li><a class="dropdown-item" routerLink="/add-meal-log">Add Meal</a></li>
+              <li><a class="dropdown-item" routerLink="/add-symptoms-log">Add Symptoms</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              {{ username || 'Account' }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" (click)="logout()" style="cursor:pointer;">Logout</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
     </div>
-  </div>
-</nav>
-<!-- Bottom navbar for mobile -->
-<nav class="navbar navbar-dark bg-primary navbar-bottom d-flex d-lg-none justify-content-around">
-  <a class="nav-link text-white text-center" routerLink="/daily-log" routerLinkActive="active">
-    <i class="fas fa-calendar-alt"></i><br>Daily
-  </a>
-  <a class="nav-link text-white text-center" routerLink="/add-meal-log" routerLinkActive="active">
-    <i class="fas fa-utensils"></i><br>Meal
-  </a>
-  <a class="nav-link text-white text-center" routerLink="/add-symptoms-log" routerLinkActive="active">
-    <i class="fas fa-notes-medical"></i><br>Symptoms
-  </a>
-  <a *ngIf="!isLoggedIn()" class="nav-link text-white text-center" routerLink="/login" routerLinkActive="active">
-    <i class="fas fa-sign-in-alt"></i><br>Login
-  </a>
-  <a *ngIf="!isLoggedIn()" class="nav-link text-white text-center" routerLink="/signup" routerLinkActive="active">
-    <i class="fas fa-user-plus"></i><br>Sign Up
-  </a>
-  <a *ngIf="isLoggedIn()" class="nav-link text-white text-center" (click)="logout()" style="cursor:pointer;">
-    <i class="fas fa-sign-out-alt"></i><br>Logout
-  </a>
-</nav>
+  </nav>
+
+  <!-- Bottom navbar for mobile: Daily + Account only (meal/symptoms via + on daily log) -->
+  <nav class="navbar navbar-dark bg-primary navbar-bottom d-flex d-lg-none justify-content-around">
+    <a class="nav-link text-white text-center" routerLink="/daily-log" routerLinkActive="active">
+      <i class="fas fa-calendar-alt"></i><br>Daily
+    </a>
+    <a class="nav-link text-white text-center" (click)="logout()" style="cursor:pointer;">
+      <i class="fas fa-sign-out-alt"></i><br>Logout
+    </a>
+  </nav>
 </ng-container>
 
-<div class="container-fluid pt-3">
+<div class="container-fluid pt-3 pb-nav">
   <router-outlet></router-outlet>
 </div>

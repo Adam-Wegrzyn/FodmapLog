@@ -1,0 +1,158 @@
+.recorder-root {
+  position: relative;
+}
+
+.mic-fab {
+  position: fixed;
+  bottom: 5.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1040;
+  width: 4.5rem;
+  height: 4.5rem;
+  border: none;
+  border-radius: 50%;
+  background: #198754;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(25, 135, 84, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mic-fab:active:not(:disabled) {
+  transform: translateX(-50%) scale(0.96);
+}
+
+.mic-fab:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.mic-fab--recording {
+  background: #dc3545;
+  box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.45);
+  animation: mic-pulse 1.4s ease-out infinite;
+}
+
+.mic-fab--busy {
+  background: #6c757d;
+}
+
+@keyframes mic-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 18px rgba(220, 53, 69, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+  }
+}
+
+.recording-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1035;
+  background: rgba(15, 23, 20, 0.55);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 1rem 8.5rem;
+  animation: fade-in 0.2s ease;
+}
+
+.recording-panel {
+  width: 100%;
+  max-width: 22rem;
+  text-align: center;
+  color: #fff;
+  position: relative;
+}
+
+.pulse-ring {
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 0.75rem;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.85);
+  animation: ring-pulse 1.2s ease-out infinite;
+}
+
+@keyframes ring-pulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+.listening-label {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.timer {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.75rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.25rem;
+}
+
+.hint {
+  font-size: 0.9rem;
+  opacity: 0.85;
+  margin-bottom: 0.5rem;
+}
+
+.cancel-link {
+  color: rgba(255, 255, 255, 0.85) !important;
+  text-decoration: underline;
+}
+
+.recorder-error {
+  position: fixed;
+  bottom: 10.5rem;
+  left: 1rem;
+  right: 1rem;
+  z-index: 1041;
+  margin: 0 auto;
+  max-width: 24rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.5rem;
+  background: #fff3cd;
+  color: #664d03;
+  border: 1px solid #ffecb5;
+  font-size: 0.9rem;
+  text-align: center;
+  animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (min-width: 992px) {
+  .mic-fab {
+    bottom: 2.5rem;
+  }
+
+  .recording-overlay {
+    padding-bottom: 6rem;
+  }
+
+  .recorder-error {
+    bottom: 7.5rem;
+  }
+}
