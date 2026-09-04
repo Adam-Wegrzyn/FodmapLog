@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# Local SQLite used by UseLocalSqlite Development mode
+**/fodmaplog-local.db
+**/fodmaplog-local.db-*

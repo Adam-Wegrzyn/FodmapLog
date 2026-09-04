@@ -35,6 +35,16 @@ table {
   border-radius: 12px 12px 0 0;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
 }
+
+.pb-nav {
+  padding-bottom: 4.5rem;
+}
+
+@media (min-width: 992px) {
+  .pb-nav {
+    padding-bottom: 1rem;
+  }
+}
 @media (max-width: 991.98px) {
   .navbar-nav {
     position:fixed;

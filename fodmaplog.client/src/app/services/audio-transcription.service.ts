@@ -12,7 +12,7 @@ export class AudioTranscriptionService {
   
   constructor(private httpClient: HttpClient) { }
 
-  transcribeAudio(audioBase64: AudioBase64): Observable<string>{
-    return this.httpClient.post<string>(`${this.url}/transcribe`, audioBase64);
+  transcribeAudio(audioBase64: AudioBase64): Observable<{ transcription: string }> {
+    return this.httpClient.post<{ transcription: string }>(`${this.url}/transcribe`, audioBase64);
   }
 }
