@@ -39,12 +39,14 @@ namespace DataAccess.Repositories
 
         public async Task<IEnumerable<MealLog>> GetMealLogsByDate(DateTime date, string userId, CancellationToken cancellationToken)
         {
+            var dayStart = date.Date;
+            var dayEnd = dayStart.AddDays(1);
             return await _context.MealLogs
                 .Include(m => m.ProductQuantity)
                 .ThenInclude(pq => pq.Product)
                 .Include(m => m.ProductQuantity)
                 .ThenInclude(pq => pq.Unit)
-                .Where(m => m.UserId == userId && m.Date.Date == date.Date)
+                .Where(m => m.UserId == userId && m.Date >= dayStart && m.Date < dayEnd)
                 .ToListAsync(cancellationToken);
         }
 
@@ -52,8 +54,17 @@ namespace DataAccess.Repositories
         {
             foreach (var productQuantity in mealLog.ProductQuantity)
             {
-                var existingUnit = await _context.Units
-                    .FirstOrDefaultAsync(u => u.Id == productQuantity.Unit.Id, cancellationToken);
+                Unit? existingUnit = null;
+                if (productQuantity.Unit.Id > 0)
+                {
+                    existingUnit = await _context.Units
+                        .FirstOrDefaultAsync(u => u.Id == productQuantity.Unit.Id, cancellationToken);
+                }
+                if (existingUnit == null && !string.IsNullOrWhiteSpace(productQuantity.Unit.Name))
+                {
+                    existingUnit = await _context.Units
+                        .FirstOrDefaultAsync(u => u.Name == productQuantity.Unit.Name, cancellationToken);
+                }
                 if (existingUnit == null)
                 {
                     await AddUnit(productQuantity.Unit, cancellationToken);
@@ -166,10 +177,12 @@ namespace DataAccess.Repositories
 
         public async Task<IEnumerable<SymptomsLog>> GetSymptomsLogsByDate(DateTime date, string userId, CancellationToken cancellationToken)
         {
+            var dayStart = date.Date;
+            var dayEnd = dayStart.AddDays(1);
             return await _context.SymptomsLogs
                 .Include(s => s.Symptoms)
                 .ThenInclude(s => s.SymptomType)
-                .Where(s => s.UserId == userId && s.Date.Date == date.Date)
+                .Where(s => s.UserId == userId && s.Date >= dayStart && s.Date < dayEnd)
                 .ToListAsync(cancellationToken);
         }
 
@@ -177,8 +190,17 @@ namespace DataAccess.Repositories
         {
             foreach (var symptom in symptomsLog.Symptoms)
             {
-                var existingSymptomType = await _context.SymptomTypes
-                    .FirstOrDefaultAsync(s => s.Id == symptom.SymptomType.Id, cancellationToken);
+                SymptomType? existingSymptomType = null;
+                if (symptom.SymptomType.Id > 0)
+                {
+                    existingSymptomType = await _context.SymptomTypes
+                        .FirstOrDefaultAsync(s => s.Id == symptom.SymptomType.Id, cancellationToken);
+                }
+                if (existingSymptomType == null && !string.IsNullOrWhiteSpace(symptom.SymptomType.Name))
+                {
+                    existingSymptomType = await _context.SymptomTypes
+                        .FirstOrDefaultAsync(s => s.Name == symptom.SymptomType.Name, cancellationToken);
+                }
                 if (existingSymptomType != null)
                 {
                     symptom.SymptomType = existingSymptomType;

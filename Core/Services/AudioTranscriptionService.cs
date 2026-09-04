@@ -1,36 +1,52 @@
 using Core.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
-public class AudioTranscriptionService : IAudioTranscriptionService
+namespace Core.Services
 {
-    private readonly HttpClient _httpClient;
-    private readonly IConfiguration _config;
-
-    public AudioTranscriptionService(HttpClient httpClient, IConfiguration config)
+    public class AudioTranscriptionService : IAudioTranscriptionService
     {
-        _httpClient = httpClient;
-        _config = config;
-    }
+        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _config;
+        private readonly ILogger<AudioTranscriptionService> _logger;
 
-    public async Task<string> TranscribeAsync(string audioBase64)
-    {
-        var azureFunctionUrl = _config["Azure:TranscriptionFunctionUrl"];
-        var apiKey = _config["TranscribeFunctionKey"];
-
-        var request = new HttpRequestMessage(HttpMethod.Post, azureFunctionUrl)
+        public AudioTranscriptionService(
+            HttpClient httpClient,
+            IConfiguration config,
+            ILogger<AudioTranscriptionService> logger)
         {
-            Content = new StringContent(
-                System.Text.Json.JsonSerializer.Serialize(new { audio = audioBase64 }),
-                System.Text.Encoding.UTF8,
-                "application/json")
-        };
-        request.Headers.Add("x-functions-key", apiKey);
+            _httpClient = httpClient;
+            _config = config;
+            _logger = logger;
+        }
 
-        var response = await _httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        public async Task<string> TranscribeAsync(string audioBase64)
+        {
+            if (bool.TryParse(_config["UseAiStubs"], out var useAiStubs) && useAiStubs)
+            {
+                _logger.LogInformation("UseAiStubs enabled — returning local stub transcription.");
+                await Task.Delay(400);
+                return "I had oatmeal with milk at 8, then felt bloated around 10.";
+            }
 
-        var json = await response.Content.ReadAsStringAsync();
-        using var doc = System.Text.Json.JsonDocument.Parse(json);
-        return doc.RootElement.GetProperty("transcription").GetString();
+            var azureFunctionUrl = _config["Azure:TranscriptionFunctionUrl"];
+            var apiKey = _config["TranscribeFunctionKey"];
+
+            var request = new HttpRequestMessage(HttpMethod.Post, azureFunctionUrl)
+            {
+                Content = new StringContent(
+                    System.Text.Json.JsonSerializer.Serialize(new { audio = audioBase64 }),
+                    System.Text.Encoding.UTF8,
+                    "application/json")
+            };
+            request.Headers.Add("x-functions-key", apiKey);
+
+            var response = await _httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            return doc.RootElement.GetProperty("transcription").GetString() ?? string.Empty;
+        }
     }
 }

@@ -17,20 +17,25 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["ApplicationInsights:InstrumentationKey"]);
+var appInsightsKey = builder.Configuration["ApplicationInsights:InstrumentationKey"];
+if (!string.IsNullOrWhiteSpace(appInsightsKey))
+{
+    builder.Services.AddApplicationInsightsTelemetry(appInsightsKey);
+}
 
 var tenantId = builder.Configuration["AzureAd:TenantId"];
 var clientId = builder.Configuration["AzureAd:ClientId"];
 var clientSecret = builder.Configuration["AzureAd:ClientSecret"];
-var credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
 
 var keyVaultName = builder.Configuration["KeyVaultName"];
-if (!string.IsNullOrEmpty(keyVaultName))
+if (!string.IsNullOrEmpty(keyVaultName)
+    && !string.IsNullOrWhiteSpace(tenantId)
+    && !string.IsNullOrWhiteSpace(clientId)
+    && !string.IsNullOrWhiteSpace(clientSecret))
 {
+    var credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
     var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
-    builder.Configuration.AddAzureKeyVault(
-        keyVaultUri,
-        credential);
+    builder.Configuration.AddAzureKeyVault(keyVaultUri, credential);
 }
 
 builder.Services.AddCors(options =>
@@ -57,9 +62,15 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<JwtTokenService>();
 
+var useLocalSqlite = builder.Configuration.GetValue("UseLocalSqlite", false);
 builder.Services.AddDbContext<FodmapLogDbContext>(options =>
 {
-    if (builder.Environment.IsDevelopment())
+    if (useLocalSqlite)
+    {
+        options.UseSqlite(builder.Configuration.GetConnectionString("LocalSqlite")
+            ?? "Data Source=fodmaplog-local.db");
+    }
+    else if (builder.Environment.IsDevelopment())
     {
         options.UseSqlServer(builder.Configuration["devConnectionAzure"]);
     }
@@ -69,7 +80,17 @@ builder.Services.AddDbContext<FodmapLogDbContext>(options =>
     }
 });
 
-builder.Services.AddSingleton(new ServiceBusClient(builder.Configuration["serviceBusSecret2"]));
+var serviceBusConnection = builder.Configuration["serviceBusSecret2"];
+if (!string.IsNullOrWhiteSpace(serviceBusConnection))
+{
+    builder.Services.AddSingleton(new ServiceBusClient(serviceBusConnection));
+}
+else
+{
+    // Local/dev without Service Bus: meal save still works (sender is skipped).
+    builder.Services.AddSingleton<ServiceBusClient>(_ => null!);
+}
+
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetSymptomTypesQueryHandler>());
 
@@ -93,7 +114,7 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.SignIn.RequireConfirmedAccount = false;
 });
 
-builder.Services.AddAuthentication(options =>
+var authBuilder = builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -114,12 +135,18 @@ builder.Services.AddAuthentication(options =>
         NameClaimType = JwtRegisteredClaimNames.Sub,
         RoleClaimType = ClaimTypes.Role
     };
-})
-.AddGoogle(options =>
-{
-    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    options.ClientSecret = builder.Configuration["googleAuthSecret"];
 });
+
+var googleClientSecret = builder.Configuration["googleAuthSecret"];
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+if (!string.IsNullOrWhiteSpace(googleClientSecret) && !string.IsNullOrWhiteSpace(googleClientId))
+{
+    authBuilder.AddGoogle(options =>
+    {
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
+    });
+}
 
 // Require authentication by default; mark login/register/OAuth with [AllowAnonymous]
 builder.Services.AddAuthorization(options =>
@@ -131,6 +158,13 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 
+if (useLocalSqlite)
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<FodmapLogDbContext>();
+    db.Database.EnsureCreated();
+}
+
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
@@ -141,15 +175,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
+else
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapIdentityApi<IdentityUser>();
+app.MapGroup(string.Empty)
+    .AllowAnonymous()
+    .MapIdentityApi<IdentityUser>();
 
 // SPA shell must remain reachable without a JWT
 app.MapFallbackToFile("/index.html").AllowAnonymous();
