@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { environment } from '../../environments/environment';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -10,18 +9,19 @@ import { AuthService } from '../services/auth.service';
   styleUrl: './signup.component.css'
 })
 export class SignupComponent {
-  email: string = '';
-  password: string = '';
-  confirmPassword: string = '';
-  errorMessage: string = '';
+  email = '';
+  password = '';
+  confirmPassword = '';
+  errorMessage = '';
   errorMessages: string[] = [];
-  successMessage: string = '';
+  successMessage = '';
+  isSubmitting = false;
 
-
-  constructor(private http: HttpClient, private router: Router, private authService: AuthService) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   signup(): void {
     this.errorMessage = '';
+    this.errorMessages = [];
     this.successMessage = '';
 
     if (!this.email || !this.password || !this.confirmPassword) {
@@ -44,24 +44,64 @@ export class SignupComponent {
       return;
     }
 
-    this.authService.register(this.email, this.password).subscribe(
-      response => {
-        console.log('Registration successful:', response);
+    this.isSubmitting = true;
+    this.authService.register(this.email, this.password).subscribe({
+      next: () => {
+        this.isSubmitting = false;
         this.successMessage = 'Registration successful! Redirecting to login...';
-        setTimeout(() => this.router.navigate(['/login']), 2000);
+        setTimeout(() => this.router.navigate(['/login']), 1500);
       },
-      error => {
-        // this.errorMessage = error.errors || 'Registration failed. Please try again.';
-        console.log(error.error.errors);
-        for (const e in error.error.errors) {
-          this.errorMessages.push(error.error.errors[e]);
+      error: (error: unknown) => {
+        this.isSubmitting = false;
+        this.errorMessages = this.extractRegisterErrors(error);
+        if (this.errorMessages.length === 0) {
+          this.errorMessage = 'Registration failed. Please try again.';
         }
       }
-    );
+    });
+  }
+
+  private extractRegisterErrors(error: unknown): string[] {
+    if (!(error instanceof HttpErrorResponse)) {
+      return ['Registration failed. Please try again.'];
+    }
+
+    if (error.status === 0) {
+      return [
+        'Cannot reach the API (connection refused). Start FodmapLog.Server on http://localhost:5115 and try again.'
+      ];
+    }
+
+    const body = error.error;
+    const messages: string[] = [];
+
+    if (body?.errors && typeof body.errors === 'object') {
+      for (const key of Object.keys(body.errors)) {
+        const value = body.errors[key];
+        if (Array.isArray(value)) {
+          messages.push(...value.map(String));
+        } else if (value != null) {
+          messages.push(String(value));
+        }
+      }
+    }
+
+    if (messages.length === 0 && typeof body === 'string' && body.trim()) {
+      messages.push(body);
+    }
+
+    if (messages.length === 0 && body?.title) {
+      messages.push(String(body.title));
+    }
+
+    if (messages.length === 0 && error.message) {
+      messages.push(error.message);
+    }
+
+    return messages;
   }
 
   private validateEmail(email: string): boolean {
-    // Simple email regex for demonstration
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 }
