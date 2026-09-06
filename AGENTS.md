@@ -16,7 +16,6 @@ Angular 17 SPA + ASP.NET Core 9 monolith, deployed to Azure App Service. Voice �
 | `DataAccess` | EF Core, entities, migrations, repositories |
 | `Data.Common` | DTOs (`*Dto`) |
 | `TranscribeAudio` | Azure Function — base64 WAV → Azure Speech |
-| `SendMealNotification` | Azure Function stub (Service Bus) |
 | `Tests` | xUnit (minimal today) |
 
 ## Architecture (do not replace)
@@ -28,10 +27,11 @@ Angular (fodmaplog.client)
   → Core services / MediatR
   → DataAccess repositories
   → SQL Server (FodmapLogDbContext)
-  → Azure Function (transcription), OpenAI API, Service Bus, Key Vault
+  → Azure Function (transcription), OpenAI API, Key Vault
 ```
 
 - **Keep the monolith + Azure Function split.** Transcription stays in `TranscribeAudio`; OpenAI stays server-side.
+- **Do not reintroduce Azure Service Bus** — meal notifications via Service Bus were removed as unused.
 - **Do not rewrite** working voice, transcription, LLM, or CRUD flows unless fixing a concrete bug or security gap.
 - **Extend** existing layers; prefer minimal diffs over new abstractions.
 
@@ -48,7 +48,7 @@ Angular (fodmaplog.client)
 ### Patterns in use
 
 - **Repository:** `IFodmapLogRepository` → `FodmapLogRepository` with `CancellationToken` on async methods.
-- **Service:** `IFodmapLogService` → `FodmapLogService`; uses `IMapper`, `IFodmapLogRepository`, `ServiceBusClient`.
+- **Service:** `IFodmapLogService` → `FodmapLogService`; uses `IMapper`, `IFodmapLogRepository`.
 - **MediatR CQRS** (reference-data reads, auth): `GetSymptomTypesQuery` + `GetSymptomTypesQueryHandler` in `Core/CQRS/`; commands/handlers under `FodmapLog.Server/Commands/` and `Handlers/`.
 - **AutoMapper:** profiles in `Core/mapperConfig.cs` (`CreateMap<Entity, Dto>().ReverseMap()`).
 - **DI registration:** `Program.cs` — `AddScoped` for repository/service; `AddMediatR`; `AddAutoMapper`.
