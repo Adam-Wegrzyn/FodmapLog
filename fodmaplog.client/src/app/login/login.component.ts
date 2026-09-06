@@ -34,7 +34,11 @@ export class LoginComponent {
       },
       error => {
         console.error('Login failed:', error);
-        this.errorMessage = 'Invalid email or password.';
+        if (error?.status === 0) {
+          this.errorMessage = 'Cannot reach the API. Start FodmapLog.Server on http://localhost:5115.';
+        } else {
+          this.errorMessage = 'Invalid email or password.';
+        }
       },
     );
 }
