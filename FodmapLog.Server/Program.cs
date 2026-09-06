@@ -1,5 +1,4 @@
 using Azure.Identity;
-using Azure.Messaging.ServiceBus;
 using Core.CQRS;
 using Core.Interfaces;
 using Core.Services;
@@ -79,17 +78,6 @@ builder.Services.AddDbContext<FodmapLogDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("prodConnection"));
     }
 });
-
-var serviceBusConnection = builder.Configuration["serviceBusSecret2"];
-if (!string.IsNullOrWhiteSpace(serviceBusConnection))
-{
-    builder.Services.AddSingleton(new ServiceBusClient(serviceBusConnection));
-}
-else
-{
-    // Local/dev without Service Bus: meal save still works (sender is skipped).
-    builder.Services.AddSingleton<ServiceBusClient>(_ => null!);
-}
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetSymptomTypesQueryHandler>());
