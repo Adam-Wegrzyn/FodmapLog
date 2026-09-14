@@ -68,7 +68,7 @@ export class SignupComponent {
 
     if (error.status === 0) {
       return [
-        'Cannot reach the API (connection refused). Start FodmapLog.Server on http://localhost:5115 and try again.'
+        'Cannot reach the API (connection refused).'
       ];
     }
 

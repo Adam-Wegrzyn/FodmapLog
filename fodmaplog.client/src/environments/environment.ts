@@ -1,13 +1,13 @@
 export const environment = {
     production: false,
-    // Matches FodmapLog.Server Properties/launchSettings.json "http" profile
-    apiBaseUrl: 'http://localhost:5115/api',
-    apiUrl: 'http://localhost:5115/api/FodmapLog',
-    apiSymptomTypes: 'http://localhost:5115/api/SymptomTypes',
-    apiOpenFood: 'http://localhost:5115/api/ProductsApi',
-    apiOpenAi: 'http://localhost:5115/api/OpenAi',
-    authApiUrl: 'http://localhost:5115/api/Auth',
-    authIdentityApiUrl: 'http://localhost:5115',
-    frontendBaseUrl: 'http://localhost:4200',
-    apiAudioTranscription: 'http://localhost:5115/api/AudioTranscription',
+    // Matches FodmapLog.Server Properties/launchSettings.json "https" profile
+    apiBaseUrl: 'https://localhost:44349/api',
+    apiUrl: 'https://localhost:44349/api/FodmapLog',
+    apiSymptomTypes: 'https://localhost:44349/api/SymptomTypes',
+    apiOpenFood: 'https://localhost:44349/api/ProductsApi',
+    apiOpenAi: 'https://localhost:44349/api/OpenAi',
+    authApiUrl: 'https://localhost:44349/api/Auth',
+    authIdentityApiUrl: 'https://localhost:44349',
+    frontendBaseUrl: 'https://localhost:4200',
+    apiAudioTranscription: 'https://localhost:44349/api/AudioTranscription',
   };

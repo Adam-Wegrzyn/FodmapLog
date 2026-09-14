@@ -18,7 +18,7 @@ namespace FodmapLog.Server.Controllers
         public OpenAIController(IConfiguration configuration, ILogger<OpenAIController> logger)
         {
             _apiKey = configuration["openAIApiKey"];
-            _useAiStubs = configuration.GetValue("UseAiStubs", false);
+            _useAiStubs = false; //configuration.GetValue("UseAiStubs", false);
             _logger = logger;
         }
 
@@ -36,17 +36,17 @@ namespace FodmapLog.Server.Controllers
                 return BadRequest(new { error = $"Transcript exceeds {MaxTranscriptLength} characters." });
             }
 
-            if (_useAiStubs || string.IsNullOrWhiteSpace(_apiKey))
-            {
-                if (_useAiStubs)
-                {
-                    _logger.LogInformation("UseAiStubs enabled — returning local stub daily logs. TranscriptLength={Length}", input.Transcript.Length);
-                    await Task.Delay(350, cancellationToken);
-                    return Content(BuildStubDailyLogsJson(), "application/json");
-                }
+            //if (_useAiStubs || string.IsNullOrWhiteSpace(_apiKey))
+            //{
+            //    if (_useAiStubs)
+            //    {
+            //        _logger.LogInformation("UseAiStubs enabled — returning local stub daily logs. TranscriptLength={Length}", input.Transcript.Length);
+            //        await Task.Delay(350, cancellationToken);
+            //        return Content(BuildStubDailyLogsJson(), "application/json");
+            //    }
 
-                return StatusCode(StatusCodes.Status503ServiceUnavailable, new { error = "OpenAI is not configured." });
-            }
+            //    return StatusCode(StatusCodes.Status503ServiceUnavailable, new { error = "OpenAI is not configured." });
+            //}
 
             var jsonExample = @"[
    {

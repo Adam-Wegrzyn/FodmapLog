@@ -16,7 +16,7 @@ namespace DataAccess
                 .Build();
 
             var optionsBuilder = new DbContextOptionsBuilder<FodmapLogDbContext>();
-            optionsBuilder.UseSqlServer(configuration.GetConnectionString("devConnectionAzure"));
+            optionsBuilder.UseSqlServer(configuration.GetConnectionString("prodConnection"));
 
             return new FodmapLogDbContext(optionsBuilder.Options);
         }
