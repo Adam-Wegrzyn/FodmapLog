@@ -58,7 +58,7 @@ export class DailyLogComponent implements OnInit {
   faChevronUp = faChevronUp;
 
   readonly emptyExample =
-    '“I had oatmeal with milk at 8, then felt bloated around 10.”';
+    '“Had rice and chicken for lunch, mild cramps around 3.”';
 
   constructor(
     private fodmapLogService: FodmapLogService,
@@ -259,8 +259,12 @@ export class DailyLogComponent implements OnInit {
     }
   }
 
-  closeReviewSheet(): void {
-    this.showReviewSheet = false;
+  closeReviewSheet(event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    // Dismiss the AI draft entirely — same as abandoning the review sheet.
+    this.discardAllPending();
+    this.cdr.detectChanges();
   }
 
   discardAllPending(): void {
