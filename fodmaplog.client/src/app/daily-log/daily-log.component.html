@@ -98,9 +98,9 @@
     </div>
   </div>
 
-  <div *ngIf="showReviewSheet" class="review-backdrop" (click)="closeReviewSheet()"></div>
+  <div *ngIf="showReviewSheet" class="review-backdrop" (click)="closeReviewSheet($event)"></div>
   <aside *ngIf="showReviewSheet" class="review-sheet" role="dialog" aria-modal="true"
-    aria-labelledby="reviewSheetTitle">
+    aria-labelledby="reviewSheetTitle" (click)="$event.stopPropagation()">
     <header class="review-header">
       <div>
         <h2 id="reviewSheetTitle" class="review-title">
@@ -108,7 +108,10 @@
         </h2>
         <p class="review-subtitle">Review before saving</p>
       </div>
-      <button type="button" class="btn-close" aria-label="Close" (click)="closeReviewSheet()"></button>
+      <button type="button" class="review-close" aria-label="Close review"
+        (click)="closeReviewSheet($event)">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </header>
 
     <button type="button" class="transcript-toggle" (click)="toggleTranscript()"
