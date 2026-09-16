@@ -4,7 +4,7 @@
       <div class="pulse-ring" aria-hidden="true"></div>
       <p class="listening-label">Listening…</p>
       <p class="timer">{{ elapsedLabel }}</p>
-      <p class="hint">Tap the mic to finish</p>
+      <p class="hint">Pauses are OK — tap the mic when finished</p>
       <button type="button" class="btn btn-link text-secondary cancel-link" (click)="cancelRecording()">
         Cancel
       </button>
@@ -20,6 +20,7 @@
   </div>
 
   <button
+    *ngIf="interactive"
     type="button"
     class="mic-fab"
     [class.mic-fab--recording]="state === 'recording'"

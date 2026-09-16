@@ -31,6 +31,15 @@ namespace Core.Services
 
             var azureFunctionUrl = _config["Azure:TranscriptionFunctionUrl"];
             var apiKey = _config["TranscribeFunctionKey"];
+            if (string.IsNullOrWhiteSpace(azureFunctionUrl))
+            {
+                throw new InvalidOperationException("Azure:TranscriptionFunctionUrl is not configured.");
+            }
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            _logger.LogInformation(
+                "Forwarding audio to transcription function. PayloadChars={Length}",
+                audioBase64?.Length ?? 0);
 
             var request = new HttpRequestMessage(HttpMethod.Post, azureFunctionUrl)
             {
@@ -39,14 +48,22 @@ namespace Core.Services
                     System.Text.Encoding.UTF8,
                     "application/json")
             };
-            request.Headers.Add("x-functions-key", apiKey);
+            if (!string.IsNullOrWhiteSpace(apiKey))
+            {
+                request.Headers.Add("x-functions-key", apiKey);
+            }
 
             var response = await _httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync();
             using var doc = System.Text.Json.JsonDocument.Parse(json);
-            return doc.RootElement.GetProperty("transcription").GetString() ?? string.Empty;
+            var text = doc.RootElement.GetProperty("transcription").GetString() ?? string.Empty;
+            _logger.LogInformation(
+                "Transcription function returned. ElapsedMs={Elapsed} Chars={Chars}",
+                sw.ElapsedMilliseconds,
+                text.Length);
+            return text;
         }
     }
 }
