@@ -149,22 +149,46 @@
 .custom-modal-position { position: absolute; right: 2%; bottom: 20px; }
 
 .understanding-overlay {
-  position: fixed; inset: 0; z-index: 1050; background: rgba(15, 23, 20, .55);
+  position: fixed; inset: 0; z-index: 1990; background: rgba(15, 23, 20, .55);
   display: flex; align-items: center; justify-content: center; animation: fade-in .2s ease;
 }
 .understanding-panel { text-align: center; color: #fff; }
 .understanding-label { font-size: 1.35rem; font-weight: 700; margin-bottom: .25rem; }
 .understanding-hint { opacity: .85; margin: 0; }
 
+.review-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: auto;
+}
 .review-backdrop {
-  position: fixed; inset: 0; z-index: 1055; background: rgba(0, 0, 0, .35); animation: fade-in .2s ease;
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: rgba(0, 0, 0, .35);
+  cursor: pointer;
+  animation: fade-in .2s ease;
 }
 .review-sheet {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1060; max-height: min(88vh, 640px);
-  display: flex; flex-direction: column; background: #fff; border-radius: 1.15rem 1.15rem 0 0;
-  box-shadow: 0 -10px 32px rgba(0, 0, 0, .14); animation: sheet-up .25s ease;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-height: min(88vh, 640px);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 1.15rem 1.15rem 0 0;
+  box-shadow: 0 -10px 32px rgba(0, 0, 0, .14);
+  animation: sheet-up .25s ease;
   padding-bottom: env(safe-area-inset-bottom, 0);
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  pointer-events: auto;
 }
 @keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
@@ -242,15 +266,19 @@
 }
 .review-footer {
   display: flex; gap: .75rem; padding: .75rem 1rem 1rem; border-top: 1px solid var(--log-line);
-  background: #fff; flex-shrink: 0;
+  background: #fff; flex-shrink: 0; position: relative; z-index: 2;
+}
+.review-action {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+  min-height: 2.75rem;
 }
 
 @media (min-width: 992px) {
   .daily-log-page { padding-bottom: 6rem; max-width: 28rem; margin: 0 auto; }
   .manual-add-fab { bottom: 2.75rem; }
   .review-sheet {
-    left: max(0px, calc(50% - 14rem));
-    right: auto;
     width: min(28rem, 100%);
   }
 }

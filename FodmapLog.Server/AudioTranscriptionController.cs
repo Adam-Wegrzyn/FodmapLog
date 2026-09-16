@@ -6,6 +6,7 @@ namespace FodmapLog.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class AudioTranscriptionController : ControllerBase
     {
         private readonly IAudioTranscriptionService _audioService;
@@ -18,7 +19,7 @@ namespace FodmapLog.Server.Controllers
         [HttpPost("transcribe")]
         public async Task<IActionResult> Transcribe([FromBody] AudioRequestDto audioBase64)
         {
-            if (string.IsNullOrEmpty(audioBase64.value))
+            if (string.IsNullOrEmpty(audioBase64?.value))
                 return BadRequest("Audio data is required.");
 
             var transcription = await _audioService.TranscribeAsync(audioBase64.value);

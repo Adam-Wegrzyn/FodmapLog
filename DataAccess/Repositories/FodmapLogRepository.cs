@@ -54,6 +54,11 @@ namespace DataAccess.Repositories
         {
             foreach (var productQuantity in mealLog.ProductQuantity)
             {
+                if (productQuantity.Unit == null)
+                {
+                    productQuantity.Unit = new Unit { Name = "Piece" };
+                }
+
                 Unit? existingUnit = null;
                 if (productQuantity.Unit.Id > 0)
                 {
@@ -72,6 +77,11 @@ namespace DataAccess.Repositories
                 else
                 {
                     productQuantity.Unit = existingUnit;
+                }
+
+                if (productQuantity.Product == null)
+                {
+                    productQuantity.Product = new Product { Name = "Unknown" };
                 }
             }
             _context.MealLogs.Add(mealLog);

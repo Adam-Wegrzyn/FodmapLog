@@ -33,7 +33,7 @@
           <ul class="food-list">
             <li *ngFor="let pq of log.mealLog.productQuantity" class="food-item">
               <span class="food-name">{{ pq.product.name }}</span>
-              <span class="food-amount">{{ formatAmount(pq.quantity, pq.unit.name) }}</span>
+              <span class="food-amount">{{ formatAmount(pq.quantity, pq.unit?.name) }}</span>
             </li>
           </ul>
         </div>
@@ -68,12 +68,14 @@
 
   <p *ngIf="aiError" class="ai-error" role="alert">{{ aiError }}</p>
 
-  <div class="manual-add-fab">
+  <div class="manual-add-fab" *ngIf="!showReviewSheet && !isUnderstanding">
     <fa-icon data-bs-toggle="modal" data-bs-target="#LogAddModal" class="text-success" size="2x"
       [icon]="faPlusCircle" title="Add manually"></fa-icon>
   </div>
 
-  <app-audio-recorder (transcription)="onTranscript($event)"></app-audio-recorder>
+  <app-audio-recorder
+    [interactive]="!showReviewSheet && !isUnderstanding"
+    (transcription)="onTranscript($event)"></app-audio-recorder>
 
   <div *ngIf="isUnderstanding" class="understanding-overlay" role="status" aria-live="polite">
     <div class="understanding-panel">
@@ -98,64 +100,67 @@
     </div>
   </div>
 
-  <div *ngIf="showReviewSheet" class="review-backdrop" (click)="closeReviewSheet($event)"></div>
-  <aside *ngIf="showReviewSheet" class="review-sheet" role="dialog" aria-modal="true"
-    aria-labelledby="reviewSheetTitle" (click)="$event.stopPropagation()">
-    <header class="review-header">
-      <div>
-        <h2 id="reviewSheetTitle" class="review-title">
-          {{ pendingCount }} {{ pendingCount === 1 ? 'event' : 'events' }}
-        </h2>
-        <p class="review-subtitle">Review before saving</p>
-      </div>
-      <button type="button" class="review-close" aria-label="Close review"
-        (click)="closeReviewSheet($event)">
-        <span aria-hidden="true">&times;</span>
+  <div *ngIf="showReviewSheet" class="review-layer" role="presentation">
+    <button type="button" class="review-backdrop" aria-label="Dismiss review"
+      (click)="closeReviewSheet($event)"></button>
+    <aside class="review-sheet" role="dialog" aria-modal="true"
+      aria-labelledby="reviewSheetTitle" (click)="$event.stopPropagation()">
+      <header class="review-header">
+        <div>
+          <h2 id="reviewSheetTitle" class="review-title">
+            {{ pendingCount }} {{ pendingCount === 1 ? 'event' : 'events' }}
+          </h2>
+          <p class="review-subtitle">Review before saving</p>
+        </div>
+        <button type="button" class="review-close" aria-label="Close review"
+          (click)="closeReviewSheet($event)">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </header>
+
+      <button type="button" class="transcript-toggle" (click)="toggleTranscript()"
+        *ngIf="lastTranscript">
+        <span>Transcript</span>
+        <fa-icon [icon]="transcriptExpanded ? faChevronUp : faChevronDown"></fa-icon>
       </button>
-    </header>
+      <p *ngIf="transcriptExpanded && lastTranscript" class="transcript-body">{{ lastTranscript }}</p>
 
-    <button type="button" class="transcript-toggle" (click)="toggleTranscript()"
-      *ngIf="lastTranscript">
-      <span>Transcript</span>
-      <fa-icon [icon]="transcriptExpanded ? faChevronUp : faChevronDown"></fa-icon>
-    </button>
-    <p *ngIf="transcriptExpanded && lastTranscript" class="transcript-body">{{ lastTranscript }}</p>
+      <p *ngIf="truncatedPendingCount > 0" class="soft-cap-note">
+        Showing first {{ pendingCount }}; {{ truncatedPendingCount }} more were omitted.
+      </p>
 
-    <p *ngIf="truncatedPendingCount > 0" class="soft-cap-note">
-      Showing first {{ pendingCount }}; {{ truncatedPendingCount }} more were omitted.
-    </p>
-
-    <div class="review-scroll">
-      <ng-container *ngIf="!useTimeGroups">
-        <ng-container *ngFor="let log of pendingLogs">
-          <ng-container *ngTemplateOutlet="pendingItem; context: { $implicit: log }"></ng-container>
-        </ng-container>
-      </ng-container>
-
-      <ng-container *ngIf="useTimeGroups">
-        <section *ngFor="let group of pendingGroups" class="time-group">
-          <h3 class="time-group-label">{{ group.label }}</h3>
-          <ng-container *ngFor="let log of group.logs">
+      <div class="review-scroll">
+        <ng-container *ngIf="!useTimeGroups">
+          <ng-container *ngFor="let log of pendingLogs">
             <ng-container *ngTemplateOutlet="pendingItem; context: { $implicit: log }"></ng-container>
           </ng-container>
-        </section>
-      </ng-container>
-    </div>
+        </ng-container>
 
-    <p *ngIf="reviewError" class="review-error" role="alert">{{ reviewError }}</p>
+        <ng-container *ngIf="useTimeGroups">
+          <section *ngFor="let group of pendingGroups" class="time-group">
+            <h3 class="time-group-label">{{ group.label }}</h3>
+            <ng-container *ngFor="let log of group.logs">
+              <ng-container *ngTemplateOutlet="pendingItem; context: { $implicit: log }"></ng-container>
+            </ng-container>
+          </section>
+        </ng-container>
+      </div>
 
-    <footer class="review-footer">
-      <button type="button" class="btn btn-outline-secondary flex-fill" (click)="reRecord()"
-        [disabled]="isSavingAll">
-        Re-record
-      </button>
-      <button type="button" class="btn btn-success flex-fill" (click)="saveAllPending()"
-        [disabled]="isSavingAll || pendingCount === 0">
-        <span *ngIf="isSavingAll" class="spinner-border spinner-border-sm me-1" role="status"></span>
-        Save all
-      </button>
-    </footer>
-  </aside>
+      <p *ngIf="reviewError" class="review-error" role="alert">{{ reviewError }}</p>
+
+      <footer class="review-footer">
+        <button type="button" class="btn btn-outline-secondary flex-fill review-action"
+          (click)="reRecord($event)" [disabled]="isSavingAll">
+          Re-record
+        </button>
+        <button type="button" class="btn btn-success flex-fill review-action"
+          (click)="saveAllPending($event)" [disabled]="isSavingAll || pendingCount === 0">
+          <span *ngIf="isSavingAll" class="spinner-border spinner-border-sm me-1" role="status"></span>
+          Save all
+        </button>
+      </footer>
+    </aside>
+  </div>
 </div>
 
 <ng-template #pendingItem let-log>

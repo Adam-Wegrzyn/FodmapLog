@@ -1,4 +1,13 @@
-import { Component, EventEmitter, OnDestroy, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  Output,
+  SimpleChanges
+} from '@angular/core';
 import toWav from 'audiobuffer-to-wav';
 import { AudioTranscriptionService } from '../services/audio-transcription.service';
 import { faMicrophone, faStop } from '@fortawesome/free-solid-svg-icons';
@@ -10,7 +19,10 @@ export type RecorderUiState = 'idle' | 'recording' | 'transcribing' | 'error';
   templateUrl: './audio-recorder.component.html',
   styleUrl: './audio-recorder.component.css'
 })
-export class AudioRecorderComponent implements OnDestroy {
+export class AudioRecorderComponent implements OnDestroy, OnChanges {
+  /** When false, hide the mic FAB (e.g. while the review sheet is open). */
+  @Input() interactive = true;
+
   @Output() transcription = new EventEmitter<string>();
   @Output() stateChange = new EventEmitter<RecorderUiState>();
   @Output() errorChange = new EventEmitter<string | null>();
@@ -27,7 +39,16 @@ export class AudioRecorderComponent implements OnDestroy {
   private audioChunks: Blob[] = [];
   private timerId: ReturnType<typeof setInterval> | null = null;
 
-  constructor(private audioTrascriptionService: AudioTranscriptionService) {}
+  constructor(
+    private audioTrascriptionService: AudioTranscriptionService,
+    private ngZone: NgZone
+  ) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['interactive'] && !this.interactive && this.state === 'recording') {
+      this.cancelRecording();
+    }
+  }
 
   ngOnDestroy(): void {
     this.clearTimer();
@@ -45,6 +66,9 @@ export class AudioRecorderComponent implements OnDestroy {
   }
 
   onMicClick(): void {
+    if (!this.interactive) {
+      return;
+    }
     if (this.state === 'recording') {
       this.stopRecording();
       return;
@@ -63,31 +87,50 @@ export class AudioRecorderComponent implements OnDestroy {
       return;
     }
 
-    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-      this.mediaStream = stream;
-      this.audioChunks = [];
-      this.mediaRecorder = new MediaRecorder(stream);
-      this.mediaRecorder.ondataavailable = (event) => {
-        if (event.data?.size > 0) {
-          this.audioChunks.push(event.data);
-        }
-      };
-      this.mediaRecorder.start();
-      this.elapsedSeconds = 0;
-      this.setState('recording');
-      this.clearTimer();
-      this.timerId = setInterval(() => {
-        this.elapsedSeconds += 1;
-      }, 1000);
-    }).catch((err: DOMException | Error) => {
-      const name = (err as DOMException).name || '';
-      if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
-        this.setError('Microphone permission denied. Allow mic access and try again.');
-      } else if (name === 'NotFoundError') {
-        this.setError('No microphone found. Connect a mic and try again.');
-      } else {
-        this.setError('Could not start recording. Check microphone settings.');
+    navigator.mediaDevices.getUserMedia({
+      audio: {
+        channelCount: 1,
+        echoCancellation: true,
+        noiseSuppression: true
       }
+    }).then((stream) => {
+      this.ngZone.run(() => {
+        this.mediaStream = stream;
+        this.audioChunks = [];
+        const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+          ? 'audio/webm;codecs=opus'
+          : undefined;
+        this.mediaRecorder = mime
+          ? new MediaRecorder(stream, { mimeType: mime, audioBitsPerSecond: 24000 })
+          : new MediaRecorder(stream);
+
+        this.mediaRecorder.ondataavailable = (event) => {
+          if (event.data?.size > 0) {
+            this.audioChunks.push(event.data);
+          }
+        };
+        // Timeslice keeps data flowing; does not auto-stop on silence.
+        this.mediaRecorder.start(1000);
+        this.elapsedSeconds = 0;
+        this.setState('recording');
+        this.clearTimer();
+        this.timerId = setInterval(() => {
+          this.ngZone.run(() => {
+            this.elapsedSeconds += 1;
+          });
+        }, 1000);
+      });
+    }).catch((err: DOMException | Error) => {
+      this.ngZone.run(() => {
+        const name = (err as DOMException).name || '';
+        if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+          this.setError('Microphone permission denied. Allow mic access and try again.');
+        } else if (name === 'NotFoundError') {
+          this.setError('No microphone found. Connect a mic and try again.');
+        } else {
+          this.setError('Could not start recording. Check microphone settings.');
+        }
+      });
     });
   }
 
@@ -99,26 +142,30 @@ export class AudioRecorderComponent implements OnDestroy {
     this.clearTimer();
     this.setState('transcribing');
 
-    this.mediaRecorder.onstop = async () => {
-      try {
-        const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
-        this.audioChunks = [];
-        this.stopMediaTracks();
+    this.mediaRecorder.onstop = () => {
+      void this.ngZone.run(async () => {
+        try {
+          const audioBlob = new Blob(this.audioChunks, {
+            type: this.mediaRecorder?.mimeType || 'audio/webm'
+          });
+          this.audioChunks = [];
+          this.stopMediaTracks();
 
-        const arrayBuffer = await audioBlob.arrayBuffer();
-        const audioContext = new AudioContext();
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        const wavBuffer = toWav(audioBuffer);
-        const wavBlob = new Blob([wavBuffer], { type: 'audio/wav' });
-        await audioContext.close();
-
-        this.sendAudioToAzure(wavBlob);
-      } catch {
-        this.setError('Could not process the recording. Please try again.');
-        this.setState('idle');
-      }
+          // 16 kHz mono WAV — much smaller upload; matches Azure Speech defaults.
+          const wavBlob = await this.toSpeechWav(audioBlob);
+          this.sendAudioToAzure(wavBlob);
+        } catch {
+          this.setError('Could not process the recording. Please try again.');
+          this.setState('idle');
+        }
+      });
     };
 
+    try {
+      if (this.mediaRecorder.state === 'recording') {
+        this.mediaRecorder.requestData();
+      }
+    } catch { /* ignore */ }
     this.mediaRecorder.stop();
   }
 
@@ -135,36 +182,83 @@ export class AudioRecorderComponent implements OnDestroy {
     this.setState('idle');
   }
 
+  private async toSpeechWav(blob: Blob): Promise<Blob> {
+    const arrayBuffer = await blob.arrayBuffer();
+    const decodeCtx = new AudioContext();
+    let decoded: AudioBuffer;
+    try {
+      decoded = await decodeCtx.decodeAudioData(arrayBuffer.slice(0));
+    } finally {
+      await decodeCtx.close();
+    }
+
+    const targetRate = 16000;
+    const frameCount = Math.max(1, Math.ceil(decoded.duration * targetRate));
+    const offline = new OfflineAudioContext(1, frameCount, targetRate);
+
+    const mono = offline.createBuffer(1, decoded.length, decoded.sampleRate);
+    const out = mono.getChannelData(0);
+    const channels = decoded.numberOfChannels;
+    for (let i = 0; i < decoded.length; i++) {
+      let sum = 0;
+      for (let c = 0; c < channels; c++) {
+        sum += decoded.getChannelData(c)[i];
+      }
+      out[i] = sum / channels;
+    }
+
+    const source = offline.createBufferSource();
+    source.buffer = mono;
+    source.connect(offline.destination);
+    source.start(0);
+    const rendered = await offline.startRendering();
+    const wavBuffer = toWav(rendered);
+    return new Blob([wavBuffer], { type: 'audio/wav' });
+  }
+
   private sendAudioToAzure(audioBlob: Blob): void {
     const reader = new FileReader();
-    reader.readAsArrayBuffer(audioBlob);
     reader.onloadend = () => {
-      const converted64 = btoa(
-        new Uint8Array(reader.result as ArrayBuffer)
-          .reduce((data, byte) => data + String.fromCharCode(byte), '')
-      );
-
-      this.audioTrascriptionService.transcribeAudio({ value: converted64 }).subscribe({
-        next: (response: { transcription?: string }) => {
-          const text = (response?.transcription || '').trim();
-          if (!text) {
-            this.setError('No speech detected. Tap the mic and try again.');
-            this.setState('idle');
-            return;
+      this.ngZone.run(() => {
+        try {
+          const buffer = reader.result as ArrayBuffer;
+          const bytes = new Uint8Array(buffer);
+          let binary = '';
+          const chunk = 0x8000;
+          for (let i = 0; i < bytes.length; i += chunk) {
+            binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
           }
-          this.setState('idle');
-          this.transcription.emit(text);
-        },
-        error: () => {
-          this.setError('Transcription failed. Check your connection and try again.');
+          const converted64 = btoa(binary);
+
+          this.audioTrascriptionService.transcribeAudio({ value: converted64 }).subscribe({
+            next: (response: { transcription?: string }) => {
+              const text = (response?.transcription || '').trim();
+              if (!text) {
+                this.setError('No speech detected. Tap the mic and try again.');
+                this.setState('idle');
+                return;
+              }
+              this.setState('idle');
+              this.transcription.emit(text);
+            },
+            error: () => {
+              this.setError('Transcription failed. Check your connection and try again.');
+              this.setState('idle');
+            }
+          });
+        } catch {
+          this.setError('Could not read the recording. Please try again.');
           this.setState('idle');
         }
       });
     };
     reader.onerror = () => {
-      this.setError('Could not read the recording. Please try again.');
-      this.setState('idle');
+      this.ngZone.run(() => {
+        this.setError('Could not read the recording. Please try again.');
+        this.setState('idle');
+      });
     };
+    reader.readAsArrayBuffer(audioBlob);
   }
 
   private setState(state: RecorderUiState): void {
