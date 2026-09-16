@@ -274,13 +274,18 @@ export class DailyLogComponent implements OnInit {
     this.truncatedPendingCount = 0;
   }
 
-  reRecord(): void {
+  reRecord(event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
     this.discardAllPending();
     this.aiError = null;
+    this.cdr.detectChanges();
     setTimeout(() => this.audioRecorder?.startRecording(), 0);
   }
 
-  saveAllPending(): void {
+  saveAllPending(event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
     const pending = this.pendingLogs;
     if (pending.length === 0 || this.isSavingAll) {
       return;
@@ -288,6 +293,7 @@ export class DailyLogComponent implements OnInit {
 
     this.isSavingAll = true;
     this.reviewError = null;
+    this.cdr.detectChanges();
 
     const requests: Observable<unknown>[] = pending.map(log => {
       if (this.isMealLog(log) && log.mealLog) {

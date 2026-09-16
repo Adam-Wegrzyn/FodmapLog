@@ -1,7 +1,8 @@
+using System.Diagnostics;
+using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.Extensions.Configuration;
@@ -22,17 +23,17 @@ namespace TranscribeAudio
         }
 
         [Function("Function1")]
-        public async Task<IActionResult> Run([Microsoft.Azure.Functions.Worker.HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req)
+        public async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req)
         {
             _logger.LogInformation("Processing audio file transcription");
+            string? tempFilePath = null;
+            var sw = Stopwatch.StartNew();
 
             try
             {
-                // Read and log the request body
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-                _logger.LogInformation("Request body successfully read.");
-
-                dynamic data = JsonConvert.DeserializeObject(requestBody);
+                dynamic? data = JsonConvert.DeserializeObject(requestBody);
 
                 if (data?.audio == null)
                 {
@@ -40,79 +41,130 @@ namespace TranscribeAudio
                     return new BadRequestObjectResult("Audio file is required.");
                 }
 
-                // Decode the base64 audio and log details
-                _logger.LogInformation("Decoding base64 audio data...");
                 byte[] audioBytes;
                 try
                 {
                     audioBytes = Convert.FromBase64String((string)data.audio);
-                    _logger.LogInformation($"Audio data successfully decoded. Size: {audioBytes.Length} bytes.");
+                    _logger.LogInformation("Audio decoded. Bytes={Length}", audioBytes.Length);
                 }
                 catch (FormatException ex)
                 {
-                    _logger.LogError($"Error decoding base64 audio data: {ex.Message}");
+                    _logger.LogError(ex, "Error decoding base64 audio data");
                     return new BadRequestObjectResult("Invalid base64 audio data.");
                 }
 
-                // Write audio to a temporary file and log the file path
-                string tempFilePath = Path.GetTempFileName();
-                _logger.LogInformation($"Temporary file created at: {tempFilePath}");
+                tempFilePath = Path.Combine(Path.GetTempPath(), $"fodmap-speech-{Guid.NewGuid():N}.wav");
                 await File.WriteAllBytesAsync(tempFilePath, audioBytes);
-                _logger.LogInformation("Audio data successfully written to temporary file.");
 
-                // Configure Azure Speech SDK (never log the API key)
                 var apiKey = Environment.GetEnvironmentVariable("AzureSpeechApiKey");
                 if (string.IsNullOrWhiteSpace(apiKey))
                 {
                     _logger.LogError("AzureSpeechApiKey is not configured.");
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
-                var config = SpeechConfig.FromSubscription(apiKey, "eastus");
-                config.SpeechRecognitionLanguage = "en-US";
-                _logger.LogInformation("Azure Speech SDK configured successfully.");
 
-                // Perform speech recognition
+                var region = Environment.GetEnvironmentVariable("AzureSpeechRegion");
+                if (string.IsNullOrWhiteSpace(region))
+                {
+                    region = "eastus";
+                }
+
+                var config = SpeechConfig.FromSubscription(apiKey, region);
+                config.SpeechRecognitionLanguage =
+                    Environment.GetEnvironmentVariable("AzureSpeechLanguage") ?? "en-US";
+                // Allow longer pauses between phrases without ending the whole session early.
+                config.SetProperty(PropertyId.Speech_SegmentationSilenceTimeoutMs, "1500");
+                config.SetProperty(PropertyId.SpeechServiceConnection_InitialSilenceTimeoutMs, "10000");
+
                 using var audioInput = AudioConfig.FromWavFileInput(tempFilePath);
                 using var recognizer = new SpeechRecognizer(config, audioInput);
 
-                _logger.LogInformation("Starting speech recognition...");
-                var result = await recognizer.RecognizeOnceAsync();
+                // RecognizeOnceAsync stops at the first silence (~1s). Continuous recognition
+                // walks the whole WAV so later speech after a pause is kept.
+                var transcript = new StringBuilder();
+                var done = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                var canceledWithError = false;
 
-                // Handle recognition results
-                if (result.Reason == ResultReason.RecognizedSpeech)
+                recognizer.Recognized += (_, e) =>
                 {
-                    _logger.LogInformation($"Transcription successful: {result.Text}");
-                    return new OkObjectResult(new { transcription = result.Text });
-                }
-                else if (result.Reason == ResultReason.NoMatch)
-                {
-                    _logger.LogWarning("No speech could be recognized.");
-                    return new BadRequestObjectResult("No speech could be recognized.");
-                }
-                else if (result.Reason == ResultReason.Canceled)
-                {
-                    var cancellation = CancellationDetails.FromResult(result);
-                    _logger.LogError($"Speech recognition canceled: Reason={cancellation.Reason}");
-
-                    if (cancellation.Reason == CancellationReason.Error)
+                    if (e.Result.Reason == ResultReason.RecognizedSpeech
+                        && !string.IsNullOrWhiteSpace(e.Result.Text))
                     {
-                        _logger.LogError($"ErrorCode={cancellation.ErrorCode}");
-                        _logger.LogError($"ErrorDetails={cancellation.ErrorDetails}");
+                        if (transcript.Length > 0)
+                        {
+                            transcript.Append(' ');
+                        }
+
+                        transcript.Append(e.Result.Text.Trim());
+                    }
+                };
+
+                recognizer.Canceled += (_, e) =>
+                {
+                    if (e.Reason == CancellationReason.Error)
+                    {
+                        canceledWithError = true;
+                        _logger.LogError(
+                            "Speech recognition canceled: ErrorCode={Code} Details={Details}",
+                            e.ErrorCode,
+                            e.ErrorDetails);
                     }
 
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                }
-                else
+                    done.TrySetResult(false);
+                };
+
+                recognizer.SessionStopped += (_, _) => done.TrySetResult(true);
+
+                _logger.LogInformation("Starting continuous speech recognition...");
+                await recognizer.StartContinuousRecognitionAsync().ConfigureAwait(false);
+
+                // Bound wait so a hung session cannot block the function forever.
+                var finished = await Task.WhenAny(done.Task, Task.Delay(TimeSpan.FromMinutes(2)))
+                    .ConfigureAwait(false);
+                if (finished != done.Task)
                 {
-                    _logger.LogError($"Speech recognition failed: {result.Reason}");
+                    _logger.LogWarning("Speech recognition timed out after 2 minutes.");
+                }
+
+                await recognizer.StopContinuousRecognitionAsync().ConfigureAwait(false);
+
+                var text = transcript.ToString().Trim();
+                _logger.LogInformation(
+                    "Speech recognition finished. ElapsedMs={Elapsed} Chars={Chars} CanceledError={Canceled}",
+                    sw.ElapsedMilliseconds,
+                    text.Length,
+                    canceledWithError);
+
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    return new BadRequestObjectResult("No speech could be recognized.");
+                }
+
+                if (canceledWithError && text.Length == 0)
+                {
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
+
+                return new OkObjectResult(new { transcription = text });
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Unexpected error processing audio file: {ex.Message}");
-                _logger.LogError($"Stack Trace: {ex.StackTrace}");
+                _logger.LogError(ex, "Unexpected error processing audio file");
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+            finally
+            {
+                if (!string.IsNullOrEmpty(tempFilePath))
+                {
+                    try
+                    {
+                        File.Delete(tempFilePath);
+                    }
+                    catch
+                    {
+                        // best-effort cleanup
+                    }
+                }
             }
         }
     }
