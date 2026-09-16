@@ -29,24 +29,71 @@ namespace Core.Services
                 return "I had oatmeal with milk at 8, then felt bloated around 10.";
             }
 
-            var azureFunctionUrl = _config["Azure:TranscriptionFunctionUrl"];
-            var apiKey = _config["TranscribeFunctionKey"];
+            // Choose local function URL when enabled
+            var useLocal = bool.TryParse(_config["UseLocalTranscriptionFunction"], out var parsedUseLocal) && parsedUseLocal;
+            var functionUrl = useLocal
+                ? _config["Azure:TranscriptionFunctionLocalUrl"] ?? "http://localhost:7071/api/Function1"
+                : _config["Azure:TranscriptionFunctionUrl"];
 
-            var request = new HttpRequestMessage(HttpMethod.Post, azureFunctionUrl)
+            if (string.IsNullOrWhiteSpace(functionUrl))
             {
-                Content = new StringContent(
-                    System.Text.Json.JsonSerializer.Serialize(new { audio = audioBase64 }),
-                    System.Text.Encoding.UTF8,
-                    "application/json")
+                _logger.LogError("Transcription function URL is not configured.");
+                throw new InvalidOperationException("Transcription function URL not configured.");
+            }
+
+            // Function key - optional for local or remote (either header or ?code in url can be used)
+            var apiKey = _config["TranscribeFunctionKey"] ?? _config["AzureFunctionsKey"];
+
+            var payload = System.Text.Json.JsonSerializer.Serialize(new { audio = audioBase64 });
+            using var request = new HttpRequestMessage(HttpMethod.Post, functionUrl)
+            {
+                Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json")
             };
-            request.Headers.Add("x-functions-key", apiKey);
 
-            var response = await _httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
+            if (!string.IsNullOrWhiteSpace(apiKey))
+            {
+                // prefer header for Azure Functions; for local testing either header or ?code works
+                request.Headers.Add("x-functions-key", apiKey);
+            }
 
-            var json = await response.Content.ReadAsStringAsync();
-            using var doc = System.Text.Json.JsonDocument.Parse(json);
-            return doc.RootElement.GetProperty("transcription").GetString() ?? string.Empty;
+            _logger.LogDebug("Sending audio to transcription function. Url={Url} UseLocal={UseLocal}", functionUrl, useLocal);
+
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            HttpResponseMessage response;
+            try
+            {
+                response = await _httpClient.SendAsync(request, cts.Token);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calling transcription function at {Url}", functionUrl);
+                throw;
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("Transcription function returned {Status}. Body: {Body}", (int)response.StatusCode, body);
+                response.EnsureSuccessStatusCode();
+            }
+
+            var json = await response.Content.ReadAsStringAsync(cts.Token);
+            try
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(json);
+                if (doc.RootElement.TryGetProperty("transcription", out var t))
+                {
+                    return t.GetString() ?? string.Empty;
+                }
+
+                _logger.LogWarning("Transcription response JSON doesn't contain 'transcription' property. Raw: {Raw}", json);
+                return string.Empty;
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                _logger.LogWarning("Failed to parse transcription response as JSON. Raw: {Raw}", json);
+                throw;
+            }
         }
     }
 }
