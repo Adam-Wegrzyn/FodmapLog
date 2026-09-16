@@ -1,0 +1,14 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "AzureSpeechApiKey": "SET-IN-USER-SECRETS-OR-LOCAL-ONLY",
+    "AzureSpeechRegion": "eastus",
+    "AzureSpeechLanguage": "en-US"
+  },
+  "Host": {
+    "LocalHttpPort": 7004,
+    "CORS": "*"
+  }
+}

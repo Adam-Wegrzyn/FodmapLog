@@ -364,3 +364,6 @@ FodyWeavers.xsd
 # Local SQLite used by UseLocalSqlite Development mode
 **/fodmaplog-local.db
 **/fodmaplog-local.db-*
+
+# Azure Functions local settings (secrets)
+**/local.settings.json
