@@ -1,0 +1,49 @@
+<div class="export-page">
+  <header class="export-topbar">
+    <button type="button" class="btn-ghost" (click)="cancel()">Cancel</button>
+    <div class="export-title-wrap">
+      <p class="export-kicker">Share</p>
+      <h1 class="export-title">Export PDF</h1>
+    </div>
+    <span class="topbar-spacer" aria-hidden="true"></span>
+  </header>
+
+  <section class="export-card">
+    <h2 class="card-label">Date range</h2>
+    <p class="card-hint">Pick the period to include in a simple meal &amp; symptom table.</p>
+
+    <div class="date-grid">
+      <label class="date-field">
+        <span>From</span>
+        <input type="date" [(ngModel)]="fromDate" [max]="toDate || undefined">
+      </label>
+      <label class="date-field">
+        <span>Until</span>
+        <input type="date" [(ngModel)]="toDate" [min]="fromDate || undefined">
+      </label>
+    </div>
+  </section>
+
+  <section class="export-card export-card--preview">
+    <h2 class="card-label">What you get</h2>
+    <ul class="preview-list">
+      <li>One readable table: date/time, type, details</li>
+      <li>Meals list foods and amounts</li>
+      <li>Symptoms list name and severity</li>
+    </ul>
+  </section>
+
+  <p class="export-error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+  <p class="export-ok" *ngIf="previewCount !== null && !errorMessage">
+    Exported {{ previewCount }} {{ previewCount === 1 ? 'row' : 'rows' }}.
+  </p>
+
+  <button
+    type="button"
+    class="btn-primary btn-export"
+    (click)="exportPdf()"
+    [disabled]="isExporting">
+    <span *ngIf="isExporting" class="spinner-border spinner-border-sm me-2" role="status"></span>
+    {{ isExporting ? 'Preparing…' : 'Download PDF' }}
+  </button>
+</div>

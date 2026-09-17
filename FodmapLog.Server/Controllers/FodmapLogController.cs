@@ -51,6 +51,31 @@ namespace FodmapLog.Server.Controllers
             return Ok(result);
         }
 
+        [HttpGet]
+        [Route("getDailyLogsByDateRange/{from}/{to}")]
+        public async Task<IActionResult> GetDailyLogsByDateRange(string from, string to, CancellationToken cancellationToken)
+        {
+            if (!DateTime.TryParse(from, out var fromDate) || !DateTime.TryParse(to, out var toDate))
+            {
+                return BadRequest(new { error = "Invalid date format. Use yyyy-MM-dd." });
+            }
+
+            if (toDate.Date < fromDate.Date)
+            {
+                return BadRequest(new { error = "End date must be on or after start date." });
+            }
+
+            // Keep exports bounded for mobile/API cost.
+            if ((toDate.Date - fromDate.Date).TotalDays > 366)
+            {
+                return BadRequest(new { error = "Date range cannot exceed 366 days." });
+            }
+
+            var userId = this.RequireUserId();
+            var result = await _fodmapLogService.GetDailyLogsByDateRange(fromDate, toDate, userId, cancellationToken);
+            return Ok(result);
+        }
+
         [HttpPost]
         [Route("addMealLog")]
         public async Task<IActionResult> AddMealLog([FromBody] MealLogDto mealLogDto, CancellationToken cancellationToken)

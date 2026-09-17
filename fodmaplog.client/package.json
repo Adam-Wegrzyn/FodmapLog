@@ -32,6 +32,8 @@
     "audiobuffer-to-wav": "^1.0.0",
     "bootstrap": "^5.3.3",
     "jest-editor-support": "*",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "ngx-material-timepicker": "^13.1.1",
     "run-script-os": "*",
     "rxjs": "~7.8.0",

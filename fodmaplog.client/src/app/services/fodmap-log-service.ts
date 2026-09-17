@@ -35,6 +35,10 @@ export class FodmapLogService {
     getDailyLogsByDate(date: string): Observable<DailyLog[]> {
         return this.httpClient.get<DailyLog[]>(`${this.url}/getDailyLogsByDate/${date}`);
     }
+
+    getDailyLogsByDateRange(from: string, to: string): Observable<DailyLog[]> {
+        return this.httpClient.get<DailyLog[]>(`${this.url}/getDailyLogsByDateRange/${from}/${to}`);
+    }
     
     // SymptomsLog methods
     addSymptomsLog(symptomsLog: SymptomsLog): Observable<SymptomsLog> {
