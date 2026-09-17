@@ -196,6 +196,32 @@ namespace DataAccess.Repositories
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<IEnumerable<MealLog>> GetMealLogsByDateRange(DateTime fromDate, DateTime toDate, string userId, CancellationToken cancellationToken)
+        {
+            var rangeStart = fromDate.Date;
+            var rangeEnd = toDate.Date.AddDays(1);
+            return await _context.MealLogs
+                .Include(m => m.ProductQuantity)
+                .ThenInclude(pq => pq.Product)
+                .Include(m => m.ProductQuantity)
+                .ThenInclude(pq => pq.Unit)
+                .Where(m => m.UserId == userId && m.Date >= rangeStart && m.Date < rangeEnd)
+                .OrderBy(m => m.Date)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<IEnumerable<SymptomsLog>> GetSymptomsLogsByDateRange(DateTime fromDate, DateTime toDate, string userId, CancellationToken cancellationToken)
+        {
+            var rangeStart = fromDate.Date;
+            var rangeEnd = toDate.Date.AddDays(1);
+            return await _context.SymptomsLogs
+                .Include(s => s.Symptoms)
+                .ThenInclude(s => s.SymptomType)
+                .Where(s => s.UserId == userId && s.Date >= rangeStart && s.Date < rangeEnd)
+                .OrderBy(s => s.Date)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<SymptomsLog> AddSymptomsLog(SymptomsLog symptomsLog, CancellationToken cancellationToken)
         {
             foreach (var symptom in symptomsLog.Symptoms)

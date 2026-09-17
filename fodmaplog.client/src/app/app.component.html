@@ -3,6 +3,7 @@
     <a class="brand" routerLink="/daily-log">HealthyGut<span>Log</span></a>
     <nav class="top-nav" aria-label="Main">
       <a routerLink="/daily-log" routerLinkActive="is-active">Today</a>
+      <a routerLink="/export-logs" routerLinkActive="is-active">Export</a>
       <div class="nav-dropdown">
         <button type="button" class="nav-dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
           Add
@@ -27,6 +28,10 @@
     <a class="bottom-link" routerLink="/daily-log" routerLinkActive="is-active">
       <i class="fas fa-calendar-day" aria-hidden="true"></i>
       <span>Today</span>
+    </a>
+    <a class="bottom-link" routerLink="/export-logs" routerLinkActive="is-active">
+      <i class="fas fa-file-export" aria-hidden="true"></i>
+      <span>Export</span>
     </a>
     <button type="button" class="bottom-link" (click)="logout()">
       <i class="fas fa-user" aria-hidden="true"></i>

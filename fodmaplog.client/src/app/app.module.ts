@@ -22,6 +22,7 @@ import { SignupComponent } from './signup/signup.component';
 import { authInterceptor } from './auth.interceptor';
 import { LoginCallbackComponent } from './login-callback/login-callback.component';
 import { errorInterceptor } from '../error.interceptor';
+import { ExportLogsComponent } from './export-logs/export-logs.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { errorInterceptor } from '../error.interceptor';
     LoginComponent,
     SignupComponent,
     LoginCallbackComponent,
+    ExportLogsComponent,
     //DateTimeInputComponent,
   ],
   imports: [

@@ -95,6 +95,32 @@ namespace Core.Services
             return dailyLogs;
         }
 
+        public async Task<IEnumerable<DailyLogDto>> GetDailyLogsByDateRange(DateTime fromDate, DateTime toDate, string userId, CancellationToken cancellationToken)
+        {
+            var dailyLogs = new List<DailyLogDto>();
+            var mealLogs = await _fodmapLogRepository.GetMealLogsByDateRange(fromDate, toDate, userId, cancellationToken);
+            var symptomsLogs = await _fodmapLogRepository.GetSymptomsLogsByDateRange(fromDate, toDate, userId, cancellationToken);
+
+            foreach (var mealLog in mealLogs)
+            {
+                dailyLogs.Add(new DailyLogDto
+                {
+                    Date = mealLog.Date,
+                    MealLog = _mapper.Map<MealLogDto>(mealLog)
+                });
+            }
+            foreach (var symptomLog in symptomsLogs)
+            {
+                dailyLogs.Add(new DailyLogDto
+                {
+                    Date = symptomLog.Date,
+                    SymptomsLog = _mapper.Map<SymptomsLogDto>(symptomLog)
+                });
+            }
+
+            return dailyLogs.OrderBy(d => d.Date).ToList();
+        }
+
         public async Task<MealLogDto?> GetMealLogById(int id, string userId, CancellationToken cancellationToken)
         {
             var mealLog = await _fodmapLogRepository.GetMealLogById(id, userId, cancellationToken);

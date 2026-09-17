@@ -10,6 +10,7 @@ import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
 import { AuthGuard } from './AuthGuard';
 import { LoginCallbackComponent } from './login-callback/login-callback.component';
+import { ExportLogsComponent } from './export-logs/export-logs.component';
 
 const routes: Routes = [
   {
@@ -42,6 +43,10 @@ const routes: Routes = [
   },
   {
     path: "audio-rec", component: AudioRecorderComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: "export-logs", component: ExportLogsComponent,
     canActivate: [AuthGuard]
   },
   {
