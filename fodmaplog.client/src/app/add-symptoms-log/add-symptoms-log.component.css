@@ -1,3 +1,205 @@
-.no-radius{
-    border-radius: 0;
+.editor-page {
+  --accent: var(--hg-symptom);
+  --accent-soft: var(--hg-symptom-soft);
+  max-width: 28rem;
+  margin: 0 auto;
+  padding-bottom: 2rem;
+  text-align: left;
+}
+
+.editor-topbar {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr 5.5rem;
+  align-items: center;
+  gap: .5rem;
+  margin: 0 0 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: .55rem 0 .75rem;
+  background: linear-gradient(180deg, rgba(243, 247, 244, .96) 60%, rgba(243, 247, 244, 0));
+}
+
+.editor-title-wrap { text-align: center; }
+.editor-kicker {
+  margin: 0;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--hg-muted);
+}
+.editor-title {
+  margin: .1rem 0 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+
+.btn-ghost,
+.btn-primary,
+.btn-secondary {
+  border: 0;
+  border-radius: .85rem;
+  font-weight: 700;
+  font-size: .92rem;
+  min-height: 2.55rem;
+  padding: .45rem .85rem;
+  cursor: pointer;
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--hg-muted);
+  justify-self: start;
+}
+.btn-ghost:hover { color: var(--hg-ink); }
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  justify-self: end;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+.btn-primary:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.btn-secondary {
+  background: var(--hg-bg-deep);
+  color: var(--hg-ink);
+}
+
+.editor-card {
+  background: var(--hg-surface);
+  border: 1px solid var(--hg-line);
+  border-radius: 1.15rem;
+  padding: 1rem;
+  margin-bottom: .85rem;
+  box-shadow: var(--hg-shadow);
+}
+.card-label {
+  margin: 0 0 .65rem;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--hg-muted);
+}
+.card-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .65rem;
+}
+.card-label-row .card-label { margin: 0; }
+.card-count {
+  font-size: .78rem;
+  font-weight: 800;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: .15rem .55rem;
+}
+.card-hint {
+  margin: -.35rem 0 .85rem;
+  color: var(--hg-muted);
+  font-size: .9rem;
+}
+
+.selected-list {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+.severity-card {
+  border: 1px solid var(--hg-line);
+  border-radius: 1rem;
+  padding: .85rem;
+  background: linear-gradient(180deg, #fff, #fbfcfb);
+}
+.severity-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  margin-bottom: .55rem;
+}
+.severity-card-top h3 {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 750;
+  letter-spacing: -.015em;
+}
+.btn-icon-danger {
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: .55rem;
+  background: #fde8e8;
+  color: var(--hg-danger);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.severity-range {
+  width: 100%;
+  accent-color: var(--accent);
+}
+.severity-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: .35rem;
+}
+.severity-label {
+  font-size: .82rem;
+  font-weight: 750;
+  padding: .18rem .55rem;
+  border-radius: 999px;
+  background: #eef1ef;
+  color: var(--hg-muted);
+}
+.severity-label[data-tone="calm"] { background: #e7f7ee; color: #157347; }
+.severity-label[data-tone="mild"] { background: #fff1d6; color: #9a6700; }
+.severity-label[data-tone="hot"] { background: #fde8e8; color: #b42318; }
+.severity-scale {
+  font-size: .78rem;
+  font-weight: 650;
+  color: var(--hg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+.symptom-chip {
+  border: 1px solid var(--hg-line);
+  background: #fff;
+  color: var(--hg-ink);
+  border-radius: 999px;
+  padding: .48rem .85rem;
+  font-size: .88rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.symptom-chip:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--hg-line));
+  background: var(--accent-soft);
+}
+.symptom-chip.is-added,
+.symptom-chip:disabled {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: transparent;
+  cursor: default;
+}
+
+.editor-foot-hint {
+  text-align: center;
+  color: var(--hg-muted);
+  font-size: .88rem;
+  margin: 1rem 0 0;
 }

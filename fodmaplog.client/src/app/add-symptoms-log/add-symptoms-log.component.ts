@@ -48,6 +48,11 @@ export class addSymptomsLogComponent implements OnInit {
     
   ngOnInit(): void {
 
+    const qDate = this.route.snapshot.queryParamMap.get('date');
+    if (qDate) {
+      this.currDate = qDate;
+    }
+
     this.form = this.fb.group({
       id: 0,
       date: this.currDate,
@@ -123,13 +128,26 @@ getProduct(){
   }
 
   addSymptom(symptomType: SymptomType): void{
+    if (this.isAdded(symptomType)) {
+      return;
+    }
     this.symptomsArr.push(this.fb.group({
       symptomType: symptomType,
-      symptomScale: 0
+      symptomScale: 2
     }));
-    this.quantityInput = 0;
-    console.log(this.symptomType)
-    
+  }
+
+  isAdded(symptomType: SymptomType): boolean {
+    return (this.symptomsArr?.controls || []).some(
+      c => c.value?.symptomType?.id === symptomType.id
+        || c.value?.symptomType?.name === symptomType.name
+    );
+  }
+
+  toneFor(scale: number): 'calm' | 'mild' | 'hot' {
+    if (scale <= 0) return 'calm';
+    if (scale < 4) return 'mild';
+    return 'hot';
   }
 
   deleteSymptom(index: number): void{

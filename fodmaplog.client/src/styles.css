@@ -1,9 +1,34 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global diary design tokens — Bearable / GutScribe inspired, sage + amber */
+:root {
+  --hg-ink: #15201a;
+  --hg-muted: #5a6b61;
+  --hg-line: #dfe7e2;
+  --hg-surface: #ffffff;
+  --hg-bg: #f3f7f4;
+  --hg-bg-deep: #e7efea;
+  --hg-meal: #1f7a4d;
+  --hg-meal-soft: #e7f5ed;
+  --hg-symptom: #c45c12;
+  --hg-symptom-soft: #fff1e4;
+  --hg-danger: #b42318;
+  --hg-radius: 1rem;
+  --hg-radius-sm: .7rem;
+  --hg-shadow: 0 1px 2px rgba(21, 32, 26, .04), 0 8px 24px rgba(21, 32, 26, .06);
+  --hg-font: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
 
 html, body { height: 100%; }
 body {
   margin: 0;
-  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--hg-font);
   -webkit-font-smoothing: antialiased;
-  color: #1a1f1c;
+  color: var(--hg-ink);
+  background:
+    radial-gradient(1200px 500px at 10% -10%, #dff0e6 0%, transparent 55%),
+    radial-gradient(900px 420px at 100% 0%, #ffe8d2 0%, transparent 45%),
+    var(--hg-bg);
+}
+
+button, input, select, textarea {
+  font-family: inherit;
 }

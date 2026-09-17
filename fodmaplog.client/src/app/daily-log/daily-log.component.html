@@ -15,11 +15,23 @@
   </div>
 
   <div *ngIf="isEmptyDay" class="empty-state" role="status">
-    <p class="empty-title">Tap the mic and say what happened</p>
+    <p class="empty-title">What happened today?</p>
     <p class="empty-example">{{ emptyExample }}</p>
+    <div class="empty-actions">
+      <a class="quick-add quick-add--meal" [routerLink]="['/add-meal-log']"
+        [queryParams]="{ date: setDateCalendar }">Add meal</a>
+      <a class="quick-add quick-add--symptom" [routerLink]="['/add-symptoms-log']"
+        [queryParams]="{ date: setDateCalendar }">Add symptoms</a>
+    </div>
+    <p class="empty-or">or tap the mic and speak</p>
   </div>
 
   <div class="log-list" *ngIf="savedLogs.length > 0">
+    <a class="add-slot" [routerLink]="['/add-meal-log']"
+      [queryParams]="{ date: setDateCalendar }">
+      <span class="add-slot-plus">+</span> Add meal above
+    </a>
+
     <ng-container *ngFor="let log of savedLogs">
       <article *ngIf="isMealLog(log)" class="log-entry log-entry--meal">
         <div class="log-entry-rail" aria-hidden="true">
@@ -59,6 +71,13 @@
         </div>
       </article>
     </ng-container>
+
+    <div class="add-slot-row">
+      <a class="add-slot add-slot--meal" [routerLink]="['/add-meal-log']"
+        [queryParams]="{ date: setDateCalendar }">+ Meal</a>
+      <a class="add-slot add-slot--symptom" [routerLink]="['/add-symptoms-log']"
+        [queryParams]="{ date: setDateCalendar }">+ Symptom</a>
+    </div>
   </div>
 
   <div *ngIf="pendingCount > 0 && !showReviewSheet" class="pending-banner">
@@ -67,11 +86,6 @@
   </div>
 
   <p *ngIf="aiError" class="ai-error" role="alert">{{ aiError }}</p>
-
-  <div class="manual-add-fab" *ngIf="!showReviewSheet && !isUnderstanding">
-    <fa-icon data-bs-toggle="modal" data-bs-target="#LogAddModal" class="text-success" size="2x"
-      [icon]="faPlusCircle" title="Add manually"></fa-icon>
-  </div>
 
   <app-audio-recorder
     [interactive]="!showReviewSheet && !isUnderstanding"
@@ -82,21 +96,6 @@
       <div class="spinner-border text-light mb-3" role="status"></div>
       <p class="understanding-label">Understanding…</p>
       <p class="understanding-hint">Finding meals and symptoms</p>
-    </div>
-  </div>
-
-  <div class="modal fade" id="LogAddModal" tabindex="-1" aria-labelledby="LogAddModalLabel" aria-hidden="true">
-    <div class="modal-dialog custom-modal-position">
-      <div class="modal-content">
-        <div class="modal-body">
-          <div class="list-group list-group-flush">
-            <a routerLink="/add-meal-log" class="list-group-item list-group-item-action" data-bs-dismiss="modal">Add
-              Meal</a>
-            <a routerLink="/add-symptoms-log" class="list-group-item list-group-item-action" data-bs-dismiss="modal">Add
-              Symptoms</a>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 
