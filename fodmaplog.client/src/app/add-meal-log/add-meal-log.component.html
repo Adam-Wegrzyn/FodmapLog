@@ -48,7 +48,7 @@
         [(ngModel)]="name"
         placeholder="e.g. oatmeal, banana"
         (keydown.enter)="$event.preventDefault(); openComposer()">
-      <button type="button" class="btn-secondary composer-add" (click)="openComposer()" [disabled]="!name?.trim()">
+      <button type="button" class="btn-secondary composer-add" (click)="openComposer()" [disabled]="!name.trim()">
         Add
       </button>
     </div>

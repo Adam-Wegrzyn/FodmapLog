@@ -45,7 +45,7 @@
           <ul class="food-list">
             <li *ngFor="let pq of log.mealLog.productQuantity" class="food-item">
               <span class="food-name">{{ pq.product.name }}</span>
-              <span class="food-amount">{{ formatAmount(pq.quantity, pq.unit?.name) }}</span>
+              <span class="food-amount">{{ formatAmount(pq.quantity, pq.unit.name) }}</span>
             </li>
           </ul>
         </div>
@@ -178,7 +178,7 @@
       <ul class="food-list">
         <li *ngFor="let pq of log.mealLog.productQuantity" class="food-item">
           <span class="food-name">{{ pq.product.name }}</span>
-          <span class="food-amount">{{ formatAmount(pq.quantity, pq.unit?.name) }}</span>
+          <span class="food-amount">{{ formatAmount(pq.quantity, pq.unit.name) }}</span>
         </li>
       </ul>
       <button type="button" class="btn btn-sm btn-link px-0 edit-link"
