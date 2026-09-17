@@ -158,11 +158,20 @@ export class DailyLogComponent implements OnInit {
         // Replace previous pending AI batch with this one
         this.logs = (this.logs || []).filter(l => !l.isPending);
         for (const item of capped) {
+          // AI often invents its own calendar day (prompt examples / model "today").
+          // Review UI only shows time, so pin events to the day the user is viewing.
+          const pinnedDate = this.pinToSelectedDay(item?.date);
+          const mealLog = item?.mealLog
+            ? { ...item.mealLog, date: this.pinToSelectedDay(item.mealLog.date || item.date) }
+            : null;
+          const symptomsLog = item?.symptomsLog
+            ? { ...item.symptomsLog, date: this.pinToSelectedDay(item.symptomsLog.date || item.date) }
+            : null;
           const newDailyLog: DailyLogUI = new DailyLog(
             0,
-            item.date,
-            item.mealLog,
-            item.symptomsLog
+            pinnedDate,
+            mealLog as MealLog,
+            symptomsLog as SymptomsLog
           );
           newDailyLog.isPending = true;
           this.logs = [newDailyLog, ...this.logs];
@@ -182,13 +191,18 @@ export class DailyLogComponent implements OnInit {
       next: (data) => {
         const pending = this.pendingLogs;
         this.logs = [...pending, ...(data || [])];
+        this.cdr.detectChanges();
       },
-      error: (error) => console.error(error)
+      error: (error) => {
+        console.error(error);
+        this.aiError = 'Could not refresh the day log. Pull to retry or change the date.';
+        this.cdr.detectChanges();
+      }
     });
   }
 
   isMealLog(log: DailyLog): boolean {
-    return log.mealLog != undefined && log.mealLog != null;
+    return !!log?.mealLog && (log.symptomsLog == null || log.symptomsLog === undefined);
   }
 
   /** Friendly amount like "1 bowl" / "200 ml" (food-diary style). */
@@ -295,45 +309,121 @@ export class DailyLogComponent implements OnInit {
     this.reviewError = null;
     this.cdr.detectChanges();
 
-    const requests: Observable<unknown>[] = pending.map(log => {
+    const saveRequests = pending.map((log, index) => {
+      let req: Observable<unknown>;
       if (this.isMealLog(log) && log.mealLog) {
-        return this.fodmapLogService.addMealLog(log.mealLog).pipe(
-          catchError(err => {
-            console.error(err);
-            return of({ __failed: true });
-          })
-        );
+        req = this.fodmapLogService.addMealLog(this.prepareMealLogForSave(log.mealLog, log.date));
+      } else if (log.symptomsLog) {
+        req = this.fodmapLogService.addSymptomsLog(this.prepareSymptomsLogForSave(log.symptomsLog, log.date));
+      } else {
+        return of({ __failed: true, __index: index });
       }
-      if (log.symptomsLog) {
-        return this.fodmapLogService.addSymptomsLog(log.symptomsLog).pipe(
-          catchError(err => {
-            console.error(err);
-            return of({ __failed: true });
-          })
-        );
-      }
-      return of({ __failed: true });
+      return req.pipe(
+        catchError(err => {
+          console.error(err);
+          return of({ __failed: true, __index: index });
+        })
+      );
     });
 
-    forkJoin(requests).pipe(
+    forkJoin(saveRequests).pipe(
       finalize(() => {
         this.isSavingAll = false;
         this.cdr.detectChanges();
       })
     ).subscribe(results => {
-      const failed = results.filter(r => (r as { __failed?: boolean })?.__failed).length;
+      const failedIndexes = new Set(
+        results
+          .map((r, i) => ((r as { __failed?: boolean })?.__failed ? i : -1))
+          .filter(i => i >= 0)
+      );
+      const failed = failedIndexes.size;
       if (failed > 0 && failed === results.length) {
         this.reviewError = 'Could not save events. Check your connection and try again.';
+        this.cdr.detectChanges();
         return;
       }
+
+      // Drop only the ones that saved; keep failed pending for retry.
+      this.logs = this.logs.filter(l => {
+        if (!l.isPending) {
+          return true;
+        }
+        const idx = pending.indexOf(l);
+        return failedIndexes.has(idx);
+      });
+
       if (failed > 0) {
         this.reviewError = `Saved ${results.length - failed} of ${results.length} events. Retry failed ones.`;
+        this.showReviewSheet = true;
+        this.cdr.detectChanges();
+        return;
       }
-      this.logs = this.logs.filter(l => !l.isPending);
+
       this.showReviewSheet = false;
       this.truncatedPendingCount = 0;
+      this.reviewError = null;
       this.GetDailyLog(this.setDateCalendar);
     });
+  }
+
+  /**
+   * Keep AI time-of-day but force the calendar day the user is viewing.
+   * Avoids silent "saved on another day" when the model invents dates.
+   */
+  private pinToSelectedDay(isoOrDate: string | Date | null | undefined): string {
+    const day = this.setDateCalendar || new Date().toISOString().split('T')[0];
+    let hours = 12;
+    let minutes = 0;
+    let seconds = 0;
+    if (isoOrDate) {
+      const parsed = new Date(isoOrDate);
+      if (!Number.isNaN(parsed.getTime())) {
+        hours = parsed.getHours();
+        minutes = parsed.getMinutes();
+        seconds = parsed.getSeconds();
+      }
+    }
+    const hh = String(hours).padStart(2, '0');
+    const mm = String(minutes).padStart(2, '0');
+    const ss = String(seconds).padStart(2, '0');
+    return `${day}T${hh}:${mm}:${ss}`;
+  }
+
+  private prepareMealLogForSave(mealLog: MealLog, fallbackDate: string): MealLog {
+    const date = this.pinToSelectedDay(mealLog?.date || fallbackDate);
+    return {
+      id: mealLog?.id ?? 0,
+      date,
+      productQuantity: (mealLog?.productQuantity || []).map(pq => ({
+        id: pq?.id ?? 0,
+        quantity: pq?.quantity ?? 1,
+        product: {
+          id: pq?.product?.id ?? 0,
+          name: (pq?.product?.name || 'Unknown').trim() || 'Unknown'
+        },
+        unit: {
+          id: pq?.unit?.id ?? 0,
+          name: (pq?.unit?.name || 'Piece').trim() || 'Piece'
+        }
+      }))
+    } as MealLog;
+  }
+
+  private prepareSymptomsLogForSave(symptomsLog: SymptomsLog, fallbackDate: string): SymptomsLog {
+    const date = this.pinToSelectedDay(symptomsLog?.date || fallbackDate);
+    return {
+      id: symptomsLog?.id ?? 0,
+      date,
+      symptoms: (symptomsLog?.symptoms || []).map(s => ({
+        id: s?.id ?? 0,
+        symptomScale: s?.symptomScale ?? 0,
+        symptomType: {
+          id: s?.symptomType?.id ?? 0,
+          name: (s?.symptomType?.name || 'Unknown').trim() || 'Unknown'
+        }
+      }))
+    } as SymptomsLog;
   }
 
   toggleTranscript(): void {

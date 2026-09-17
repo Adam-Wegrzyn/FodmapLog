@@ -68,7 +68,7 @@ namespace DataAccess.Repositories
                 if (existingUnit == null && !string.IsNullOrWhiteSpace(productQuantity.Unit.Name))
                 {
                     existingUnit = await _context.Units
-                        .FirstOrDefaultAsync(u => u.Name == productQuantity.Unit.Name, cancellationToken);
+                        .FirstOrDefaultAsync(u => u.Name.ToLower() == productQuantity.Unit.Name.ToLower(), cancellationToken);
                 }
                 if (existingUnit == null)
                 {
@@ -200,6 +200,11 @@ namespace DataAccess.Repositories
         {
             foreach (var symptom in symptomsLog.Symptoms)
             {
+                if (symptom.SymptomType == null)
+                {
+                    symptom.SymptomType = new SymptomType { Name = "Unknown" };
+                }
+
                 SymptomType? existingSymptomType = null;
                 if (symptom.SymptomType.Id > 0)
                 {
@@ -209,7 +214,7 @@ namespace DataAccess.Repositories
                 if (existingSymptomType == null && !string.IsNullOrWhiteSpace(symptom.SymptomType.Name))
                 {
                     existingSymptomType = await _context.SymptomTypes
-                        .FirstOrDefaultAsync(s => s.Name == symptom.SymptomType.Name, cancellationToken);
+                        .FirstOrDefaultAsync(s => s.Name.ToLower() == symptom.SymptomType.Name.ToLower(), cancellationToken);
                 }
                 if (existingSymptomType != null)
                 {
