@@ -156,6 +156,14 @@ Tests are mostly boilerplate today. Add **behavioral** tests for auth scoping, L
 5. **Prefer** fixing and hardening existing code over parallel implementations.
 6. **Match** surrounding naming, file layout, and patterns even when they diverge from official style guides.
 
+## Simplicity & readability (see also `SKILLS.md`)
+
+1. **Do not overengineer.** Prefer the simplest approach that solves the concrete problem.
+2. **Write for humans.** Code should stay easy to read when the owner revisits it later — clear names, short functions, obvious flow.
+3. **If a simpler way exists, use it** — fewer layers, fewer helpers, less indirection.
+4. **Avoid** premature abstractions, clever patterns, or drive-by refactors unless explicitly requested.
+5. **Keep diffs small** and scoped to the task.
+
 ## Security requirements
 
 Agents **must** preserve and move toward these constraints (several are gaps in the current codebase):
