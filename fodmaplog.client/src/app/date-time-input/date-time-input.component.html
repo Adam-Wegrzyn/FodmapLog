@@ -1,10 +1,12 @@
-<div class="row mt-5">
-    <div class="col-2">
-      <input type="date" name="currDate" [(ngModel)]="date" (ngModelChange)="onDateChange($event)">
-    </div>
-    <div class="col-2 mx-5">
-      <input type="datetime" [format]="24" name="currTime" [(ngModel)]="time"
-      (ngModelChange)="onTimeChange($event)" [ngxTimepicker]="timePicker">
-    </div>
-    <ngx-material-timepicker  #timePicker></ngx-material-timepicker>
-    </div>
+<div class="dt-row">
+  <label class="dt-field">
+    <span>Date</span>
+    <input type="date" name="currDate" [(ngModel)]="date" (ngModelChange)="onDateChange($event)">
+  </label>
+  <label class="dt-field">
+    <span>Time</span>
+    <input type="text" [format]="24" name="currTime" [(ngModel)]="time"
+      (ngModelChange)="onTimeChange($event)" [ngxTimepicker]="timePicker" readonly>
+  </label>
+  <ngx-material-timepicker #timePicker></ngx-material-timepicker>
+</div>

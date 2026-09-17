@@ -39,6 +39,7 @@ export class addMealLogComponent implements OnInit {
     hour12: true
   });
   isPending: boolean = false;
+  showComposer = false;
 
   constructor(private productsApiService: ProductsApiService,
     private fodmapLogService: FodmapLogService,
@@ -51,6 +52,10 @@ export class addMealLogComponent implements OnInit {
 
   ngOnInit(): void {
     this.fillUnits();
+    const qDate = this.route.snapshot.queryParamMap.get('date');
+    if (qDate) {
+      this.currDate = qDate;
+    }
     this.form = this.fb.group({
       id: 0,
       date: new Date(),
@@ -94,19 +99,7 @@ export class addMealLogComponent implements OnInit {
         }
       }
     });
-    // this.timePicker.nativeElement.open();
-
-
   }
-  // // ngAfterViewInit(){
-  // //   if(this.isNew){
-  // //     setTimeout(() => {
-  // //       this.timePicker.updateTime(this.currDate);
-  // //       this.timePicker.open();
-  // //     });
-  // //   }
-
-  // }
   setProductQuantities(productQuantity: any[]) {
     const productQuantityFormGroups = productQuantity.map(productQuantity => this.fb.group(productQuantity));
     const productQuantityFormArray = this.fb.array(productQuantityFormGroups);
@@ -121,28 +114,44 @@ export class addMealLogComponent implements OnInit {
 
 
   AddProduct(productName: string, quantity: number): void {
-    let product: Product = {
-      id: 0,
-      name: productName,
-      //  productQuantity: quantity.toString(),
-      //  productQuantityUnit: this.selectedUnit,
+    if (!productName?.trim() || !this.selectedUnit) {
+      return;
     }
+    const product: Product = {
+      id: 0,
+      name: productName.trim(),
+    };
     this.productQuantityArr.push(this.fb.group({
       product: product,
       quantity: quantity,
       unit: this.selectedUnit,
-      //  totalGrams: quantity * Number(this.selectedUnit),
     }));
-    console.log(this.selectedUnit)
-    console.log(this.productQuantityArr);
-    this.quantityInput = 0;
-    this.closeModalBtn.nativeElement.click();
+    this.quantityInput = 1;
+    this.name = '';
+    this.closeComposer();
+  }
 
+  openComposer(): void {
+    if (!this.name?.trim()) {
+      return;
+    }
+    if (!this.selectedUnit && this.units?.length) {
+      this.selectedUnit = this.units[0];
+    }
+    this.quantityInput = this.quantityInput || 1;
+    this.showComposer = true;
+  }
+
+  closeComposer(): void {
+    this.showComposer = false;
+  }
+
+  confirmAddProduct(): void {
+    this.AddProduct(this.name, this.quantityInput);
   }
 
   DeleteProduct(index: number): void {
     this.productQuantityArr.removeAt(index);
-    console.log(this.productQuantityArr);
   }
 
   SaveMealLog(): void {
@@ -181,7 +190,12 @@ export class addMealLogComponent implements OnInit {
 
   fillUnits(): void {
     this.unitService.getAllUnits().subscribe(
-      (data) => { this.units = data; },
+      (data) => {
+        this.units = data;
+        if (!this.selectedUnit && data?.length) {
+          this.selectedUnit = data[0];
+        }
+      },
       () => { console.log('Error fetching units'); },
     );
   }

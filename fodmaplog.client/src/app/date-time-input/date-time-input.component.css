@@ -1,0 +1,34 @@
+.dt-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .65rem;
+}
+
+.dt-field {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  margin: 0;
+  font-size: .72rem;
+  font-weight: 750;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: var(--hg-muted, #5a6b61);
+}
+
+.dt-field input {
+  border: 1px solid var(--hg-line, #dfe7e2);
+  border-radius: .85rem;
+  padding: .7rem .8rem;
+  font-size: .98rem;
+  font-weight: 600;
+  color: var(--hg-ink, #15201a);
+  background: #fff;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.dt-field input:focus {
+  outline: 2px solid rgba(31, 122, 77, .28);
+  border-color: #1f7a4d;
+}
