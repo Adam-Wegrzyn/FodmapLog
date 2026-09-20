@@ -21,6 +21,7 @@
     "google": "Zaloguj przez Google",
     "noAccount": "Nie masz konta?",
     "signUpLink": "Zarejestruj się",
+    "forgot": "Nie pamiętasz hasła?",
     "invalidCredentials": "Nieprawidłowy e-mail lub hasło.",
     "apiUnreachable": "Brak połączenia z API. Uruchom FodmapLog.Server na http://localhost:5115."
   },
@@ -78,9 +79,54 @@
     "edit": "Edytuj",
     "aiEmpty": "Nie znaleziono posiłków ani objawów w nagraniu. Spróbuj ponownie.",
     "aiFail": "Nie udało się zrozumieć nagrania. Spróbuj ponownie.",
+    "aiUnavailable": "AI jest chwilowo niedostępne. Spróbuj później.",
+    "aiRateLimited": "Zbyt wiele zapytań AI. Poczekaj chwilę i spróbuj ponownie.",
     "refreshFail": "Nie udało się odświeżyć dziennika. Zmień datę lub spróbuj ponownie.",
     "saveFail": "Nie udało się zapisać. Sprawdź połączenie i spróbuj ponownie.",
-    "savePartial": "Zapisano {{saved}} z {{total}} zdarzeń. Ponów nieudane."
+    "savePartial": "Zapisano {{saved}} z {{total}} zdarzeń. Ponów nieudane.",
+    "deleteTitle": "Usunąć ten wpis?",
+    "deleteBody": "To trwale usunie zapisany posiłek lub objawy.",
+    "cancelDelete": "Anuluj",
+    "confirmDelete": "Usuń",
+    "deleteFail": "Nie udało się usunąć. Sprawdź połączenie i spróbuj ponownie."
+  },
+  "account": {
+    "back": "Wróć",
+    "kicker": "Ustawienia",
+    "title": "Konto",
+    "email": "E-mail",
+    "unknownEmail": "Zalogowano",
+    "security": "Bezpieczeństwo",
+    "resetPassword": "Zresetuj hasło",
+    "export": "Eksport PDF"
+  },
+  "forgot": {
+    "title": "Nie pamiętam hasła",
+    "hint": "Podaj e-mail — wyślemy kod resetu, jeśli konto istnieje.",
+    "email": "E-mail",
+    "emailPlaceholder": "Wpisz e-mail",
+    "emailRequired": "E-mail jest wymagany.",
+    "submit": "Wyślij link",
+    "submitting": "Wysyłanie…",
+    "success": "Jeśli konto istnieje, wysłaliśmy wiadomość z resetem. Sprawdź skrzynkę (lub logi serwera w trybie deweloperskim).",
+    "haveCode": "Mam już kod",
+    "backLogin": "Wróć do logowania"
+  },
+  "reset": {
+    "title": "Ustaw nowe hasło",
+    "hint": "Wklej kod z wiadomości e-mail i wybierz nowe hasło.",
+    "email": "E-mail",
+    "code": "Kod resetu",
+    "password": "Nowe hasło",
+    "confirmPassword": "Powtórz hasło",
+    "allRequired": "Wszystkie pola są wymagane.",
+    "passwordTooShort": "Hasło musi mieć co najmniej 6 znaków.",
+    "passwordMismatch": "Hasła nie są takie same.",
+    "submit": "Zmień hasło",
+    "submitting": "Zapisywanie…",
+    "success": "Hasło zmienione. Przekierowanie do logowania…",
+    "failed": "Nie udało się zresetować hasła. Sprawdź kod i spróbuj ponownie.",
+    "backLogin": "Wróć do logowania"
   },
   "timeline": {
     "kicker": "Widok dnia",
@@ -149,6 +195,7 @@
     "startFail": "Nie udało się rozpocząć nagrywania. Sprawdź ustawienia mikrofonu.",
     "noSpeech": "Nie wykryto mowy. Stuknij mikrofon i spróbuj ponownie.",
     "transcribeFail": "Transkrypcja nie powiodła się. Sprawdź połączenie i spróbuj ponownie.",
+    "unavailable": "Transkrypcja jest chwilowo niedostępna. Spróbuj później.",
     "readFail": "Nie udało się odczytać nagrania. Spróbuj ponownie."
   },
   "export": {

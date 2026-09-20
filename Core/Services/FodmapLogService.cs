@@ -161,5 +161,11 @@ namespace Core.Services
             var updatedSymptomsLog = await _fodmapLogRepository.UpdateSymptomsLog(symptomsLog, userId, cancellationToken);
             return _mapper.Map<SymptomsLogDto>(updatedSymptomsLog);
         }
+
+        public async Task<SymptomsLogDto?> DeleteSymptomsLog(int id, string userId, CancellationToken cancellationToken)
+        {
+            var deleted = await _fodmapLogRepository.DeleteSymptomsLog(id, userId, cancellationToken);
+            return deleted == null ? null : _mapper.Map<SymptomsLogDto>(deleted);
+        }
     }
 }

@@ -1,0 +1,35 @@
+<div class="account-page">
+  <header class="account-topbar">
+    <a class="btn-ghost" routerLink="/daily-log">{{ 'account.back' | translate }}</a>
+    <div class="account-title-wrap">
+      <p class="account-kicker">{{ 'account.kicker' | translate }}</p>
+      <h1 class="account-title">{{ 'account.title' | translate }}</h1>
+    </div>
+    <span class="topbar-spacer" aria-hidden="true"></span>
+  </header>
+
+  <section class="account-card">
+    <h2 class="card-label">{{ 'account.email' | translate }}</h2>
+    <p class="account-email">{{ email || ('account.unknownEmail' | translate) }}</p>
+  </section>
+
+  <section class="account-card">
+    <h2 class="card-label">{{ 'nav.language' | translate }}</h2>
+    <div class="lang-row" role="group" [attr.aria-label]="'nav.language' | translate">
+      <button type="button" class="lang-chip" [class.is-active]="language.currentLang === 'en'"
+        (click)="setLang('en')">EN</button>
+      <button type="button" class="lang-chip" [class.is-active]="language.currentLang === 'pl'"
+        (click)="setLang('pl')">PL</button>
+    </div>
+  </section>
+
+  <section class="account-card">
+    <h2 class="card-label">{{ 'account.security' | translate }}</h2>
+    <a class="account-link" routerLink="/forgot-password">{{ 'account.resetPassword' | translate }}</a>
+    <a class="account-link" routerLink="/export-logs">{{ 'account.export' | translate }}</a>
+  </section>
+
+  <button type="button" class="btn-danger-outline" (click)="logout()">
+    {{ 'nav.logOut' | translate }}
+  </button>
+</div>

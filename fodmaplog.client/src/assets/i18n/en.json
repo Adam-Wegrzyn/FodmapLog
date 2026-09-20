@@ -21,6 +21,7 @@
     "google": "Sign in with Google",
     "noAccount": "Don't have an account?",
     "signUpLink": "Sign up",
+    "forgot": "Forgot password?",
     "invalidCredentials": "Invalid email or password.",
     "apiUnreachable": "Cannot reach the API. Start FodmapLog.Server on http://localhost:5115."
   },
@@ -78,9 +79,54 @@
     "edit": "Edit",
     "aiEmpty": "No meals or symptoms found in that recording. Try again.",
     "aiFail": "Could not understand that recording. Please try again.",
+    "aiUnavailable": "AI is temporarily unavailable. Try again later.",
+    "aiRateLimited": "Too many AI requests. Wait a minute and try again.",
     "refreshFail": "Could not refresh the day log. Pull to retry or change the date.",
     "saveFail": "Could not save events. Check your connection and try again.",
-    "savePartial": "Saved {{saved}} of {{total}} events. Retry failed ones."
+    "savePartial": "Saved {{saved}} of {{total}} events. Retry failed ones.",
+    "deleteTitle": "Delete this entry?",
+    "deleteBody": "This permanently removes the saved meal or symptom log.",
+    "cancelDelete": "Cancel",
+    "confirmDelete": "Delete",
+    "deleteFail": "Could not delete. Check your connection and try again."
+  },
+  "account": {
+    "back": "Back",
+    "kicker": "Settings",
+    "title": "Account",
+    "email": "Email",
+    "unknownEmail": "Signed in",
+    "security": "Security",
+    "resetPassword": "Reset password",
+    "export": "Export PDF"
+  },
+  "forgot": {
+    "title": "Forgot password",
+    "hint": "Enter your email and we will send a reset code if an account exists.",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email",
+    "emailRequired": "Email is required.",
+    "submit": "Send reset link",
+    "submitting": "Sending…",
+    "success": "If an account exists for that email, a reset message was sent. Check your inbox (or server logs in development).",
+    "haveCode": "I already have a code",
+    "backLogin": "Back to login"
+  },
+  "reset": {
+    "title": "Reset password",
+    "hint": "Paste the reset code from the email, then choose a new password.",
+    "email": "Email",
+    "code": "Reset code",
+    "password": "New password",
+    "confirmPassword": "Confirm password",
+    "allRequired": "All fields are required.",
+    "passwordTooShort": "Password must be at least 6 characters.",
+    "passwordMismatch": "Passwords do not match.",
+    "submit": "Update password",
+    "submitting": "Updating…",
+    "success": "Password updated. Redirecting to login…",
+    "failed": "Could not reset password. Check the code and try again.",
+    "backLogin": "Back to login"
   },
   "timeline": {
     "kicker": "Day view",
@@ -149,6 +195,7 @@
     "startFail": "Could not start recording. Check microphone settings.",
     "noSpeech": "No speech detected. Tap the mic and try again.",
     "transcribeFail": "Transcription failed. Check your connection and try again.",
+    "unavailable": "Transcription is temporarily unavailable. Try again later.",
     "readFail": "Could not read the recording. Please try again."
   },
   "export": {

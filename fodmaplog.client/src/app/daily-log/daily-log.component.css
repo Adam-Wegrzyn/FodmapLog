@@ -121,6 +121,28 @@
   font-variant-numeric: tabular-nums;
 }
 
+.log-entry-actions { display: flex; gap: .75rem; margin-top: .55rem; }
+.btn-link-action {
+  border: 0; background: transparent; padding: 0;
+  font-size: .82rem; font-weight: 700; color: var(--log-meal); cursor: pointer;
+}
+.btn-link-action--danger { color: #b42318; }
+
+.confirm-layer {
+  position: fixed; inset: 0; z-index: 1100;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.confirm-backdrop { position: absolute; inset: 0; border: 0; background: rgba(21, 32, 26, .45); }
+.confirm-sheet {
+  position: relative; width: min(28rem, 100%); margin: 0 .65rem .85rem;
+  background: #fff; border-radius: 1.15rem; padding: 1.1rem 1rem 1rem;
+  box-shadow: 0 16px 40px rgba(21, 32, 26, .2);
+}
+.confirm-title { margin: 0 0 .35rem; font-size: 1.05rem; font-weight: 800; }
+.confirm-body { margin: 0 0 .9rem; color: var(--log-muted); font-size: .92rem; line-height: 1.45; }
+.confirm-actions { display: flex; gap: .55rem; }
+.confirm-error { margin: .7rem 0 0; color: #842029; font-weight: 650; font-size: .88rem; }
+
 .food-list, .symptom-list {
   list-style: none;
   margin: 0;

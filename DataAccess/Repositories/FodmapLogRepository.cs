@@ -149,6 +149,19 @@ namespace DataAccess.Repositories
             return mealLog;
         }
 
+        public async Task<SymptomsLog?> DeleteSymptomsLog(int id, string userId, CancellationToken cancellationToken)
+        {
+            var symptomsLog = await _context.SymptomsLogs
+                .Include(s => s.Symptoms)
+                .FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId, cancellationToken);
+            if (symptomsLog != null)
+            {
+                _context.SymptomsLogs.Remove(symptomsLog);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            return symptomsLog;
+        }
+
         public async Task<IEnumerable<Product>> GetAllProducts(CancellationToken cancellationToken)
         {
             return await _context.Products.ToListAsync(cancellationToken);

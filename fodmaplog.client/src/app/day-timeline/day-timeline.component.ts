@@ -135,7 +135,7 @@ export class DayTimelineComponent implements OnInit, OnChanges, OnDestroy {
         const maxScale = Math.max(...scales, 0);
         const lines = log.symptomsLog.symptoms.map(s => {
           const name = translateSymptomType(this.translate, s.symptomType);
-          const scale = translateScale(this.translate, s.symptomScale);
+          const scale = translateScale(this.translate, this.normalizeScale(s.symptomScale ?? 0));
           return `${name} · ${scale}`;
         });
         symptoms.push({
@@ -148,8 +148,8 @@ export class DayTimelineComponent implements OnInit, OnChanges, OnDestroy {
             count: lines.length
           }),
           lines,
-          severity: maxScale,
-          tone: this.severityTone(maxScale)
+          severity: this.normalizeScale(maxScale),
+          tone: this.severityTone(this.normalizeScale(maxScale))
         });
       }
     });
@@ -171,6 +171,16 @@ export class DayTimelineComponent implements OnInit, OnChanges, OnDestroy {
         this.windowEndPct = null;
       }
     }
+  }
+
+  private normalizeScale(scale: number): number {
+    if (scale >= 0 && scale <= 5) {
+      return scale;
+    }
+    if (scale >= 6 && scale <= 10) {
+      return Math.round(scale / 2);
+    }
+    return Math.max(0, Math.min(5, scale));
   }
 
   private percentOfDay(at: Date): number {

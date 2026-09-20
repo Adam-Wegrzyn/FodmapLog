@@ -1,4 +1,3 @@
-import { Component } from '@angular/core';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { addMealLogComponent } from './add-meal-log/add-meal-log.component';
@@ -11,58 +10,68 @@ import { SignupComponent } from './signup/signup.component';
 import { AuthGuard } from './AuthGuard';
 import { LoginCallbackComponent } from './login-callback/login-callback.component';
 import { ExportLogsComponent } from './export-logs/export-logs.component';
+import { AccountComponent } from './account/account.component';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 const routes: Routes = [
   {
-    path: "", redirectTo: "/login", pathMatch: "full"
-    , 
+    path: '', redirectTo: '/login', pathMatch: 'full'
   },
   {
-    path: "add-meal-log", component: addMealLogComponent,
+    path: 'add-meal-log', component: addMealLogComponent,
     canActivate: [AuthGuard]
   },
   {
-    path: "add-meal-log/:id", component: addMealLogComponent,
+    path: 'add-meal-log/:id', component: addMealLogComponent,
     canActivate: [AuthGuard]
   },
   {
-    path: "daily-log", component: DailyLogComponent,
-    canActivate: [AuthGuard] 
-  },
-  {
-    path: "daily-log/:date", component: DailyLogComponent,
+    path: 'daily-log', component: DailyLogComponent,
     canActivate: [AuthGuard]
   },
   {
-    path: "add-symptoms-log", component: addSymptomsLogComponent,
+    path: 'daily-log/:date', component: DailyLogComponent,
     canActivate: [AuthGuard]
   },
   {
-    path: "add-symptoms-log/:id", component: addSymptomsLogComponent,
+    path: 'add-symptoms-log', component: addSymptomsLogComponent,
     canActivate: [AuthGuard]
   },
   {
-    path: "audio-rec", component: AudioRecorderComponent,
+    path: 'add-symptoms-log/:id', component: addSymptomsLogComponent,
     canActivate: [AuthGuard]
   },
   {
-    path: "export-logs", component: ExportLogsComponent,
+    path: 'audio-rec', component: AudioRecorderComponent,
     canActivate: [AuthGuard]
   },
   {
-    path: "login", component: LoginComponent
+    path: 'export-logs', component: ExportLogsComponent,
+    canActivate: [AuthGuard]
   },
   {
-    path: "signup", component: SignupComponent
+    path: 'account', component: AccountComponent,
+    canActivate: [AuthGuard]
   },
   {
-    path: "logout", component: LogoutComponent
+    path: 'login', component: LoginComponent
   },
   {
-   path: 'login-callback', component: LoginCallbackComponent  
+    path: 'signup', component: SignupComponent
+  },
+  {
+    path: 'forgot-password', component: ForgotPasswordComponent
+  },
+  {
+    path: 'reset-password', component: ResetPasswordComponent
+  },
+  {
+    path: 'logout', component: LogoutComponent
+  },
+  {
+    path: 'login-callback', component: LoginCallbackComponent
   }
-
-  
 ];
 
 @NgModule({

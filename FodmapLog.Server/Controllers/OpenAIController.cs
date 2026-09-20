@@ -1,6 +1,8 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using OpenAI.Chat;
 
 namespace FodmapLog.Server.Controllers
@@ -8,6 +10,7 @@ namespace FodmapLog.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
+    [EnableRateLimiting("ai")]
     public class OpenAIController : ControllerBase
     {
         private readonly string? _apiKey;
@@ -18,7 +21,7 @@ namespace FodmapLog.Server.Controllers
         public OpenAIController(IConfiguration configuration, ILogger<OpenAIController> logger)
         {
             _apiKey = configuration["openAIApiKey"];
-            _useAiStubs = false; //configuration.GetValue("UseAiStubs", false);
+            _useAiStubs = configuration.GetValue("UseAiStubs", false);
             _logger = logger;
         }
 
@@ -36,17 +39,20 @@ namespace FodmapLog.Server.Controllers
                 return BadRequest(new { error = $"Transcript exceeds {MaxTranscriptLength} characters." });
             }
 
-            //if (_useAiStubs || string.IsNullOrWhiteSpace(_apiKey))
-            //{
-            //    if (_useAiStubs)
-            //    {
-            //        _logger.LogInformation("UseAiStubs enabled — returning local stub daily logs. TranscriptLength={Length}", input.Transcript.Length);
-            //        await Task.Delay(350, cancellationToken);
-            //        return Content(BuildStubDailyLogsJson(), "application/json");
-            //    }
+            if (_useAiStubs || string.IsNullOrWhiteSpace(_apiKey))
+            {
+                if (_useAiStubs)
+                {
+                    _logger.LogInformation(
+                        "UseAiStubs enabled — returning local stub daily logs. TranscriptLength={Length}",
+                        input.Transcript.Length);
+                    await Task.Delay(350, cancellationToken);
+                    return Content(BuildStubDailyLogsJson(), "application/json");
+                }
 
-            //    return StatusCode(StatusCodes.Status503ServiceUnavailable, new { error = "OpenAI is not configured." });
-            //}
+                _logger.LogWarning("OpenAI is not configured (missing openAIApiKey).");
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, new { error = "AI is temporarily unavailable." });
+            }
 
             var jsonExample = @"[
    {
@@ -99,8 +105,6 @@ namespace FodmapLog.Server.Controllers
       }
     ]";
 
-            ChatClient client = new(model: "gpt-4o", apiKey: _apiKey);
-
             var isPolish = IsPolish(input.Language);
             var languageHint = isPolish
                 ? "The transcript may be in Polish. Understand Polish food and symptom descriptions."
@@ -116,7 +120,7 @@ namespace FodmapLog.Server.Controllers
                 Always use ENGLISH names for unit.name from this exact list: {unitList}.
                 Always use ENGLISH names for symptomType.name from this exact list: {symptomList}.
                 User Input: '{input.Transcript}'
-                Symptom scale please convert to int -> 0 (excellent) - 10 (the worst)
+                Symptom scale must be an integer 0 (none / fine) through 5 (worst / serious). Do not use a 0-10 scale.
                 JSON Format Example:
                 {jsonExample}
                 Output only the JSON in this format based on the provided input.";
@@ -126,11 +130,25 @@ namespace FodmapLog.Server.Controllers
                 input.Transcript.Length,
                 input.Language ?? "en");
 
-            ChatCompletion completion = await client.CompleteChatAsync(
-                [new UserChatMessage(prompt)],
-                cancellationToken: cancellationToken);
-            var raw = completion.Content[0].Text?.Trim() ?? string.Empty;
-            var cleaned = StripMarkdownFences(raw);
+            string cleaned;
+            try
+            {
+                ChatClient client = new(model: "gpt-4o", apiKey: _apiKey);
+                ChatCompletion completion = await client.CompleteChatAsync(
+                    [new UserChatMessage(prompt)],
+                    cancellationToken: cancellationToken);
+                var raw = completion.Content[0].Text?.Trim() ?? string.Empty;
+                cleaned = StripMarkdownFences(raw);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "OpenAI request failed.");
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, new { error = "AI is temporarily unavailable." });
+            }
 
             try
             {
@@ -140,13 +158,69 @@ namespace FodmapLog.Server.Controllers
                     return UnprocessableEntity(new { error = "AI response was not a JSON array." });
                 }
 
-                return Content(cleaned, "application/json");
+                var normalized = NormalizeSymptomScales(cleaned);
+                return Content(normalized, "application/json");
             }
             catch (JsonException)
             {
                 _logger.LogWarning("OpenAI returned unparseable JSON. Length={Length}", cleaned.Length);
                 return UnprocessableEntity(new { error = "AI response could not be parsed as JSON." });
             }
+        }
+
+        /// <summary>
+        /// Force symptomScale values into the app 0–5 range.
+        /// Values 6–10 (legacy prompt) are mapped down; others are clamped.
+        /// </summary>
+        private static string NormalizeSymptomScales(string json)
+        {
+            var node = JsonNode.Parse(json);
+            if (node is not JsonArray array)
+            {
+                return json;
+            }
+
+            foreach (var item in array)
+            {
+                var symptoms = item?["symptomsLog"]?["symptoms"] as JsonArray;
+                if (symptoms == null)
+                {
+                    continue;
+                }
+
+                foreach (var symptom in symptoms)
+                {
+                    if (symptom is null || symptom["symptomScale"] is null)
+                    {
+                        continue;
+                    }
+
+                    if (!symptom["symptomScale"]!.AsValue().TryGetValue<int>(out var scale))
+                    {
+                        continue;
+                    }
+
+                    symptom["symptomScale"] = NormalizeScale(scale);
+                }
+            }
+
+            return node.ToJsonString();
+        }
+
+        private static int NormalizeScale(int scale)
+        {
+            if (scale >= 0 && scale <= 5)
+            {
+                return scale;
+            }
+
+            if (scale >= 6 && scale <= 10)
+            {
+                // Map old 0–10 style (here 6–10) onto 0–5.
+                return (int)Math.Round(scale / 2.0);
+            }
+
+            return Math.Clamp(scale, 0, 5);
         }
 
         private static string BuildStubDailyLogsJson()

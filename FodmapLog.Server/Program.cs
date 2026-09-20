@@ -5,14 +5,18 @@ using Core.Services;
 using DataAccess;
 using DataAccess.Interfaces;
 using DataAccess.Repositories;
+using FodmapLog.Server;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,6 +66,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<JwtTokenService>();
+builder.Services.AddTransient<IEmailSender, LoggingEmailSender>();
 
 var useLocalSqlite = builder.Configuration.GetValue("UseLocalSqlite", false);
 builder.Services.AddDbContext<FodmapLogDbContext>(options =>
@@ -94,7 +99,8 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     options.Lockout.AllowedForNewUsers = true;
 })
 .AddApiEndpoints()
-.AddEntityFrameworkStores<FodmapLogDbContext>();
+.AddEntityFrameworkStores<FodmapLogDbContext>()
+.AddDefaultTokenProviders();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -146,6 +152,54 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.ContentType = "application/json";
+        await context.HttpContext.Response.WriteAsync(
+            """{"error":"Too many requests. Try again shortly."}""",
+            token);
+    };
+
+    static string PartitionKey(HttpContext httpContext)
+    {
+        var sub = httpContext.User?.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+            ?? httpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrWhiteSpace(sub))
+        {
+            return "u:" + sub;
+        }
+
+        return "ip:" + (httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+    }
+
+    options.AddPolicy("ai", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(PartitionKey(httpContext), _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        }));
+
+    options.AddPolicy("transcribe", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(PartitionKey(httpContext), _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        }));
+
+    options.AddPolicy("diary", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(PartitionKey(httpContext), _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 120,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        }));
+});
+
 var app = builder.Build();
 
 if (useLocalSqlite)
@@ -173,6 +227,8 @@ else
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseRateLimiter();
 
 app.MapControllers();
 app.MapGroup(string.Empty)
