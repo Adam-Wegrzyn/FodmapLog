@@ -101,16 +101,30 @@ namespace FodmapLog.Server.Controllers
 
             ChatClient client = new(model: "gpt-4o", apiKey: _apiKey);
 
+            var isPolish = IsPolish(input.Language);
+            var languageHint = isPolish
+                ? "The transcript may be in Polish. Understand Polish food and symptom descriptions."
+                : "The transcript may be in English.";
+            var unitList = "Gram, Kilogram, Milligram, Liter, Milliliter, Teaspoon, Tablespoon, Cup, Piece, Slice, Drop, Pinch, Ounce, Pound, Fluid Ounce, Pint, Quart, Gallon, Can, Package, Bottle";
+            var symptomList = "Nausea, Burping, Diarrhea, Constipation, Bloating, Abdominal Pain, Heartburn, Gas, Cramps, Vomiting, Appetite, Headache, Fatigue, Mood, Energy, Sleep Quality, Stress, Concentration, Motivation, Physical Activity, General Well-being";
+
             var prompt =
                 $@"Convert the following user input (Meal and symptom dairy) into a JSON format with no additional text,
                 without any formatting, code blocks, or extra characters.. Return only the JSON.
+                {languageHint}
+                Keep product.name in the language the user used (Polish food names are fine).
+                Always use ENGLISH names for unit.name from this exact list: {unitList}.
+                Always use ENGLISH names for symptomType.name from this exact list: {symptomList}.
                 User Input: '{input.Transcript}'
                 Symptom scale please convert to int -> 0 (excellent) - 10 (the worst)
                 JSON Format Example:
                 {jsonExample}
                 Output only the JSON in this format based on the provided input.";
 
-            _logger.LogInformation("OpenAI meal/symptom extract requested. TranscriptLength={Length}", input.Transcript.Length);
+            _logger.LogInformation(
+                "OpenAI meal/symptom extract requested. TranscriptLength={Length} Language={Language}",
+                input.Transcript.Length,
+                input.Language ?? "en");
 
             ChatCompletion completion = await client.CompleteChatAsync(
                 [new UserChatMessage(prompt)],
@@ -181,6 +195,16 @@ namespace FodmapLog.Server.Controllers
             """;
         }
 
+        private static bool IsPolish(string? language)
+        {
+            if (string.IsNullOrWhiteSpace(language))
+            {
+                return false;
+            }
+
+            return language.Trim().StartsWith("pl", StringComparison.OrdinalIgnoreCase);
+        }
+
         private static string StripMarkdownFences(string text)
         {
             var trimmed = text.Trim();
@@ -209,5 +233,7 @@ namespace FodmapLog.Server.Controllers
     public class TranscribedInput
     {
         public string Transcript { get; set; } = string.Empty;
+        /// <summary>App UI language: en or pl (also accepts pl-PL / en-US).</summary>
+        public string? Language { get; set; }
     }
 }

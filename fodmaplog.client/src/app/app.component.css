@@ -4,6 +4,44 @@
   text-align: left;
 }
 
+.lang-switch {
+  position: fixed;
+  top: .65rem;
+  right: .65rem;
+  z-index: 1100;
+  display: inline-flex;
+  gap: .15rem;
+  padding: .2rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .92);
+  border: 1px solid var(--hg-line, #dfe7e2);
+  box-shadow: var(--hg-shadow, 0 8px 24px rgba(21, 32, 26, .06));
+}
+.lang-btn {
+  border: 0;
+  background: transparent;
+  color: var(--hg-muted, #5a6b61);
+  font-weight: 700;
+  font-size: .72rem;
+  letter-spacing: .04em;
+  min-width: 2.2rem;
+  min-height: 1.85rem;
+  border-radius: 999px;
+  cursor: pointer;
+  padding: 0 .45rem;
+}
+.lang-btn.is-active {
+  background: var(--hg-meal-soft, #e7f5ed);
+  color: var(--hg-meal, #1f7a4d);
+}
+
+@media (min-width: 992px) {
+  .lang-switch {
+    top: .95rem;
+    right: 1.2rem;
+  }
+}
+
 .app-topbar {
   position: sticky;
   top: 0;

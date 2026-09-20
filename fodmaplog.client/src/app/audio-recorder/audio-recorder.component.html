@@ -2,11 +2,11 @@
   <div *ngIf="state === 'recording'" class="recording-overlay" role="status" aria-live="polite">
     <div class="recording-panel">
       <div class="pulse-ring" aria-hidden="true"></div>
-      <p class="listening-label">Listening…</p>
+      <p class="listening-label">{{ 'recorder.listening' | translate }}</p>
       <p class="timer">{{ elapsedLabel }}</p>
-      <p class="hint">Pauses are OK — tap the mic when finished</p>
+      <p class="hint">{{ 'recorder.pauseHint' | translate }}</p>
       <button type="button" class="btn btn-link text-secondary cancel-link" (click)="cancelRecording()">
-        Cancel
+        {{ 'recorder.cancel' | translate }}
       </button>
     </div>
   </div>
@@ -14,8 +14,8 @@
   <div *ngIf="state === 'transcribing'" class="recording-overlay" role="status" aria-live="polite">
     <div class="recording-panel">
       <div class="spinner-border text-success mb-3" role="status"></div>
-      <p class="listening-label">Transcribing…</p>
-      <p class="hint">Turning your voice into text</p>
+      <p class="listening-label">{{ 'recorder.transcribing' | translate }}</p>
+      <p class="hint">{{ 'recorder.transcribingHint' | translate }}</p>
     </div>
   </div>
 
@@ -27,7 +27,7 @@
     [class.mic-fab--busy]="state === 'transcribing'"
     [disabled]="state === 'transcribing'"
     (click)="onMicClick()"
-    [attr.aria-label]="state === 'recording' ? 'Stop recording' : 'Start voice log'">
+    [attr.aria-label]="(state === 'recording' ? 'recorder.stop' : 'recorder.start') | translate">
     <fa-icon [icon]="state === 'recording' ? faStop : faMicrophone" size="2x"></fa-icon>
   </button>
 
