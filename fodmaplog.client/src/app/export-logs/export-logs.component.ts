@@ -2,9 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { TranslateService } from '@ngx-translate/core';
 import { FodmapLogService } from '../services/fodmap-log-service';
 import { DailyLog } from '../domain/DailyLog';
-import { SymptomScale } from '../domain/SymptomScale';
+import { LanguageService } from '../services/language.service';
+import { translateScale, translateSymptomType, translateUnit } from '../services/reference-i18n';
 
 @Component({
   selector: 'app-export-logs',
@@ -18,11 +20,11 @@ export class ExportLogsComponent implements OnInit {
   errorMessage: string | null = null;
   previewCount: number | null = null;
 
-  private readonly symptomScale = SymptomScale;
-
   constructor(
     private fodmapLogService: FodmapLogService,
-    private router: Router
+    private router: Router,
+    private translate: TranslateService,
+    private language: LanguageService
   ) {}
 
   ngOnInit(): void {
@@ -42,11 +44,11 @@ export class ExportLogsComponent implements OnInit {
     this.previewCount = null;
 
     if (!this.fromDate || !this.toDate) {
-      this.errorMessage = 'Choose both a start and end date.';
+      this.errorMessage = this.translate.instant('export.needDates');
       return;
     }
     if (this.toDate < this.fromDate) {
-      this.errorMessage = 'End date must be on or after the start date.';
+      this.errorMessage = this.translate.instant('export.orderInvalid');
       return;
     }
 
@@ -55,20 +57,20 @@ export class ExportLogsComponent implements OnInit {
         new Date(this.fromDate + 'T12:00:00').getTime()) /
       (1000 * 60 * 60 * 24);
     if (daySpan > 366) {
-      this.errorMessage = 'Please keep the range within 366 days.';
+      this.errorMessage = this.translate.instant('export.tooLong');
       return;
     }
 
     this.isExporting = true;
     this.fodmapLogService.getDailyLogsByDateRange(this.fromDate, this.toDate).subscribe({
-      next: (logs) => {
+      next: async (logs) => {
         try {
           const rows = this.buildRows(logs || []);
           this.previewCount = rows.length;
-          this.writePdf(rows);
+          await this.writePdf(rows);
         } catch (err) {
           console.error(err);
-          this.errorMessage = 'Could not create the PDF. Please try again.';
+          this.errorMessage = this.translate.instant('export.pdfFail');
         } finally {
           this.isExporting = false;
         }
@@ -76,7 +78,7 @@ export class ExportLogsComponent implements OnInit {
       error: (err) => {
         console.error(err);
         this.isExporting = false;
-        this.errorMessage = 'Could not load logs for that range.';
+        this.errorMessage = this.translate.instant('export.loadFail');
       }
     });
   }
@@ -86,6 +88,8 @@ export class ExportLogsComponent implements OnInit {
     const sorted = [...logs].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
+    const mealType = this.translate.instant('export.typeMeal');
+    const symptomType = this.translate.instant('export.typeSymptom');
 
     for (const log of sorted) {
       const when = this.formatWhen(log.date);
@@ -93,52 +97,64 @@ export class ExportLogsComponent implements OnInit {
         const foods = log.mealLog.productQuantity
           .map(pq => {
             const qty = pq.quantity ?? '';
-            const unit = (pq.unit?.name || '').trim();
+            const unit = this.unitLabel(pq.unit);
             const name = pq.product?.name || 'Food';
             return unit ? `${name} (${qty} ${unit})` : `${name} (${qty})`;
           })
           .join(', ');
-        rows.push([when, 'Meal', foods]);
+        rows.push([when, mealType, foods]);
       } else if (log.symptomsLog?.symptoms?.length) {
         const symptoms = log.symptomsLog.symptoms
           .map(s => {
-            const name = s.symptomType?.name || 'Symptom';
-            const scale = this.symptomScale[s.symptomScale] ?? `${s.symptomScale}`;
+            const name = this.symptomLabel(s.symptomType);
+            const scale = this.scaleLabel(s.symptomScale);
             return `${name} (${scale})`;
           })
           .join(', ');
-        rows.push([when, 'Symptom', symptoms]);
+        rows.push([when, symptomType, symptoms]);
       }
     }
     return rows;
   }
 
-  private writePdf(rows: string[][]): void {
+  private async writePdf(rows: string[][]): Promise<void> {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
     const margin = 36;
     const pageWidth = doc.internal.pageSize.getWidth();
+    const fontName = await this.ensureUnicodeFont(doc);
 
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(fontName, 'normal');
     doc.setFontSize(16);
-    doc.text('HealthyGutLog export', margin, 48);
+    doc.text(this.translate.instant('export.pdfTitle'), margin, 48);
 
-    doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(80);
-    doc.text(`From ${this.fromDate} to ${this.toDate}`, margin, 66);
-    doc.text(`Generated ${this.toInputDate(new Date())}`, margin, 80);
+    doc.text(
+      this.translate.instant('export.pdfFromTo', { from: this.fromDate, to: this.toDate }),
+      margin,
+      66
+    );
+    doc.text(
+      this.translate.instant('export.pdfGenerated', { date: this.toInputDate(new Date()) }),
+      margin,
+      80
+    );
     doc.setTextColor(0);
 
     if (rows.length === 0) {
-      doc.text('No meals or symptoms in this date range.', margin, 110);
+      doc.text(this.translate.instant('export.pdfEmpty'), margin, 110);
     } else {
       autoTable(doc, {
         startY: 96,
-        head: [['Date / time', 'Type', 'Details']],
+        head: [[
+          this.translate.instant('export.colWhen'),
+          this.translate.instant('export.colType'),
+          this.translate.instant('export.colDetails')
+        ]],
         body: rows,
         margin: { left: margin, right: margin },
         styles: {
-          font: 'helvetica',
+          font: fontName,
           fontSize: 9,
           cellPadding: 6,
           overflow: 'linebreak',
@@ -147,19 +163,21 @@ export class ExportLogsComponent implements OnInit {
         headStyles: {
           fillColor: [31, 122, 77],
           textColor: 255,
-          fontStyle: 'bold'
+          fontStyle: 'normal',
+          font: fontName
         },
         columnStyles: {
           0: { cellWidth: 90 },
           1: { cellWidth: 60 },
           2: { cellWidth: pageWidth - margin * 2 - 150 }
         },
-        didDrawPage: (data) => {
+        didDrawPage: () => {
           const page = doc.getNumberOfPages();
+          doc.setFont(fontName, 'normal');
           doc.setFontSize(8);
           doc.setTextColor(120);
           doc.text(
-            `Page ${page}`,
+            this.translate.instant('export.page', { page }),
             pageWidth - margin,
             doc.internal.pageSize.getHeight() - 16,
             { align: 'right' }
@@ -169,8 +187,37 @@ export class ExportLogsComponent implements OnInit {
     }
 
     const fileName = `healthygutlog-${this.fromDate}-to-${this.toDate}.pdf`;
-    // save() triggers download on mobile browsers (Files / Downloads / Share sheet).
     doc.save(fileName);
+  }
+
+  /** Noto Sans so Polish diacritics render in the PDF. */
+  private async ensureUnicodeFont(doc: jsPDF): Promise<string> {
+    const res = await fetch('assets/fonts/NotoSans-Regular.ttf');
+    if (!res.ok) {
+      return 'helvetica';
+    }
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    let binary = '';
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+    }
+    const base64 = btoa(binary);
+    doc.addFileToVFS('NotoSans-Regular.ttf', base64);
+    doc.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal');
+    return 'NotoSans';
+  }
+
+  private unitLabel(unit?: { id?: number; name?: string } | null): string {
+    return translateUnit(this.translate, unit);
+  }
+
+  private symptomLabel(type?: { id?: number; name?: string } | null): string {
+    return translateSymptomType(this.translate, type) || this.translate.instant('daily.symptom');
+  }
+
+  private scaleLabel(scale: number): string {
+    return translateScale(this.translate, scale);
   }
 
   private formatWhen(value: string): string {
@@ -178,12 +225,13 @@ export class ExportLogsComponent implements OnInit {
     if (Number.isNaN(d.getTime())) {
       return value;
     }
-    const date = d.toLocaleDateString(undefined, {
+    const locale = this.language.dateLocale;
+    const date = d.toLocaleDateString(locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
     });
-    const time = d.toLocaleTimeString(undefined, {
+    const time = d.toLocaleTimeString(locale, {
       hour: '2-digit',
       minute: '2-digit'
     });

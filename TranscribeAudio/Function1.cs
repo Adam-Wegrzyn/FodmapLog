@@ -70,8 +70,10 @@ namespace TranscribeAudio
                 }
 
                 var config = SpeechConfig.FromSubscription(apiKey, region);
-                config.SpeechRecognitionLanguage =
-                    Environment.GetEnvironmentVariable("AzureSpeechLanguage") ?? "en-US";
+                config.SpeechRecognitionLanguage = ResolveSpeechLanguage(data?.language);
+                _logger.LogInformation(
+                    "Speech language={Language}",
+                    config.SpeechRecognitionLanguage);
                 // Allow longer pauses between phrases without ending the whole session early.
                 config.SetProperty(PropertyId.Speech_SegmentationSilenceTimeoutMs, "1500");
                 config.SetProperty(PropertyId.SpeechServiceConnection_InitialSilenceTimeoutMs, "10000");
@@ -166,6 +168,37 @@ namespace TranscribeAudio
                     }
                 }
             }
+        }
+
+        private static string ResolveSpeechLanguage(dynamic? languageToken)
+        {
+            string? raw = null;
+            try
+            {
+                raw = languageToken?.ToString();
+            }
+            catch
+            {
+                // ignore dynamic conversion failures
+            }
+
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                raw = Environment.GetEnvironmentVariable("AzureSpeechLanguage");
+            }
+
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                return "en-US";
+            }
+
+            var value = raw.Trim();
+            if (value.StartsWith("pl", StringComparison.OrdinalIgnoreCase))
+            {
+                return "pl-PL";
+            }
+
+            return "en-US";
         }
     }
 }

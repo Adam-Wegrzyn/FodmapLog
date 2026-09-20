@@ -1,41 +1,46 @@
+<div class="lang-switch" role="group" [attr.aria-label]="'nav.language' | translate">
+  <button type="button" class="lang-btn" [class.is-active]="language.currentLang === 'en'" (click)="setLang('en')">EN</button>
+  <button type="button" class="lang-btn" [class.is-active]="language.currentLang === 'pl'" (click)="setLang('pl')">PL</button>
+</div>
+
 <ng-container *ngIf="isLoggedIn()">
   <header class="app-topbar d-none d-lg-flex">
     <a class="brand" routerLink="/daily-log">HealthyGut<span>Log</span></a>
-    <nav class="top-nav" aria-label="Main">
-      <a routerLink="/daily-log" routerLinkActive="is-active">Today</a>
-      <a routerLink="/export-logs" routerLinkActive="is-active">Export</a>
+    <nav class="top-nav" [attr.aria-label]="'nav.main' | translate">
+      <a routerLink="/daily-log" routerLinkActive="is-active">{{ 'nav.today' | translate }}</a>
+      <a routerLink="/export-logs" routerLinkActive="is-active">{{ 'nav.export' | translate }}</a>
       <div class="nav-dropdown">
         <button type="button" class="nav-dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          Add
+          {{ 'nav.add' | translate }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" routerLink="/add-meal-log">Meal</a></li>
-          <li><a class="dropdown-item" routerLink="/add-symptoms-log">Symptoms</a></li>
+          <li><a class="dropdown-item" routerLink="/add-meal-log">{{ 'nav.meal' | translate }}</a></li>
+          <li><a class="dropdown-item" routerLink="/add-symptoms-log">{{ 'nav.symptoms' | translate }}</a></li>
         </ul>
       </div>
       <div class="nav-dropdown">
         <button type="button" class="nav-dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          {{ username || 'Account' }}
+          {{ username || ('nav.account' | translate) }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><button type="button" class="dropdown-item" (click)="logout()">Log out</button></li>
+          <li><button type="button" class="dropdown-item" (click)="logout()">{{ 'nav.logOut' | translate }}</button></li>
         </ul>
       </div>
     </nav>
   </header>
 
-  <nav class="app-bottombar d-flex d-lg-none" aria-label="Mobile">
+  <nav class="app-bottombar d-flex d-lg-none" [attr.aria-label]="'nav.mobile' | translate">
     <a class="bottom-link" routerLink="/daily-log" routerLinkActive="is-active">
       <i class="fas fa-calendar-day" aria-hidden="true"></i>
-      <span>Today</span>
+      <span>{{ 'nav.today' | translate }}</span>
     </a>
     <a class="bottom-link" routerLink="/export-logs" routerLinkActive="is-active">
       <i class="fas fa-file-export" aria-hidden="true"></i>
-      <span>Export</span>
+      <span>{{ 'nav.export' | translate }}</span>
     </a>
     <button type="button" class="bottom-link" (click)="logout()">
       <i class="fas fa-user" aria-hidden="true"></i>
-      <span>Account</span>
+      <span>{{ 'nav.account' | translate }}</span>
     </button>
   </nav>
 </ng-container>

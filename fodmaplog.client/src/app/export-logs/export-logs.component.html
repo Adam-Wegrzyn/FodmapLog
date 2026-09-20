@@ -1,41 +1,41 @@
 <div class="export-page">
   <header class="export-topbar">
-    <button type="button" class="btn-ghost" (click)="cancel()">Cancel</button>
+    <button type="button" class="btn-ghost" (click)="cancel()">{{ 'export.cancel' | translate }}</button>
     <div class="export-title-wrap">
-      <p class="export-kicker">Share</p>
-      <h1 class="export-title">Export PDF</h1>
+      <p class="export-kicker">{{ 'export.kicker' | translate }}</p>
+      <h1 class="export-title">{{ 'export.title' | translate }}</h1>
     </div>
     <span class="topbar-spacer" aria-hidden="true"></span>
   </header>
 
   <section class="export-card">
-    <h2 class="card-label">Date range</h2>
-    <p class="card-hint">Pick the period to include in a simple meal &amp; symptom table.</p>
+    <h2 class="card-label">{{ 'export.dateRange' | translate }}</h2>
+    <p class="card-hint">{{ 'export.hint' | translate }}</p>
 
     <div class="date-grid">
       <label class="date-field">
-        <span>From</span>
+        <span>{{ 'export.from' | translate }}</span>
         <input type="date" [(ngModel)]="fromDate" [max]="toDate || undefined">
       </label>
       <label class="date-field">
-        <span>Until</span>
+        <span>{{ 'export.until' | translate }}</span>
         <input type="date" [(ngModel)]="toDate" [min]="fromDate || undefined">
       </label>
     </div>
   </section>
 
   <section class="export-card export-card--preview">
-    <h2 class="card-label">What you get</h2>
+    <h2 class="card-label">{{ 'export.whatYouGet' | translate }}</h2>
     <ul class="preview-list">
-      <li>One readable table: date/time, type, details</li>
-      <li>Meals list foods and amounts</li>
-      <li>Symptoms list name and severity</li>
+      <li>{{ 'export.preview1' | translate }}</li>
+      <li>{{ 'export.preview2' | translate }}</li>
+      <li>{{ 'export.preview3' | translate }}</li>
     </ul>
   </section>
 
   <p class="export-error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
   <p class="export-ok" *ngIf="previewCount !== null && !errorMessage">
-    Exported {{ previewCount }} {{ previewCount === 1 ? 'row' : 'rows' }}.
+    {{ (previewCount === 1 ? 'export.exportedOne' : 'export.exportedMany') | translate: { count: previewCount } }}
   </p>
 
   <button
@@ -44,6 +44,6 @@
     (click)="exportPdf()"
     [disabled]="isExporting">
     <span *ngIf="isExporting" class="spinner-border spinner-border-sm me-2" role="status"></span>
-    {{ isExporting ? 'Preparing…' : 'Download PDF' }}
+    {{ (isExporting ? 'export.preparing' : 'export.download') | translate }}
   </button>
 </div>

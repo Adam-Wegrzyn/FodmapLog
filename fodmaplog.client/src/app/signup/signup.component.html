@@ -1,17 +1,20 @@
 <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
   <form (ngSubmit)="signup()" class="p-4 rounded shadow bg-white" style="min-width: 340px; max-width: 400px; width: 100%;">
-    <h2 class="mb-4 text-center text-primary">Create Account</h2>
+    <h2 class="mb-4 text-center text-primary">{{ 'signup.title' | translate }}</h2>
     <div class="mb-3">
-      <label class="form-label" for="email">Email</label>
-      <input class="form-control" [(ngModel)]="email" type="email" id="email" name="email" required autocomplete="email" placeholder="Enter your email">
+      <label class="form-label" for="email">{{ 'signup.email' | translate }}</label>
+      <input class="form-control" [(ngModel)]="email" type="email" id="email" name="email" required autocomplete="email"
+        [placeholder]="'signup.emailPlaceholder' | translate">
     </div>
     <div class="mb-3">
-      <label class="form-label" for="password">Password</label>
-      <input class="form-control" [(ngModel)]="password" type="password" id="password" name="password" required autocomplete="new-password" placeholder="Create a password">
+      <label class="form-label" for="password">{{ 'signup.password' | translate }}</label>
+      <input class="form-control" [(ngModel)]="password" type="password" id="password" name="password" required autocomplete="new-password"
+        [placeholder]="'signup.passwordPlaceholder' | translate">
     </div>
     <div class="mb-3">
-      <label class="form-label" for="confirmPassword">Confirm Password</label>
-      <input class="form-control" [(ngModel)]="confirmPassword" type="password" id="confirmPassword" name="confirmPassword" required autocomplete="new-password" placeholder="Repeat your password">
+      <label class="form-label" for="confirmPassword">{{ 'signup.confirmPassword' | translate }}</label>
+      <input class="form-control" [(ngModel)]="confirmPassword" type="password" id="confirmPassword" name="confirmPassword" required autocomplete="new-password"
+        [placeholder]="'signup.confirmPlaceholder' | translate">
     </div>
     <div class="alert alert-danger p-2" [class.invisible]="!errorMessage && !errorMessages.length" [style.minHeight.px]="38" role="alert">
       <div *ngIf="errorMessage">{{ errorMessage }}</div>
@@ -21,11 +24,11 @@
       {{successMessage}}
     </div>
     <button type="submit" class="btn btn-primary w-100 mt-3" [disabled]="isSubmitting">
-      {{ isSubmitting ? 'Signing up…' : 'Sign Up' }}
+      {{ (isSubmitting ? 'signup.submitting' : 'signup.submit') | translate }}
     </button>
     <div class="text-center mt-3">
-      <span class="text-muted">Already have an account?</span>
-      <a routerLink="/login" class="ms-1 text-decoration-none">Log in</a>
+      <span class="text-muted">{{ 'signup.haveAccount' | translate }}</span>
+      <a routerLink="/login" class="ms-1 text-decoration-none">{{ 'signup.logInLink' | translate }}</a>
     </div>
   </form>
 </div>

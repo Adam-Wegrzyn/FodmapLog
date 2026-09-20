@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { LanguageService, AppLang } from './services/language.service';
 
 @Component({
   selector: 'app-root',
@@ -7,10 +8,10 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AppComponent {
   title = 'fodmaplog.client';
-  isAuthenticated: boolean = false;
-  username: string = '';
+  isAuthenticated = false;
+  username = '';
 
-  constructor() {
+  constructor(public language: LanguageService) {
     try {
       const token = localStorage.getItem('token');
       if (token) {
@@ -23,15 +24,17 @@ export class AppComponent {
   }
 
   isLoggedIn(): boolean {
-    // Check if a JWT token exists in localStorage
     return !!localStorage.getItem('token');
+  }
+
+  setLang(lang: AppLang): void {
+    this.language.setLang(lang);
   }
 
   logout(): void {
     localStorage.removeItem('token');
     this.isAuthenticated = false;
     this.username = '';
-    // Optionally, redirect to login or home
     window.location.href = '/login';
   }
 }

@@ -28,13 +28,15 @@ namespace Core.Services
             _logger = logger;
         }
 
-        public async Task<string> TranscribeAsync(string audioBase64)
+        public async Task<string> TranscribeAsync(string audioBase64, string speechLocale = "en-US")
         {
             if (bool.TryParse(_config["UseAiStubs"], out var useAiStubs) && useAiStubs)
             {
-                _logger.LogInformation("UseAiStubs enabled — returning local stub transcription.");
+                _logger.LogInformation("UseAiStubs enabled — returning local stub transcription. Locale={Locale}", speechLocale);
                 await Task.Delay(400);
-                return "I had oatmeal with milk at 8, then felt bloated around 10.";
+                return speechLocale.StartsWith("pl", StringComparison.OrdinalIgnoreCase)
+                    ? "Zjadłem owsiankę z mlekiem o ósmej, potem około dziesiątej miałem wzdęcia."
+                    : "I had oatmeal with milk at 8, then felt bloated around 10.";
             }
 
             var functionUrl = _config["Azure:TranscriptionFunctionUrl"];
@@ -46,16 +48,18 @@ namespace Core.Services
                     "For local dev set it to http://localhost:7004/api/Function1 in appsettings.Development.json.");
             }
 
+            var locale = string.IsNullOrWhiteSpace(speechLocale) ? "en-US" : speechLocale.Trim();
             var sw = Stopwatch.StartNew();
             _logger.LogInformation(
-                "Calling transcription function at {Url}. PayloadChars={Length}",
+                "Calling transcription function at {Url}. Locale={Locale} PayloadChars={Length}",
                 functionUrl,
+                locale,
                 audioBase64?.Length ?? 0);
 
             using var request = new HttpRequestMessage(HttpMethod.Post, functionUrl)
             {
                 Content = new StringContent(
-                    System.Text.Json.JsonSerializer.Serialize(new { audio = audioBase64 }),
+                    System.Text.Json.JsonSerializer.Serialize(new { audio = audioBase64, language = locale }),
                     System.Text.Encoding.UTF8,
                     "application/json")
             };

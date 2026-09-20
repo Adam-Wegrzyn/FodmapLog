@@ -1,19 +1,19 @@
 <div class="editor-page editor-page--meal">
   <header class="editor-topbar">
     <button type="button" class="btn-ghost" (click)="cancel()" [routerLink]="['/daily-log', currDate]">
-      Cancel
+      {{ 'meal.cancel' | translate }}
     </button>
     <div class="editor-title-wrap">
-      <p class="editor-kicker">Manual entry</p>
-      <h1 class="editor-title">Meal</h1>
+      <p class="editor-kicker">{{ 'meal.kicker' | translate }}</p>
+      <h1 class="editor-title">{{ 'meal.title' | translate }}</h1>
     </div>
     <button type="button" class="btn-primary" (click)="SaveMealLog()" [disabled]="productQuantityArr.length === 0">
-      Save
+      {{ 'meal.save' | translate }}
     </button>
   </header>
 
   <section class="editor-card">
-    <h2 class="card-label">When</h2>
+    <h2 class="card-label">{{ 'meal.when' | translate }}</h2>
     <app-date-time-input
       [(date)]="currDate"
       [(time)]="currTime"
@@ -23,16 +23,16 @@
 
   <section class="editor-card" *ngIf="productQuantityArr.length > 0">
     <div class="card-label-row">
-      <h2 class="card-label">Foods</h2>
+      <h2 class="card-label">{{ 'meal.foods' | translate }}</h2>
       <span class="card-count">{{ productQuantityArr.length }}</span>
     </div>
     <ul class="food-cards">
       <li class="food-card" *ngFor="let p of productQuantityArr.controls; let i = index">
         <div>
           <p class="food-name">{{ p.value.product.name }}</p>
-          <p class="food-amount">{{ p.value.quantity }} {{ p.value.unit?.name }}</p>
+          <p class="food-amount">{{ p.value.quantity }} {{ unitKey(p.value.unit) | translate }}</p>
         </div>
-        <button type="button" class="btn-icon-danger" (click)="DeleteProduct(i)" aria-label="Remove food">
+        <button type="button" class="btn-icon-danger" (click)="DeleteProduct(i)" [attr.aria-label]="'meal.removeFood' | translate">
           &times;
         </button>
       </li>
@@ -40,50 +40,50 @@
   </section>
 
   <section class="editor-card composer-card">
-    <h2 class="card-label">Add food</h2>
+    <h2 class="card-label">{{ 'meal.addFood' | translate }}</h2>
     <div class="composer-row">
       <input
         class="composer-input"
         type="text"
         [(ngModel)]="name"
-        placeholder="e.g. oatmeal, banana"
+        [placeholder]="'meal.foodPlaceholder' | translate"
         (keydown.enter)="$event.preventDefault(); openComposer()">
       <button type="button" class="btn-secondary composer-add" (click)="openComposer()" [disabled]="!name.trim()">
-        Add
+        {{ 'meal.add' | translate }}
       </button>
     </div>
-    <p class="card-hint">Type a food, then set amount</p>
+    <p class="card-hint">{{ 'meal.hint' | translate }}</p>
   </section>
 
   <div class="composer-layer" *ngIf="showComposer" (click)="closeComposer()">
     <div class="composer-sheet" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
       <header class="composer-sheet-head">
         <div>
-          <p class="composer-sheet-kicker">Amount</p>
+          <p class="composer-sheet-kicker">{{ 'meal.amount' | translate }}</p>
           <h2>{{ name }}</h2>
         </div>
-        <button type="button" class="btn-icon-danger" (click)="closeComposer()" aria-label="Close">&times;</button>
+        <button type="button" class="btn-icon-danger" (click)="closeComposer()" [attr.aria-label]="'meal.close' | translate">&times;</button>
       </header>
       <div class="composer-sheet-body">
         <label class="field">
-          <span>Quantity</span>
+          <span>{{ 'meal.quantity' | translate }}</span>
           <input type="number" min="0" step="any" [(ngModel)]="quantityInput" class="field-control">
         </label>
         <label class="field">
-          <span>Unit</span>
+          <span>{{ 'meal.unit' | translate }}</span>
           <select [(ngModel)]="selectedUnit" class="field-control">
-            <option *ngFor="let unit of units" [ngValue]="unit">{{ unit.name }}</option>
+            <option *ngFor="let unit of units" [ngValue]="unit">{{ unitLabel(unit) }}</option>
           </select>
         </label>
       </div>
       <footer class="composer-sheet-foot">
-        <button type="button" class="btn-ghost" (click)="closeComposer()">Cancel</button>
-        <button type="button" class="btn-primary" (click)="confirmAddProduct()">Add food</button>
+        <button type="button" class="btn-ghost" (click)="closeComposer()">{{ 'meal.cancel' | translate }}</button>
+        <button type="button" class="btn-primary" (click)="confirmAddProduct()">{{ 'meal.confirmAdd' | translate }}</button>
       </footer>
     </div>
   </div>
 
   <p class="editor-foot-hint" *ngIf="productQuantityArr.length === 0">
-    Add at least one food to save this meal.
+    {{ 'meal.needFood' | translate }}
   </p>
 </div>

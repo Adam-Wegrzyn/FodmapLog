@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -17,7 +18,11 @@ export class SignupComponent {
   successMessage = '';
   isSubmitting = false;
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private translate: TranslateService
+  ) {}
 
   signup(): void {
     this.errorMessage = '';
@@ -25,22 +30,22 @@ export class SignupComponent {
     this.successMessage = '';
 
     if (!this.email || !this.password || !this.confirmPassword) {
-      this.errorMessage = 'All fields are required.';
+      this.errorMessage = this.translate.instant('signup.allRequired');
       return;
     }
 
     if (!this.validateEmail(this.email)) {
-      this.errorMessage = 'Please enter a valid email address.';
+      this.errorMessage = this.translate.instant('signup.invalidEmail');
       return;
     }
 
     if (this.password.length < 6) {
-      this.errorMessage = 'Password must be at least 6 characters.';
+      this.errorMessage = this.translate.instant('signup.passwordTooShort');
       return;
     }
 
     if (this.password !== this.confirmPassword) {
-      this.errorMessage = 'Passwords do not match.';
+      this.errorMessage = this.translate.instant('signup.passwordMismatch');
       return;
     }
 
@@ -48,14 +53,14 @@ export class SignupComponent {
     this.authService.register(this.email, this.password).subscribe({
       next: () => {
         this.isSubmitting = false;
-        this.successMessage = 'Registration successful! Redirecting to login...';
+        this.successMessage = this.translate.instant('signup.success');
         setTimeout(() => this.router.navigate(['/login']), 1500);
       },
       error: (error: unknown) => {
         this.isSubmitting = false;
         this.errorMessages = this.extractRegisterErrors(error);
         if (this.errorMessages.length === 0) {
-          this.errorMessage = 'Registration failed. Please try again.';
+          this.errorMessage = this.translate.instant('signup.failed');
         }
       }
     });
@@ -63,13 +68,11 @@ export class SignupComponent {
 
   private extractRegisterErrors(error: unknown): string[] {
     if (!(error instanceof HttpErrorResponse)) {
-      return ['Registration failed. Please try again.'];
+      return [this.translate.instant('signup.failed')];
     }
 
     if (error.status === 0) {
-      return [
-        'Cannot reach the API (connection refused).'
-      ];
+      return [this.translate.instant('signup.apiUnreachable')];
     }
 
     const body = error.error;

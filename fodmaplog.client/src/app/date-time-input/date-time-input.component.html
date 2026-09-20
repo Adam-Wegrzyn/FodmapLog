@@ -1,10 +1,10 @@
 <div class="dt-row">
   <label class="dt-field">
-    <span>Date</span>
+    <span>{{ 'datetime.date' | translate }}</span>
     <input type="date" name="currDate" [(ngModel)]="date" (ngModelChange)="onDateChange($event)">
   </label>
   <label class="dt-field">
-    <span>Time</span>
+    <span>{{ 'datetime.time' | translate }}</span>
     <input type="text" [format]="24" name="currTime" [(ngModel)]="time"
       (ngModelChange)="onTimeChange($event)" [ngxTimepicker]="timePicker" readonly>
   </label>

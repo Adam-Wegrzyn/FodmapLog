@@ -1,19 +1,19 @@
 <div class="editor-page editor-page--symptom">
   <header class="editor-topbar">
     <button type="button" class="btn-ghost" (click)="cancel()" [routerLink]="['/daily-log', currDate]">
-      Cancel
+      {{ 'symptoms.cancel' | translate }}
     </button>
     <div class="editor-title-wrap">
-      <p class="editor-kicker">Manual entry</p>
-      <h1 class="editor-title">Symptoms</h1>
+      <p class="editor-kicker">{{ 'symptoms.kicker' | translate }}</p>
+      <h1 class="editor-title">{{ 'symptoms.title' | translate }}</h1>
     </div>
     <button type="button" class="btn-primary" (click)="saveSymptomsLog()" [disabled]="symptomsArr.length === 0">
-      Save
+      {{ 'symptoms.save' | translate }}
     </button>
   </header>
 
   <section class="editor-card">
-    <h2 class="card-label">When</h2>
+    <h2 class="card-label">{{ 'symptoms.when' | translate }}</h2>
     <app-date-time-input
       [(date)]="currDate"
       [(time)]="currTime"
@@ -23,21 +23,21 @@
 
   <section class="editor-card" *ngIf="symptomsArr.length > 0" [formGroup]="form">
     <div class="card-label-row">
-      <h2 class="card-label">Selected</h2>
+      <h2 class="card-label">{{ 'symptoms.selected' | translate }}</h2>
       <span class="card-count">{{ symptomsArr.length }}</span>
     </div>
     <div class="selected-list" formArrayName="symptoms">
       <article class="severity-card" *ngFor="let p of symptomsArr.controls; let i = index" [formGroupName]="i">
         <div class="severity-card-top">
-          <h3>{{ p.value.symptomType.name }}</h3>
-          <button type="button" class="btn-icon-danger" (click)="deleteSymptom(i)" aria-label="Remove symptom">
+          <h3>{{ symptomKey(p.value.symptomType) | translate }}</h3>
+          <button type="button" class="btn-icon-danger" (click)="deleteSymptom(i)" [attr.aria-label]="'symptoms.remove' | translate">
             &times;
           </button>
         </div>
         <input type="range" class="severity-range" min="0" max="5" formControlName="symptomScale">
         <div class="severity-meta">
           <span class="severity-label" [attr.data-tone]="toneFor(p.value.symptomScale)">
-            {{ symptomScale[p.value.symptomScale] }}
+            {{ ('ref.scale.' + p.value.symptomScale) | translate }}
           </span>
           <span class="severity-scale">{{ p.value.symptomScale }}/5</span>
         </div>
@@ -46,8 +46,8 @@
   </section>
 
   <section class="editor-card">
-    <h2 class="card-label">Tap to add</h2>
-    <p class="card-hint">Choose how you feel — adjust intensity above</p>
+    <h2 class="card-label">{{ 'symptoms.tapToAdd' | translate }}</h2>
+    <p class="card-hint">{{ 'symptoms.hint' | translate }}</p>
     <div class="chip-grid">
       <button
         type="button"
@@ -56,12 +56,12 @@
         [class.is-added]="isAdded(s)"
         [disabled]="isAdded(s)"
         (click)="addSymptom(s)">
-        {{ s.name }}
+        {{ symptomKey(s) | translate }}
       </button>
     </div>
   </section>
 
   <p class="editor-foot-hint" *ngIf="symptomsArr.length === 0">
-    Select at least one symptom to save.
+    {{ 'symptoms.needOne' | translate }}
   </p>
 </div>
