@@ -56,15 +56,25 @@
 }
 
 .brand {
-  font-size: 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  font-size: 1.2rem;
   font-weight: 800;
   letter-spacing: -.03em;
   color: var(--hg-ink);
   text-decoration: none;
 }
-.brand span {
-  color: var(--hg-meal);
-  font-weight: 700;
+.brand-mark {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: block;
+  flex-shrink: 0;
+  border-radius: .45rem;
+}
+.brand-name {
+  color: var(--hg-ink);
+  font-weight: 800;
 }
 
 .top-nav {
