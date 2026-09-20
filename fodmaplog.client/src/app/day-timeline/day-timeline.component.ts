@@ -135,7 +135,7 @@ export class DayTimelineComponent implements OnInit, OnChanges, OnDestroy {
         const maxScale = Math.max(...scales, 0);
         const lines = log.symptomsLog.symptoms.map(s => {
           const name = translateSymptomType(this.translate, s.symptomType);
-          const scale = translateScale(this.translate, s.symptomScale);
+          const scale = translateScale(this.translate, this.normalizeScale(s.symptomScale ?? 0));
           return `${name} · ${scale}`;
         });
         symptoms.push({
