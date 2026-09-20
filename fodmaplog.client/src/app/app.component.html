@@ -5,7 +5,10 @@
 
 <ng-container *ngIf="isLoggedIn()">
   <header class="app-topbar d-none d-lg-flex">
-    <a class="brand" routerLink="/daily-log">HealthyGut<span>Log</span></a>
+    <a class="brand" routerLink="/daily-log" aria-label="Mova">
+      <img class="brand-mark" src="assets/brand/mova-mark.svg" width="28" height="28" alt="" />
+      <span class="brand-name">Mova</span>
+    </a>
     <nav class="top-nav" [attr.aria-label]="'nav.main' | translate">
       <a routerLink="/daily-log" routerLinkActive="is-active">{{ 'nav.today' | translate }}</a>
       <a routerLink="/export-logs" routerLinkActive="is-active">{{ 'nav.export' | translate }}</a>

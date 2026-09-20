@@ -13,6 +13,7 @@
   },
   "login": {
     "title": "Sign In",
+    "tagline": "Speak your meals and symptoms.",
     "email": "Email",
     "password": "Password",
     "emailPlaceholder": "Enter your email",
@@ -23,7 +24,7 @@
     "signUpLink": "Sign up",
     "forgot": "Forgot password?",
     "invalidCredentials": "Invalid email or password.",
-    "apiUnreachable": "Cannot reach the API. Start FodmapLog.Server on http://localhost:5115."
+    "apiUnreachable": "Cannot reach the API. Start the Mova server on http://localhost:5115."
   },
   "signup": {
     "title": "Create Account",
@@ -219,7 +220,7 @@
     "loadFail": "Could not load logs for that range.",
     "exportedOne": "Exported {{count}} row.",
     "exportedMany": "Exported {{count}} rows.",
-    "pdfTitle": "HealthyGutLog export",
+    "pdfTitle": "Mova export",
     "pdfFromTo": "From {{from}} to {{to}}",
     "pdfGenerated": "Generated {{date}}",
     "pdfEmpty": "No meals or symptoms in this date range.",

@@ -13,6 +13,7 @@
   },
   "login": {
     "title": "Logowanie",
+    "tagline": "Powiedz, co zjadłeś i jak się czujesz.",
     "email": "E-mail",
     "password": "Hasło",
     "emailPlaceholder": "Wpisz e-mail",
@@ -23,7 +24,7 @@
     "signUpLink": "Zarejestruj się",
     "forgot": "Nie pamiętasz hasła?",
     "invalidCredentials": "Nieprawidłowy e-mail lub hasło.",
-    "apiUnreachable": "Brak połączenia z API. Uruchom FodmapLog.Server na http://localhost:5115."
+    "apiUnreachable": "Brak połączenia z API. Uruchom serwer Mova na http://localhost:5115."
   },
   "signup": {
     "title": "Utwórz konto",
@@ -219,7 +220,7 @@
     "loadFail": "Nie udało się wczytać wpisów dla tego zakresu.",
     "exportedOne": "Wyeksportowano {{count}} wiersz.",
     "exportedMany": "Wyeksportowano {{count}} wierszy.",
-    "pdfTitle": "Eksport HealthyGutLog",
+    "pdfTitle": "Eksport Mova",
     "pdfFromTo": "Od {{from}} do {{to}}",
     "pdfGenerated": "Wygenerowano {{date}}",
     "pdfEmpty": "Brak posiłków i objawów w tym zakresie dat.",

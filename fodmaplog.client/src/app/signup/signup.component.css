@@ -1,0 +1,45 @@
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background:
+    radial-gradient(120% 80% at 10% 0%, #e8f6ee 0%, transparent 55%),
+    radial-gradient(90% 70% at 100% 100%, #fff4e5 0%, transparent 50%),
+    #f7faf8;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 1.5rem 1.35rem 1.35rem;
+  border-radius: 1.15rem;
+  background: #fff;
+  border: 1px solid #e6ebe8;
+  box-shadow: 0 12px 32px rgba(21, 32, 26, .08);
+}
+
+.auth-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .65rem;
+  margin-bottom: 1.15rem;
+  text-align: center;
+}
+
+.auth-brand img {
+  width: min(12.5rem, 72%);
+  height: auto;
+  display: block;
+}
+
+.auth-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  color: #1a1f1c;
+}

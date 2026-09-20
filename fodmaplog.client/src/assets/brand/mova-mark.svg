@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Mova">
+  <defs>
+    <linearGradient id="movaBg" x1="18" y1="12" x2="112" y2="118" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1F7A4D"/>
+      <stop offset="100%" stop-color="#3D8F5C"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#movaBg)"/>
+  <!-- Leaf + voice arcs: health + mowa (speech) -->
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+    <path
+      d="M52 34c-14 18-16 36-2 58 2 3 5 2 7-1 10-16 8-34-1-50-2-4-4-6-4-7z"
+      fill="#FFFFFF"
+      stroke="none"/>
+    <path d="M68 44c10 12 12 28 1 46" stroke-width="7"/>
+    <path d="M82 50c9 10 10 24 0 38" stroke-width="6"/>
+    <path d="M94 56c7 8 7 18 0 28" stroke-width="5"/>
+  </g>
+</svg>

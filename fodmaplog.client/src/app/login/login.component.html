@@ -1,7 +1,10 @@
-<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
-  <form class="p-4 rounded shadow bg-white" style="min-width: 340px; max-width: 400px; width: 100%;"
-    (ngSubmit)="login()">
-    <h2 class="mb-4 text-center text-primary">{{ 'login.title' | translate }}</h2>
+<div class="auth-shell">
+  <form class="auth-card" (ngSubmit)="login()">
+    <div class="auth-brand">
+      <img src="assets/brand/mova-lockup.svg" width="220" height="59" alt="Mova" />
+      <p class="auth-sub">{{ 'login.tagline' | translate }}</p>
+    </div>
+    <h2 class="auth-title mb-3">{{ 'login.title' | translate }}</h2>
     <div class="mb-3">
       <label class="form-label" for="email">{{ 'login.email' | translate }}</label>
       <input class="form-control" [(ngModel)]="email" type="email" id="email" name="email" required autocomplete="email"
@@ -15,9 +18,9 @@
     <div class="alert alert-danger p-2" [class.invisible]="!errorMessage" [style.minHeight.px]="38" role="alert">
       {{errorMessage}}
     </div>
-    <button class="btn btn-primary w-100 mt-3" type="submit">{{ 'login.submit' | translate }}</button>
+    <button class="btn btn-success w-100 mt-3" type="submit">{{ 'login.submit' | translate }}</button>
     <div>
-      <button class="btn btn-danger w-100 mt-2" (click)="loginWithGoogle()" type="button">
+      <button class="btn btn-outline-secondary w-100 mt-2" (click)="loginWithGoogle()" type="button">
         <i class="fa-brands fa-google"></i> {{ 'login.google' | translate }}
       </button>
     </div>
