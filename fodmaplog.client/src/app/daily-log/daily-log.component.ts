@@ -51,6 +51,9 @@ export class DailyLogComponent implements OnInit {
   reviewError: string | null = null;
   aiError: string | null = null;
   truncatedPendingCount = 0;
+  deleteTarget: DailyLogUI | null = null;
+  isDeleting = false;
+  deleteError: string | null = null;
 
   symptomScale = SymptomScale;
   currentDate: Date = new Date();
@@ -188,8 +191,15 @@ export class DailyLogComponent implements OnInit {
         this.transcriptExpanded = false;
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.aiError = this.translate.instant('daily.aiFail');
+      error: (err) => {
+        const status = err?.status;
+        if (status === 429) {
+          this.aiError = this.translate.instant('daily.aiRateLimited');
+        } else if (status === 503) {
+          this.aiError = this.translate.instant('daily.aiUnavailable');
+        } else {
+          this.aiError = this.translate.instant('daily.aiFail');
+        }
       }
     });
   }
@@ -248,13 +258,110 @@ export class DailyLogComponent implements OnInit {
   }
 
   severityLabel(scale: number): string {
-    return translateScale(this.translate, scale);
+    return translateScale(this.translate, this.displayScale(scale));
+  }
+
+  /** Clamp legacy 6–10 values onto the app 0–5 scale for display. */
+  displayScale(scale: number): number {
+    if (scale == null || Number.isNaN(scale)) {
+      return 0;
+    }
+    if (scale >= 0 && scale <= 5) {
+      return scale;
+    }
+    if (scale >= 6 && scale <= 10) {
+      return Math.round(scale / 2);
+    }
+    return Math.max(0, Math.min(5, scale));
   }
 
   severityTone(scale: number): 'calm' | 'mild' | 'hot' {
     if (scale <= 0) return 'calm';
     if (scale < 4) return 'mild';
     return 'hot';
+  }
+
+  editSavedMeal(log: DailyLogUI, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    const id = log.mealLog?.id;
+    if (!id) {
+      return;
+    }
+    this.router.navigate(['/add-meal-log', id], {
+      queryParams: { date: this.setDateCalendar }
+    });
+  }
+
+  editSavedSymptoms(log: DailyLogUI, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    const id = log.symptomsLog?.id;
+    if (!id) {
+      return;
+    }
+    this.router.navigate(['/add-symptoms-log', id], {
+      queryParams: { date: this.setDateCalendar }
+    });
+  }
+
+  confirmDeleteSaved(log: DailyLogUI, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    this.deleteError = null;
+    this.deleteTarget = log;
+  }
+
+  cancelDelete(): void {
+    this.deleteTarget = null;
+    this.deleteError = null;
+    this.isDeleting = false;
+  }
+
+  deleteSavedConfirmed(): void {
+    const log = this.deleteTarget;
+    if (!log || this.isDeleting) {
+      return;
+    }
+
+    if (this.isMealLog(log)) {
+      const id = log.mealLog?.id;
+      if (!id) {
+        return;
+      }
+      this.isDeleting = true;
+      this.fodmapLogService.deleteMealLog(id).subscribe({
+        next: () => {
+          this.logs = this.logs.filter(l => l !== log);
+          this.cancelDelete();
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.isDeleting = false;
+          this.deleteError = this.translate.instant('daily.deleteFail');
+          this.cdr.detectChanges();
+        }
+      });
+      return;
+    }
+
+    const symptomId = log.symptomsLog?.id;
+    if (!symptomId) {
+      return;
+    }
+    this.isDeleting = true;
+    this.fodmapLogService.deleteSymptomsLog(symptomId).subscribe({
+      next: () => {
+        this.logs = this.logs.filter(l => l !== log);
+        this.cancelDelete();
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isDeleting = false;
+        this.deleteError = this.translate.instant('daily.deleteFail');
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   onDateChange(newDate: string): void {
@@ -292,7 +399,9 @@ export class DailyLogComponent implements OnInit {
     event?.stopPropagation();
     if (log.isPending) {
       this.discardPending(log, event);
+      return;
     }
+    this.confirmDeleteSaved(log, event);
   }
 
   closeReviewSheet(event?: Event): void {

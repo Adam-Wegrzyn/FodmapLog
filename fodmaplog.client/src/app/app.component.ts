@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { LanguageService, AppLang } from './services/language.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -11,20 +12,16 @@ export class AppComponent {
   isAuthenticated = false;
   username = '';
 
-  constructor(public language: LanguageService) {
-    try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        const payload = JSON.parse(atob(token.split('.')[1] || ''));
-        this.username = payload?.email || payload?.unique_name || payload?.sub || '';
-      }
-    } catch {
-      this.username = '';
-    }
+  constructor(
+    public language: LanguageService,
+    private auth: AuthService
+  ) {
+    const profile = this.auth.readTokenProfile();
+    this.username = profile.email || profile.sub || '';
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    return this.auth.isTokenValid();
   }
 
   setLang(lang: AppLang): void {
@@ -32,7 +29,7 @@ export class AppComponent {
   }
 
   logout(): void {
-    localStorage.removeItem('token');
+    this.auth.clearSession();
     this.isAuthenticated = false;
     this.username = '';
     window.location.href = '/login';

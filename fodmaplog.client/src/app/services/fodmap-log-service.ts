@@ -58,5 +58,13 @@ export class FodmapLogService {
     updateSymptomsLog(symptomsLog: SymptomsLog): Observable<SymptomsLog> {
         return this.httpClient.put<SymptomsLog>(`${this.url}/updateSymptomsLog`, symptomsLog);
       }
+
+    deleteMealLog(id: number): Observable<MealLog> {
+        return this.httpClient.delete<MealLog>(`${this.url}/deleteMealLog/${id}`);
+    }
+
+    deleteSymptomsLog(id: number): Observable<SymptomsLog> {
+        return this.httpClient.delete<SymptomsLog>(`${this.url}/deleteSymptomsLog/${id}`);
+    }
     
 }

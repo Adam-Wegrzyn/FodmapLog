@@ -27,6 +27,9 @@ import { LoginCallbackComponent } from './login-callback/login-callback.componen
 import { errorInterceptor } from '../error.interceptor';
 import { ExportLogsComponent } from './export-logs/export-logs.component';
 import { DayTimelineComponent } from './day-timeline/day-timeline.component';
+import { AccountComponent } from './account/account.component';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { LanguageService } from './services/language.service';
 
 registerLocaleData(localePl);
@@ -54,6 +57,9 @@ export function initLanguage(language: LanguageService): () => Promise<unknown> 
     LoginCallbackComponent,
     ExportLogsComponent,
     DayTimelineComponent,
+    AccountComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent,
   ],
   imports: [
     BrowserModule,

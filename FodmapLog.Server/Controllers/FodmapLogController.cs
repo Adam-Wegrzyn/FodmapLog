@@ -3,12 +3,14 @@ using Data.Common.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace FodmapLog.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
+    [EnableRateLimiting("diary")]
     public class FodmapLogController : ControllerBase
     {
         private readonly IFodmapLogService _fodmapLogService;
@@ -101,6 +103,19 @@ namespace FodmapLog.Server.Controllers
             }
         }
 
+        [HttpDelete]
+        [Route("deleteMealLog/{id}")]
+        public async Task<IActionResult> DeleteMealLog(int id, CancellationToken cancellationToken)
+        {
+            var userId = this.RequireUserId();
+            var result = await _fodmapLogService.DeleteMealLog(id, userId, cancellationToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+
         [HttpPost]
         [Route("addSymptomsLog")]
         public async Task<IActionResult> AddSymptomsLog([FromBody] SymptomsLogDto symptomsLogDto, CancellationToken cancellationToken)
@@ -137,6 +152,19 @@ namespace FodmapLog.Server.Controllers
             {
                 return NotFound();
             }
+        }
+
+        [HttpDelete]
+        [Route("deleteSymptomsLog/{id}")]
+        public async Task<IActionResult> DeleteSymptomsLog(int id, CancellationToken cancellationToken)
+        {
+            var userId = this.RequireUserId();
+            var result = await _fodmapLogService.DeleteSymptomsLog(id, userId, cancellationToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
         }
 
         [HttpGet]

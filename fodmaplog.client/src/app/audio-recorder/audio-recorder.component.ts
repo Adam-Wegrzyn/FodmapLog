@@ -248,8 +248,15 @@ export class AudioRecorderComponent implements OnDestroy, OnChanges {
               this.setState('idle');
               this.transcription.emit(text);
             },
-            error: () => {
-              this.setError(this.translate.instant('recorder.transcribeFail'));
+            error: (err) => {
+              const status = err?.status;
+              if (status === 429) {
+                this.setError(this.translate.instant('daily.aiRateLimited'));
+              } else if (status === 503) {
+                this.setError(this.translate.instant('recorder.unavailable'));
+              } else {
+                this.setError(this.translate.instant('recorder.transcribeFail'));
+              }
               this.setState('idle');
             }
           });

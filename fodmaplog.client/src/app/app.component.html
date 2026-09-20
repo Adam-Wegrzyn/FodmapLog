@@ -23,6 +23,7 @@
           {{ username || ('nav.account' | translate) }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" routerLink="/account">{{ 'nav.account' | translate }}</a></li>
           <li><button type="button" class="dropdown-item" (click)="logout()">{{ 'nav.logOut' | translate }}</button></li>
         </ul>
       </div>
@@ -38,10 +39,10 @@
       <i class="fas fa-file-export" aria-hidden="true"></i>
       <span>{{ 'nav.export' | translate }}</span>
     </a>
-    <button type="button" class="bottom-link" (click)="logout()">
+    <a class="bottom-link" routerLink="/account" routerLinkActive="is-active">
       <i class="fas fa-user" aria-hidden="true"></i>
       <span>{{ 'nav.account' | translate }}</span>
-    </button>
+    </a>
   </nav>
 </ng-container>
 

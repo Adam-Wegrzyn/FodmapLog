@@ -148,8 +148,8 @@ export class DayTimelineComponent implements OnInit, OnChanges, OnDestroy {
             count: lines.length
           }),
           lines,
-          severity: maxScale,
-          tone: this.severityTone(maxScale)
+          severity: this.normalizeScale(maxScale),
+          tone: this.severityTone(this.normalizeScale(maxScale))
         });
       }
     });
@@ -171,6 +171,16 @@ export class DayTimelineComponent implements OnInit, OnChanges, OnDestroy {
         this.windowEndPct = null;
       }
     }
+  }
+
+  private normalizeScale(scale: number): number {
+    if (scale >= 0 && scale <= 5) {
+      return scale;
+    }
+    if (scale >= 6 && scale <= 10) {
+      return Math.round(scale / 2);
+    }
+    return Math.max(0, Math.min(5, scale));
   }
 
   private percentOfDay(at: Date): number {

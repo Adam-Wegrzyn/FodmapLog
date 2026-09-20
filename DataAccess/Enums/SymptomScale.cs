@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DataAccess.Enums
+﻿namespace DataAccess.Enums
 {
+    /// <summary>
+    /// App-wide symptom intensity. Matches Angular UI slider (0–5).
+    /// </summary>
     public enum SymptomScale
     {
-        Great = 1,
-        VeryGood = 2,
-        Good = 3,
-        Mild = 4,
-        Bad = 5,
-        Awful = 6
+        None = 0,
+        Low = 1,
+        Mild = 2,
+        Moderate = 3,
+        Severe = 4,
+        Serious = 5
     }
 }
