@@ -17,6 +17,10 @@ import { SymptomsLog } from '../domain/SymptomsLog';
 import { MealLogTransferService } from '../services/meal-log-transfer.service';
 import { SymptomsLogTransferService } from '../services/symptoms-log-transfer.service';
 import { AudioRecorderComponent } from '../audio-recorder/audio-recorder.component';
+import { TranslateService } from '@ngx-translate/core';
+import { LanguageService } from '../services/language.service';
+import { Unit } from '../domain/Unit';
+import { translateScale, translateSymptomType, translateUnit } from '../services/reference-i18n';
 import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 
@@ -57,9 +61,6 @@ export class DailyLogComponent implements OnInit {
   faChevronDown = faChevronDown;
   faChevronUp = faChevronUp;
 
-  readonly emptyExample =
-    '“Had rice and chicken for lunch, mild cramps around 3.”';
-
   constructor(
     private fodmapLogService: FodmapLogService,
     private route: ActivatedRoute,
@@ -67,10 +68,17 @@ export class DailyLogComponent implements OnInit {
     private openAiService: OpenAiService,
     private cdr: ChangeDetectorRef,
     private mealLogTransferService: MealLogTransferService,
-    private symptomsLogTransferService: SymptomsLogTransferService
+    private symptomsLogTransferService: SymptomsLogTransferService,
+    private translate: TranslateService,
+    private language: LanguageService
   ) {}
 
+  get dateLocale(): string {
+    return this.language.dateLocale;
+  }
+
   ngOnInit(): void {
+    this.translate.onLangChange.subscribe(() => this.cdr.detectChanges());
     this.route.params.subscribe(params => {
       if (params['date']) {
         this.setDateCalendar = params['date'];
@@ -139,7 +147,7 @@ export class DailyLogComponent implements OnInit {
     }
     this.isUnderstanding = true;
     this.reviewError = null;
-    this.openAiService.generateMealLogFromAI(transcription).pipe(
+    this.openAiService.generateMealLogFromAI(transcription, this.language.currentLang).pipe(
       finalize(() => {
         this.isUnderstanding = false;
         this.cdr.detectChanges();
@@ -148,7 +156,7 @@ export class DailyLogComponent implements OnInit {
       next: (data) => {
         const events = Array.isArray(data) ? data : [];
         if (events.length === 0) {
-          this.aiError = 'No meals or symptoms found in that recording. Try again.';
+          this.aiError = this.translate.instant('daily.aiEmpty');
           return;
         }
 
@@ -181,7 +189,7 @@ export class DailyLogComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: () => {
-        this.aiError = 'Could not understand that recording. Please try again.';
+        this.aiError = this.translate.instant('daily.aiFail');
       }
     });
   }
@@ -195,7 +203,7 @@ export class DailyLogComponent implements OnInit {
       },
       error: (error) => {
         console.error(error);
-        this.aiError = 'Could not refresh the day log. Pull to retry or change the date.';
+        this.aiError = this.translate.instant('daily.refreshFail');
         this.cdr.detectChanges();
       }
     });
@@ -206,27 +214,41 @@ export class DailyLogComponent implements OnInit {
   }
 
   /** Friendly amount like "1 bowl" / "200 ml" (food-diary style). */
-  formatAmount(quantity: number | string, unitName?: string): string {
+  formatAmount(quantity: number | string, unit?: Unit | string): string {
     const qty = quantity ?? '';
-    const unit = (unitName || '').trim();
-    if (!unit) {
+    let unitName = '';
+    if (typeof unit === 'string') {
+      unitName = unit;
+    } else if (unit) {
+      unitName = translateUnit(this.translate, unit);
+    }
+    const trimmed = (unitName || '').trim();
+    if (!trimmed) {
       return `${qty}`;
     }
-    const compact = unit
+    const canonical = typeof unit === 'object' && unit?.name ? unit.name : trimmed;
+    const compact = canonical
       .replace(/^Milliliter$/i, 'ml')
       .replace(/^Millilitre$/i, 'ml')
       .replace(/^Gram$/i, 'g')
       .replace(/^Kilogram$/i, 'kg')
       .replace(/^Liter$/i, 'L')
       .replace(/^Litre$/i, 'L');
-    const lower = compact.length <= 3 && compact === compact.toUpperCase()
-      ? compact
-      : compact.toLowerCase();
+    if (compact !== canonical) {
+      return `${qty} ${compact}`;
+    }
+    const lower = trimmed.length <= 3 && trimmed === trimmed.toUpperCase()
+      ? trimmed
+      : trimmed.toLowerCase();
     return `${qty} ${lower}`;
   }
 
+  symptomLabel(type: { id?: number; name?: string } | null | undefined): string {
+    return translateSymptomType(this.translate, type);
+  }
+
   severityLabel(scale: number): string {
-    return this.symptomScale[scale] ?? `${scale}`;
+    return translateScale(this.translate, scale);
   }
 
   severityTone(scale: number): 'calm' | 'mild' | 'hot' {
@@ -339,7 +361,7 @@ export class DailyLogComponent implements OnInit {
       );
       const failed = failedIndexes.size;
       if (failed > 0 && failed === results.length) {
-        this.reviewError = 'Could not save events. Check your connection and try again.';
+        this.reviewError = this.translate.instant('daily.saveFail');
         this.cdr.detectChanges();
         return;
       }
@@ -354,7 +376,10 @@ export class DailyLogComponent implements OnInit {
       });
 
       if (failed > 0) {
-        this.reviewError = `Saved ${results.length - failed} of ${results.length} events. Retry failed ones.`;
+        this.reviewError = this.translate.instant('daily.savePartial', {
+          saved: results.length - failed,
+          total: results.length
+        });
         this.showReviewSheet = true;
         this.cdr.detectChanges();
         return;

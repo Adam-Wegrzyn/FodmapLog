@@ -22,13 +22,31 @@ namespace FodmapLog.Server.Controllers
             if (string.IsNullOrEmpty(audioBase64?.value))
                 return BadRequest("Audio data is required.");
 
-            var transcription = await _audioService.TranscribeAsync(audioBase64.value);
+            var language = NormalizeSpeechLocale(audioBase64.language);
+            var transcription = await _audioService.TranscribeAsync(audioBase64.value, language);
             return Ok(new { transcription });
+        }
+
+        private static string NormalizeSpeechLocale(string? language)
+        {
+            if (string.IsNullOrWhiteSpace(language))
+            {
+                return "en-US";
+            }
+
+            var normalized = language.Trim();
+            if (normalized.StartsWith("pl", StringComparison.OrdinalIgnoreCase))
+            {
+                return "pl-PL";
+            }
+
+            return "en-US";
         }
     }
 
     public class AudioRequestDto
     {
-        public string value { get; set; }
+        public string value { get; set; } = string.Empty;
+        public string? language { get; set; }
     }
 }

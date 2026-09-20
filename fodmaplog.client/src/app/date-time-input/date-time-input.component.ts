@@ -1,15 +1,14 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { BrowserModule } from '@angular/platform-browser';
-import {NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
-
+import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-date-time-input',
   templateUrl: './date-time-input.component.html',
   styleUrl: './date-time-input.component.css',
   standalone: true,
-  imports: [NgxMaterialTimepickerModule, FormsModule]
+  imports: [NgxMaterialTimepickerModule, FormsModule, TranslateModule]
 })
 export class DateTimeInputComponent {
   @Input() date: string;

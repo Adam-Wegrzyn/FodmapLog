@@ -10,6 +10,8 @@ import {
 } from '@angular/core';
 import toWav from 'audiobuffer-to-wav';
 import { AudioTranscriptionService } from '../services/audio-transcription.service';
+import { LanguageService } from '../services/language.service';
+import { TranslateService } from '@ngx-translate/core';
 import { faMicrophone, faStop } from '@fortawesome/free-solid-svg-icons';
 
 export type RecorderUiState = 'idle' | 'recording' | 'transcribing' | 'error';
@@ -41,7 +43,9 @@ export class AudioRecorderComponent implements OnDestroy, OnChanges {
 
   constructor(
     private audioTrascriptionService: AudioTranscriptionService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private language: LanguageService,
+    private translate: TranslateService
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -83,7 +87,7 @@ export class AudioRecorderComponent implements OnDestroy, OnChanges {
   startRecording(): void {
     this.clearError();
     if (!navigator.mediaDevices?.getUserMedia) {
-      this.setError('Microphone is not supported in this browser.');
+      this.setError(this.translate.instant('recorder.unsupported'));
       return;
     }
 
@@ -124,11 +128,11 @@ export class AudioRecorderComponent implements OnDestroy, OnChanges {
       this.ngZone.run(() => {
         const name = (err as DOMException).name || '';
         if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
-          this.setError('Microphone permission denied. Allow mic access and try again.');
+          this.setError(this.translate.instant('recorder.denied'));
         } else if (name === 'NotFoundError') {
-          this.setError('No microphone found. Connect a mic and try again.');
+          this.setError(this.translate.instant('recorder.notFound'));
         } else {
-          this.setError('Could not start recording. Check microphone settings.');
+          this.setError(this.translate.instant('recorder.startFail'));
         }
       });
     });
@@ -155,7 +159,7 @@ export class AudioRecorderComponent implements OnDestroy, OnChanges {
           const wavBlob = await this.toSpeechWav(audioBlob);
           this.sendAudioToAzure(wavBlob);
         } catch {
-          this.setError('Could not process the recording. Please try again.');
+          this.setError(this.translate.instant('recorder.readFail'));
           this.setState('idle');
         }
       });
@@ -230,11 +234,14 @@ export class AudioRecorderComponent implements OnDestroy, OnChanges {
           }
           const converted64 = btoa(binary);
 
-          this.audioTrascriptionService.transcribeAudio({ value: converted64 }).subscribe({
+          this.audioTrascriptionService.transcribeAudio({
+            value: converted64,
+            language: this.language.speechLocale
+          }).subscribe({
             next: (response: { transcription?: string }) => {
               const text = (response?.transcription || '').trim();
               if (!text) {
-                this.setError('No speech detected. Tap the mic and try again.');
+                this.setError(this.translate.instant('recorder.noSpeech'));
                 this.setState('idle');
                 return;
               }
@@ -242,19 +249,19 @@ export class AudioRecorderComponent implements OnDestroy, OnChanges {
               this.transcription.emit(text);
             },
             error: () => {
-              this.setError('Transcription failed. Check your connection and try again.');
+              this.setError(this.translate.instant('recorder.transcribeFail'));
               this.setState('idle');
             }
           });
         } catch {
-          this.setError('Could not read the recording. Please try again.');
+          this.setError(this.translate.instant('recorder.readFail'));
           this.setState('idle');
         }
       });
     };
     reader.onerror = () => {
       this.ngZone.run(() => {
-        this.setError('Could not read the recording. Please try again.');
+        this.setError(this.translate.instant('recorder.readFail'));
         this.setState('idle');
       });
     };

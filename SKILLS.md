@@ -12,3 +12,8 @@ Project preferences for AI agents (and humans) working on FodmapLog / HealthyGut
 - **Comments:** only where intent is non-obvious; do not narrate obvious code.
 
 This complements `AGENTS.md` (architecture and stack rules). When in doubt, favor simple and readable.
+
+## Frontend build hygiene
+
+- Before finishing Angular work, clear template compiler warnings such as **NG8107** (unnecessary `?.` when the type is already non-nullable). Use `.` when the type is a plain `string` / non-optional object property.
+- Do not leave known `ng serve` / `ng build` warnings that your change introduced or that you can fix in the same files you touched.

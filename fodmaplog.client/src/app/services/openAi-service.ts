@@ -3,6 +3,7 @@ import { environment } from "../../environments/environment";
 import { HttpClient } from "@angular/common/http";
 import { catchError, map, Observable, throwError } from "rxjs";
 import { DailyLog } from "../domain/DailyLog";
+import { AppLang } from "./language.service";
 
 @Injectable({
     providedIn: 'root'
@@ -12,10 +13,12 @@ export class OpenAiService {
 
     constructor(private httpClient: HttpClient) { }
     
-    generateMealLogFromAI(input: string): Observable<DailyLog[]> {
-        const input2 = new TranscribeInput();
-        input2.transcript = input;
-        return this.httpClient.post<DailyLog[] | string>(`${this.url}/GenerateMealLogFromAI`, input2)
+    generateMealLogFromAI(input: string, language: AppLang = 'en'): Observable<DailyLog[]> {
+        const body = {
+            transcript: input,
+            language
+        };
+        return this.httpClient.post<DailyLog[] | string>(`${this.url}/GenerateMealLogFromAI`, body)
         .pipe(
             map((data) => this.normalizeDailyLogs(data)),
             catchError((error) => {
@@ -39,8 +42,4 @@ export class OpenAiService {
         }
         return value as DailyLog[];
     }
-}
-
-class TranscribeInput {
-    transcript: string;
 }

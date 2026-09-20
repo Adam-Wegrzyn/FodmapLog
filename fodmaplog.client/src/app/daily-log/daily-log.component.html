@@ -15,21 +15,21 @@
   </div>
 
   <div *ngIf="isEmptyDay" class="empty-state" role="status">
-    <p class="empty-title">What happened today?</p>
-    <p class="empty-example">{{ emptyExample }}</p>
+    <p class="empty-title">{{ 'daily.emptyTitle' | translate }}</p>
+    <p class="empty-example">{{ 'daily.emptyExample' | translate }}</p>
     <div class="empty-actions">
       <a class="quick-add quick-add--meal" [routerLink]="['/add-meal-log']"
-        [queryParams]="{ date: setDateCalendar }">Add meal</a>
+        [queryParams]="{ date: setDateCalendar }">{{ 'daily.addMeal' | translate }}</a>
       <a class="quick-add quick-add--symptom" [routerLink]="['/add-symptoms-log']"
-        [queryParams]="{ date: setDateCalendar }">Add symptoms</a>
+        [queryParams]="{ date: setDateCalendar }">{{ 'daily.addSymptoms' | translate }}</a>
     </div>
-    <p class="empty-or">or tap the mic and speak</p>
+    <p class="empty-or">{{ 'daily.orSpeak' | translate }}</p>
   </div>
 
   <div class="log-list" *ngIf="savedLogs.length > 0">
     <a class="add-slot" [routerLink]="['/add-meal-log']"
       [queryParams]="{ date: setDateCalendar }">
-      <span class="add-slot-plus">+</span> Add meal above
+      <span class="add-slot-plus">+</span> {{ 'daily.addMealAbove' | translate }}
     </a>
 
     <ng-container *ngFor="let log of savedLogs">
@@ -39,13 +39,13 @@
         </div>
         <div class="log-entry-main">
           <header class="log-entry-meta">
-            <span class="type-label type-label--meal">Meal</span>
-            <time class="log-entry-time">{{ log.date | date: 'shortTime' }}</time>
+            <span class="type-label type-label--meal">{{ 'daily.meal' | translate }}</span>
+            <time class="log-entry-time">{{ log.date | date: 'shortTime' : undefined : dateLocale }}</time>
           </header>
           <ul class="food-list">
             <li *ngFor="let pq of log.mealLog.productQuantity" class="food-item">
               <span class="food-name">{{ pq.product.name }}</span>
-              <span class="food-amount">{{ formatAmount(pq.quantity, pq.unit.name) }}</span>
+              <span class="food-amount">{{ formatAmount(pq.quantity, pq.unit) }}</span>
             </li>
           </ul>
         </div>
@@ -57,12 +57,12 @@
         </div>
         <div class="log-entry-main">
           <header class="log-entry-meta">
-            <span class="type-label type-label--symptom">Symptom</span>
-            <time class="log-entry-time">{{ log.date | date: 'shortTime' }}</time>
+            <span class="type-label type-label--symptom">{{ 'daily.symptom' | translate }}</span>
+            <time class="log-entry-time">{{ log.date | date: 'shortTime' : undefined : dateLocale }}</time>
           </header>
           <ul class="symptom-list">
             <li *ngFor="let s of log.symptomsLog.symptoms" class="symptom-item">
-              <span class="symptom-name">{{ s.symptomType.name }}</span>
+              <span class="symptom-name">{{ symptomLabel(s.symptomType) }}</span>
               <span class="severity-pill" [attr.data-tone]="severityTone(s.symptomScale)">
                 {{ severityLabel(s.symptomScale) }}
               </span>
@@ -74,15 +74,15 @@
 
     <div class="add-slot-row">
       <a class="add-slot add-slot--meal" [routerLink]="['/add-meal-log']"
-        [queryParams]="{ date: setDateCalendar }">+ Meal</a>
+        [queryParams]="{ date: setDateCalendar }">{{ 'daily.plusMeal' | translate }}</a>
       <a class="add-slot add-slot--symptom" [routerLink]="['/add-symptoms-log']"
-        [queryParams]="{ date: setDateCalendar }">+ Symptom</a>
+        [queryParams]="{ date: setDateCalendar }">{{ 'daily.plusSymptom' | translate }}</a>
     </div>
   </div>
 
   <div *ngIf="pendingCount > 0 && !showReviewSheet" class="pending-banner">
-    <span>{{ pendingCount }} unsaved voice {{ pendingCount === 1 ? 'event' : 'events' }}</span>
-    <button type="button" class="btn btn-sm btn-success" (click)="showReviewSheet = true">Review</button>
+    <span>{{ (pendingCount === 1 ? 'daily.pendingOne' : 'daily.pendingMany') | translate: { count: pendingCount } }}</span>
+    <button type="button" class="btn btn-sm btn-success" (click)="showReviewSheet = true">{{ 'daily.review' | translate }}</button>
   </div>
 
   <p *ngIf="aiError" class="ai-error" role="alert">{{ aiError }}</p>
@@ -94,24 +94,24 @@
   <div *ngIf="isUnderstanding" class="understanding-overlay" role="status" aria-live="polite">
     <div class="understanding-panel">
       <div class="spinner-border text-light mb-3" role="status"></div>
-      <p class="understanding-label">Understanding…</p>
-      <p class="understanding-hint">Finding meals and symptoms</p>
+      <p class="understanding-label">{{ 'daily.understanding' | translate }}</p>
+      <p class="understanding-hint">{{ 'daily.understandingHint' | translate }}</p>
     </div>
   </div>
 
   <div *ngIf="showReviewSheet" class="review-layer" role="presentation">
-    <button type="button" class="review-backdrop" aria-label="Dismiss review"
+    <button type="button" class="review-backdrop" [attr.aria-label]="'daily.dismissReview' | translate"
       (click)="closeReviewSheet($event)"></button>
     <aside class="review-sheet" role="dialog" aria-modal="true"
       aria-labelledby="reviewSheetTitle" (click)="$event.stopPropagation()">
       <header class="review-header">
         <div>
           <h2 id="reviewSheetTitle" class="review-title">
-            {{ pendingCount }} {{ pendingCount === 1 ? 'event' : 'events' }}
+            {{ (pendingCount === 1 ? 'daily.eventOne' : 'daily.eventMany') | translate: { count: pendingCount } }}
           </h2>
-          <p class="review-subtitle">Review before saving</p>
+          <p class="review-subtitle">{{ 'daily.reviewSubtitle' | translate }}</p>
         </div>
-        <button type="button" class="review-close" aria-label="Close review"
+        <button type="button" class="review-close" [attr.aria-label]="'daily.closeReview' | translate"
           (click)="closeReviewSheet($event)">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -119,13 +119,13 @@
 
       <button type="button" class="transcript-toggle" (click)="toggleTranscript()"
         *ngIf="lastTranscript">
-        <span>Transcript</span>
+        <span>{{ 'daily.transcript' | translate }}</span>
         <fa-icon [icon]="transcriptExpanded ? faChevronUp : faChevronDown"></fa-icon>
       </button>
       <p *ngIf="transcriptExpanded && lastTranscript" class="transcript-body">{{ lastTranscript }}</p>
 
       <p *ngIf="truncatedPendingCount > 0" class="soft-cap-note">
-        Showing first {{ pendingCount }}; {{ truncatedPendingCount }} more were omitted.
+        {{ 'daily.softCap' | translate: { shown: pendingCount, omitted: truncatedPendingCount } }}
       </p>
 
       <div class="review-scroll">
@@ -137,7 +137,7 @@
 
         <ng-container *ngIf="useTimeGroups">
           <section *ngFor="let group of pendingGroups" class="time-group">
-            <h3 class="time-group-label">{{ group.label }}</h3>
+            <h3 class="time-group-label">{{ ('timeOfDay.' + group.label) | translate }}</h3>
             <ng-container *ngFor="let log of group.logs">
               <ng-container *ngTemplateOutlet="pendingItem; context: { $implicit: log }"></ng-container>
             </ng-container>
@@ -150,12 +150,12 @@
       <footer class="review-footer">
         <button type="button" class="btn btn-outline-secondary flex-fill review-action"
           (click)="reRecord($event)" [disabled]="isSavingAll">
-          Re-record
+          {{ 'daily.reRecord' | translate }}
         </button>
         <button type="button" class="btn btn-success flex-fill review-action"
           (click)="saveAllPending($event)" [disabled]="isSavingAll || pendingCount === 0">
           <span *ngIf="isSavingAll" class="spinner-border spinner-border-sm me-1" role="status"></span>
-          Save all
+          {{ 'daily.saveAll' | translate }}
         </button>
       </footer>
     </aside>
@@ -168,33 +168,33 @@
     <div class="pending-item-top">
       <span class="type-label" [class.type-label--meal]="isMealLog(log)"
         [class.type-label--symptom]="!isMealLog(log)">
-        {{ isMealLog(log) ? 'Meal' : 'Symptom' }}
+        {{ (isMealLog(log) ? 'daily.meal' : 'daily.symptom') | translate }}
       </span>
-      <time class="log-entry-time">{{ log.date | date: 'shortTime' }}</time>
+      <time class="log-entry-time">{{ log.date | date: 'shortTime' : undefined : dateLocale }}</time>
       <button type="button" class="btn btn-sm btn-link text-danger pending-discard"
-        (click)="discardPending(log, $event)">Remove</button>
+        (click)="discardPending(log, $event)">{{ 'daily.remove' | translate }}</button>
     </div>
     <div *ngIf="isMealLog(log)" class="pending-body">
       <ul class="food-list">
         <li *ngFor="let pq of log.mealLog.productQuantity" class="food-item">
           <span class="food-name">{{ pq.product.name }}</span>
-          <span class="food-amount">{{ formatAmount(pq.quantity, pq.unit?.name) }}</span>
+          <span class="food-amount">{{ formatAmount(pq.quantity, pq.unit) }}</span>
         </li>
       </ul>
       <button type="button" class="btn btn-sm btn-link px-0 edit-link"
-        (click)="editPendingMealLog(log.mealLog)">Edit</button>
+        (click)="editPendingMealLog(log.mealLog)">{{ 'daily.edit' | translate }}</button>
     </div>
     <div *ngIf="!isMealLog(log)" class="pending-body">
       <ul class="symptom-list">
         <li *ngFor="let s of log.symptomsLog.symptoms" class="symptom-item">
-          <span class="symptom-name">{{ s.symptomType.name }}</span>
+          <span class="symptom-name">{{ symptomLabel(s.symptomType) }}</span>
           <span class="severity-pill" [attr.data-tone]="severityTone(s.symptomScale)">
             {{ severityLabel(s.symptomScale) }}
           </span>
         </li>
       </ul>
       <button type="button" class="btn btn-sm btn-link px-0 edit-link"
-        (click)="editPendingSymptomsLog(log.symptomsLog)">Edit</button>
+        (click)="editPendingSymptomsLog(log.symptomsLog)">{{ 'daily.edit' | translate }}</button>
     </div>
   </div>
 </ng-template>

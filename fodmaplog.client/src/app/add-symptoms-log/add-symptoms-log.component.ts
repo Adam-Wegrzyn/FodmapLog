@@ -11,6 +11,7 @@ import { SymptomScale } from '../domain/SymptomScale';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SymptomTypesService } from '../services/symptom-types.service';
 import { SymptomsLogTransferService } from '../services/symptoms-log-transfer.service';
+import { resolveSymptomTypeId } from '../services/reference-i18n';
 
 @Component({
   selector: 'app-add-symptoms-log',
@@ -45,6 +46,14 @@ export class addSymptomsLogComponent implements OnInit {
     private router: Router,
     private SymptomsLogTransferService: SymptomsLogTransferService
   ) { }
+
+  symptomKey(type: { id?: number; name?: string } | null | undefined): string {
+    const id = resolveSymptomTypeId(type);
+    if (id != null) {
+      return `ref.symptom.${id}`;
+    }
+    return type?.name || '';
+  }
     
   ngOnInit(): void {
 

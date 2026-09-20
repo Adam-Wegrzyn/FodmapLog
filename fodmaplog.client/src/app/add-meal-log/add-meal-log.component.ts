@@ -13,6 +13,8 @@ import { MealLogTransferService } from '../services/meal-log-transfer.service';
 import { SymptomsLogTransferService } from '../services/symptoms-log-transfer.service';
 import { Symptom } from '../domain/Symptom';
 import { UnitService } from '../services/unit.service';
+import { TranslateService } from '@ngx-translate/core';
+import { resolveUnitId, translateUnit } from '../services/reference-i18n';
 
 
 @Component({
@@ -48,7 +50,12 @@ export class addMealLogComponent implements OnInit {
     private router: Router,
     private mealLogTransferService: MealLogTransferService,
     private unitService: UnitService,
+    private translate: TranslateService,
   ) { }
+
+  unitLabel(unit: Unit | null | undefined): string {
+    return translateUnit(this.translate, unit);
+  }
 
   ngOnInit(): void {
     this.fillUnits();
