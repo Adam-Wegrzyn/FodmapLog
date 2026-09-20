@@ -82,6 +82,18 @@
     "saveFail": "Nie udało się zapisać. Sprawdź połączenie i spróbuj ponownie.",
     "savePartial": "Zapisano {{saved}} z {{total}} zdarzeń. Ponów nieudane."
   },
+  "timeline": {
+    "kicker": "Widok dnia",
+    "title": "Oś posiłków i objawów",
+    "hint": "Stuknij znacznik, aby zobaczyć szczegóły. Wybrany posiłek podświetla okno 2–6 h, gdy objawy często się pojawiają.",
+    "aria": "Oś czasu posiłków i objawów w tym dniu",
+    "meals": "Posiłki",
+    "symptoms": "Objawy",
+    "close": "Zamknij szczegóły",
+    "mealSummary": "{{count}} produkt(ów)",
+    "symptomSummary": "{{count}} objaw(ów)",
+    "windowHint": "Zielony pas: typowe okno 2–6 h po posiłku (to nie dowód przyczyny)."
+  },
   "timeOfDay": {
     "Morning": "Rano",
     "Afternoon": "Popołudnie",

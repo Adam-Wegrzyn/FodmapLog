@@ -27,6 +27,11 @@
   </div>
 
   <div class="log-list" *ngIf="savedLogs.length > 0">
+    <app-day-timeline
+      [logs]="savedLogs"
+      [dateLocale]="dateLocale">
+    </app-day-timeline>
+
     <a class="add-slot" [routerLink]="['/add-meal-log']"
       [queryParams]="{ date: setDateCalendar }">
       <span class="add-slot-plus">+</span> {{ 'daily.addMealAbove' | translate }}
