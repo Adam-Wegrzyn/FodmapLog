@@ -72,7 +72,7 @@
         <label class="field">
           <span>{{ 'meal.unit' | translate }}</span>
           <select [(ngModel)]="selectedUnit" class="field-control">
-            <option *ngFor="let unit of units" [ngValue]="unit">{{ unitLabel(unit) }}</option>
+            <option *ngFor="let unit of units" [ngValue]="unit">{{ unitKey(unit) | translate }}</option>
           </select>
         </label>
       </div>

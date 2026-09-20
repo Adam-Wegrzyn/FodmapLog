@@ -57,6 +57,11 @@ export class addMealLogComponent implements OnInit {
     return translateUnit(this.translate, unit);
   }
 
+  unitKey(unit: Unit | null | undefined): string {
+    const id = resolveUnitId(unit);
+    return id != null ? `ref.unit.${id}` : (unit?.name || '');
+  }
+
   ngOnInit(): void {
     this.fillUnits();
     const qDate = this.route.snapshot.queryParamMap.get('date');
