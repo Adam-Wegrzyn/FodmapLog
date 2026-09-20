@@ -1,0 +1,238 @@
+.timeline {
+  margin: .35rem 0 1rem;
+  text-align: left;
+}
+
+.timeline-head {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  margin-bottom: .75rem;
+}
+.timeline-kicker {
+  margin: 0;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--log-muted, #5c6b63);
+}
+.timeline-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  color: var(--log-ink, #1a1f1c);
+}
+.timeline-hint {
+  margin: 0;
+  font-size: .82rem;
+  color: var(--log-muted, #5c6b63);
+  line-height: 1.4;
+}
+
+.timeline-board {
+  background: #fff;
+  border: 1px solid var(--log-line, #e6ebe8);
+  border-radius: 1.1rem;
+  padding: .85rem .75rem .55rem;
+  box-shadow: 0 1px 0 rgba(26, 31, 28, .03);
+  overflow: hidden;
+}
+
+.lane {
+  display: grid;
+  grid-template-columns: 4.25rem 1fr;
+  gap: .45rem;
+  align-items: center;
+  min-height: 3.1rem;
+  margin-bottom: .45rem;
+}
+.lane-label {
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: var(--log-muted, #5c6b63);
+  line-height: 1.2;
+}
+.lane--meal .lane-label { color: var(--log-meal, #1f7a4d); }
+.lane--symptom .lane-label { color: var(--log-symptom, #b45309); }
+
+.lane-track {
+  position: relative;
+  height: 2.7rem;
+  border-radius: .85rem;
+  background:
+    linear-gradient(90deg, transparent 0, transparent calc(100% - 1px), rgba(26, 31, 28, .06) 0),
+    #f7faf8;
+  background-size: calc(100% / 4) 100%, auto;
+  overflow: visible;
+}
+
+.reaction-window {
+  position: absolute;
+  top: .2rem;
+  bottom: .2rem;
+  border-radius: .65rem;
+  background: rgba(31, 122, 77, .12);
+  border: 1px dashed rgba(31, 122, 77, .35);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .12rem;
+  cursor: pointer;
+  min-width: 2.4rem;
+}
+.marker-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 850;
+  box-shadow: 0 4px 12px rgba(21, 32, 26, .12);
+}
+.marker-time {
+  font-size: .58rem;
+  font-weight: 700;
+  color: var(--log-muted, #5c6b63);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.marker--meal .marker-badge {
+  background: var(--log-meal, #1f7a4d);
+  color: #fff;
+}
+.marker--symptom .marker-badge {
+  background: #f0c089;
+  color: #7a3b08;
+}
+.marker--symptom[data-tone='calm'] .marker-badge {
+  background: #d7ebe0;
+  color: #1f7a4d;
+}
+.marker--symptom[data-tone='mild'] .marker-badge {
+  background: #f5d3a3;
+  color: #8a4b10;
+}
+.marker--symptom[data-tone='hot'] .marker-badge {
+  background: #efb4ad;
+  color: #8a1f18;
+}
+
+.marker.is-selected .marker-badge {
+  outline: 2px solid #15201a;
+  outline-offset: 2px;
+  transform: scale(1.08);
+}
+.marker.is-selected .marker-time {
+  color: var(--log-ink, #1a1f1c);
+}
+
+.axis {
+  position: relative;
+  height: 1.15rem;
+  margin: .15rem 0 0 4.7rem;
+}
+.axis-tick {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: .62rem;
+  font-weight: 700;
+  color: var(--log-muted, #5c6b63);
+}
+.axis-tick:first-child { transform: translateX(0); }
+.axis-tick:last-child { transform: translateX(-100%); }
+
+.detail-sheet {
+  margin-top: .75rem;
+  background: #fff;
+  border: 1px solid var(--log-line, #e6ebe8);
+  border-radius: 1rem;
+  padding: .85rem .95rem;
+  box-shadow: 0 8px 24px rgba(21, 32, 26, .06);
+}
+.detail-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: .55rem;
+  margin-bottom: .45rem;
+}
+.detail-head time {
+  font-weight: 700;
+  font-size: .92rem;
+}
+.detail-close {
+  border: 0;
+  background: transparent;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--log-muted, #5c6b63);
+  cursor: pointer;
+  min-width: 2rem;
+  min-height: 2rem;
+}
+.type-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: .2rem .55rem;
+  border-radius: 999px;
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+.type-pill--meal {
+  background: var(--log-meal-soft, #e8f6ee);
+  color: var(--log-meal, #1f7a4d);
+}
+.type-pill--symptom {
+  background: var(--log-symptom-soft, #fff4e5);
+  color: var(--log-symptom, #b45309);
+}
+.detail-summary {
+  margin: 0 0 .4rem;
+  color: var(--log-muted, #5c6b63);
+  font-size: .85rem;
+  font-weight: 600;
+}
+.detail-list {
+  margin: 0;
+  padding-left: 1.05rem;
+  font-size: .92rem;
+  line-height: 1.45;
+}
+.detail-list li { margin-bottom: .15rem; }
+.detail-window {
+  margin: .65rem 0 0;
+  padding: .55rem .7rem;
+  border-radius: .75rem;
+  background: rgba(31, 122, 77, .08);
+  color: var(--log-meal, #1f7a4d);
+  font-size: .8rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+@media (min-width: 520px) {
+  .lane { grid-template-columns: 5rem 1fr; }
+  .axis { margin-left: 5.45rem; }
+  .marker-time { font-size: .64rem; }
+}

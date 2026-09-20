@@ -1,0 +1,82 @@
+<section class="timeline" *ngIf="hasEvents" (click)="clearSelection()">
+  <header class="timeline-head">
+    <div>
+      <p class="timeline-kicker">{{ 'timeline.kicker' | translate }}</p>
+      <h2 class="timeline-title">{{ 'timeline.title' | translate }}</h2>
+    </div>
+    <p class="timeline-hint">{{ 'timeline.hint' | translate }}</p>
+  </header>
+
+  <div class="timeline-board" role="img" [attr.aria-label]="'timeline.aria' | translate">
+    <div class="lane lane--meal">
+      <span class="lane-label">{{ 'timeline.meals' | translate }}</span>
+      <div class="lane-track">
+        <button
+          type="button"
+          class="marker marker--meal"
+          *ngFor="let m of mealMarkers; trackBy: trackByKey"
+          [style.left.%]="m.percent"
+          [class.is-selected]="selected?.key === m.key"
+          (click)="select(m, $event)"
+          [attr.aria-label]="m.timeLabel + ' ' + ('daily.meal' | translate)">
+          <span class="marker-badge">M</span>
+          <span class="marker-time">{{ m.timeLabel }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="lane lane--symptom">
+      <span class="lane-label">{{ 'timeline.symptoms' | translate }}</span>
+      <div class="lane-track">
+        <div
+          class="reaction-window"
+          *ngIf="windowStartPct !== null && windowEndPct !== null"
+          [style.left.%]="windowStartPct"
+          [style.width.%]="windowEndPct! - windowStartPct!"
+          [attr.title]="'timeline.windowHint' | translate"></div>
+        <button
+          type="button"
+          class="marker marker--symptom"
+          *ngFor="let m of symptomMarkers; trackBy: trackByKey"
+          [style.left.%]="m.percent"
+          [class.is-selected]="selected?.key === m.key"
+          [attr.data-tone]="m.tone"
+          (click)="select(m, $event)"
+          [attr.aria-label]="m.timeLabel + ' ' + ('daily.symptom' | translate)">
+          <span class="marker-badge">S</span>
+          <span class="marker-time">{{ m.timeLabel }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="axis" aria-hidden="true">
+      <span
+        class="axis-tick"
+        *ngFor="let h of hourTicks"
+        [style.left.%]="(h / 24) * 100">
+        {{ h === 24 ? '24' : (h < 10 ? '0' + h : h) }}:00
+      </span>
+    </div>
+  </div>
+
+  <aside class="detail-sheet" *ngIf="selected" (click)="$event.stopPropagation()" role="dialog">
+    <header class="detail-head">
+      <span
+        class="type-pill"
+        [class.type-pill--meal]="selected.kind === 'meal'"
+        [class.type-pill--symptom]="selected.kind === 'symptom'">
+        {{ (selected.kind === 'meal' ? 'daily.meal' : 'daily.symptom') | translate }}
+      </span>
+      <time>{{ selected.timeLabel }}</time>
+      <button type="button" class="detail-close" (click)="clearSelection()"
+        [attr.aria-label]="'timeline.close' | translate">&times;</button>
+    </header>
+    <p class="detail-summary">{{ selected.summary }}</p>
+    <ul class="detail-list">
+      <li *ngFor="let line of selected.lines">{{ line }}</li>
+    </ul>
+    <p class="detail-window" *ngIf="selected.kind === 'meal'">
+      {{ 'timeline.windowHint' | translate }}
+    </p>
+  </aside>
+</section>

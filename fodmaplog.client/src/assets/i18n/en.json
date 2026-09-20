@@ -82,6 +82,18 @@
     "saveFail": "Could not save events. Check your connection and try again.",
     "savePartial": "Saved {{saved}} of {{total}} events. Retry failed ones."
   },
+  "timeline": {
+    "kicker": "Day view",
+    "title": "Meal & symptom timeline",
+    "hint": "Tap a marker for details. Selecting a meal highlights the 2–6h window when symptoms often appear.",
+    "aria": "Timeline of meals and symptoms for this day",
+    "meals": "Meals",
+    "symptoms": "Symptoms",
+    "close": "Close details",
+    "mealSummary": "{{count}} food item(s)",
+    "symptomSummary": "{{count}} symptom(s)",
+    "windowHint": "Green band: typical 2–6 hour window after this meal (not proof of cause)."
+  },
   "timeOfDay": {
     "Morning": "Morning",
     "Afternoon": "Afternoon",
