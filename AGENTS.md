@@ -4,7 +4,7 @@ Persistent instructions for AI agents working on **FodmapLog** (HealthyGutLog) �
 
 ## Project overview
 
-Angular 17 SPA + ASP.NET Core 9 monolith, deployed to Azure App Service. Voice → transcription (Azure Function + Speech SDK) → OpenAI extraction → structured meal/symptom logs displayed on a mobile-first daily calendar.
+Angular 17 SPA + ASP.NET Core 9 monolith, deployed to Azure App Service. Voice → transcription (Azure Speech REST in Core) → OpenAI extraction → structured meal/symptom logs displayed on a mobile-first daily calendar.
 
 **Solution:** `FodmapLog.sln`
 
@@ -15,7 +15,7 @@ Angular 17 SPA + ASP.NET Core 9 monolith, deployed to Azure App Service. Voice �
 | `Core` | Services, MediatR handlers, AutoMapper |
 | `DataAccess` | EF Core, entities, migrations, repositories |
 | `Data.Common` | DTOs (`*Dto`) |
-| `TranscribeAudio` | Azure Function — base64 WAV → Azure Speech |
+| `TranscribeAudio` | Legacy Azure Function (unused). Speech now runs in `Core`. |
 | `Tests` | xUnit (minimal today) |
 
 ## Architecture (do not replace)
@@ -27,10 +27,11 @@ Angular (fodmaplog.client)
   → Core services / MediatR
   → DataAccess repositories
   → SQL Server (FodmapLogDbContext)
-  → Azure Function (transcription), OpenAI API, Key Vault
+  → Azure Speech REST (in Core), OpenAI API, Key Vault
 ```
 
-- **Keep the monolith + Azure Function split.** Transcription stays in `TranscribeAudio`; OpenAI stays server-side.
+- **Transcription stays in Core** (`AudioTranscriptionService` → Azure Speech REST). Do not reintroduce an Azure Function hop unless explicitly requested.
+- **OpenAI stays server-side.**
 - **Do not reintroduce Azure Service Bus** — meal notifications via Service Bus were removed as unused.
 - **Do not rewrite** working voice, transcription, LLM, or CRUD flows unless fixing a concrete bug or security gap.
 - **Extend** existing layers; prefer minimal diffs over new abstractions.
@@ -65,7 +66,7 @@ Angular (fodmaplog.client)
 
 - Production secrets via **Azure Key Vault** (`KeyVaultName` in `appsettings.json`, loaded in `Program.cs`).
 - Local dev: User Secrets (`UserSecretsId` in `FodmapLog.Server.csproj`, `FodmapLogDbContextFactory.cs`).
-- **Never commit** API keys, JWT keys, or connection strings. Remove accidental logging of secrets (see `TranscribeAudio/Function1.cs` — do not log `AzureSpeechApiKey`).
+- **Never commit** API keys, JWT keys, or connection strings. Do not log `AzureSpeechApiKey` or `openAIApiKey`.
 
 ## Angular conventions
 
@@ -217,7 +218,7 @@ Derived from `app.component.html`, `app.component.css`, and daily-log layout:
 
 - CI: `.github/workflows/master_healthygultlog-app.yml` publishes `FodmapLog.Server` only.
 - Angular output: `fodmaplog.client/dist/fodmaplog.client/` (`fodmaplog.client.esproj`); `ShouldRunBuildScript` is `false` — frontend must be built explicitly for prod static hosting.
-- Azure Function deploy: `.github/workflows/azure-functions-app-dotnet.yml` for `TranscribeAudio/`.
+- Azure Function workflow for `TranscribeAudio/` is unused; Speech runs in the web app.
 
 ## Known gaps (do not ignore when touching these areas)
 

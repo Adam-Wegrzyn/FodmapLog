@@ -11,7 +11,7 @@ namespace FodmapLog.Server.Controllers
     [EnableRateLimiting("transcribe")]
     public class AudioTranscriptionController : ControllerBase
     {
-        /// <summary>~2MB base64 ≈ short WAV clip; keeps Function/Speech costs bounded.</summary>
+        /// <summary>~2MB base64 ≈ short WAV clip; keeps Speech costs bounded.</summary>
         private const int MaxBase64Length = 2_000_000;
 
         private readonly IAudioTranscriptionService _audioService;

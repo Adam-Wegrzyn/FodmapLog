@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Net.Http.Headers;
+using System.Text.Json;
 using Core.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -6,9 +8,8 @@ using Microsoft.Extensions.Logging;
 namespace Core.Services
 {
     /// <summary>
-    /// Forwards WAV audio (base64) to the TranscribeAudio function.
-    /// In Development this should point at the local Functions host
-    /// (see Azure:TranscriptionFunctionUrl in appsettings.Development.json).
+    /// Sends the recorded WAV to Azure Speech REST (short-audio) in-process.
+    /// No Azure Function hop — keys live on the web app.
     /// </summary>
     public class AudioTranscriptionService : IAudioTranscriptionService
     {
@@ -39,36 +40,46 @@ namespace Core.Services
                     : "I had oatmeal with milk at 8, then felt bloated around 10.";
             }
 
-            var functionUrl = _config["Azure:TranscriptionFunctionUrl"];
-            var apiKey = _config["TranscribeFunctionKey"];
-            if (string.IsNullOrWhiteSpace(functionUrl))
+            var apiKey = _config["AzureSpeechApiKey"];
+            if (string.IsNullOrWhiteSpace(apiKey))
             {
                 throw new InvalidOperationException(
-                    "Azure:TranscriptionFunctionUrl is not configured. " +
-                    "For local dev set it to http://localhost:7004/api/Function1 in appsettings.Development.json.");
+                    "AzureSpeechApiKey is not configured. Set it in App Settings or user secrets.");
             }
 
-            var locale = string.IsNullOrWhiteSpace(speechLocale) ? "en-US" : speechLocale.Trim();
+            var region = _config["AzureSpeechRegion"];
+            if (string.IsNullOrWhiteSpace(region))
+            {
+                region = "eastus";
+            }
+
+            var locale = NormalizeLocale(speechLocale);
+            byte[] wav;
+            try
+            {
+                wav = Convert.FromBase64String(audioBase64 ?? string.Empty);
+            }
+            catch (FormatException ex)
+            {
+                throw new InvalidOperationException("Audio payload is not valid base64.", ex);
+            }
+
+            var url =
+                $"https://{region}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1" +
+                $"?language={Uri.EscapeDataString(locale)}&format=simple";
+
             var sw = Stopwatch.StartNew();
             _logger.LogInformation(
-                "Calling transcription function at {Url}. Locale={Locale} PayloadChars={Length}",
-                functionUrl,
+                "Calling Azure Speech. Region={Region} Locale={Locale} Bytes={Bytes}",
+                region,
                 locale,
-                audioBase64?.Length ?? 0);
+                wav.Length);
 
-            using var request = new HttpRequestMessage(HttpMethod.Post, functionUrl)
-            {
-                Content = new StringContent(
-                    System.Text.Json.JsonSerializer.Serialize(new { audio = audioBase64, language = locale }),
-                    System.Text.Encoding.UTF8,
-                    "application/json")
-            };
-
-            // Local Functions host usually does not need a key; Azure-hosted does.
-            if (!string.IsNullOrWhiteSpace(apiKey) && !IsLocalUrl(functionUrl))
-            {
-                request.Headers.TryAddWithoutValidation("x-functions-key", apiKey);
-            }
+            using var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.TryAddWithoutValidation("Ocp-Apim-Subscription-Key", apiKey);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            request.Content = new ByteArrayContent(wav);
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("audio/wav");
 
             using var cts = new CancellationTokenSource(RequestTimeout);
             HttpResponseMessage response;
@@ -82,43 +93,52 @@ namespace Core.Services
             }
             catch (OperationCanceledException ex)
             {
-                _logger.LogError(ex, "Transcription function timed out at {Url}", functionUrl);
-                throw new TimeoutException($"Transcription function timed out at {functionUrl}.", ex);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error calling transcription function at {Url}", functionUrl);
-                throw;
+                _logger.LogError(ex, "Azure Speech timed out. Region={Region}", region);
+                throw new TimeoutException("Azure Speech timed out.", ex);
             }
 
-            var body = await response.Content.ReadAsStringAsync();
+            var body = await response.Content.ReadAsStringAsync(cts.Token);
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError(
-                    "Transcription function failed. Url={Url} Status={Status} Body={Body}",
-                    functionUrl,
+                    "Azure Speech failed. Status={Status} Body={Body}",
                     (int)response.StatusCode,
-                    Truncate(body, 500));
-                throw new HttpRequestException(
-                    $"Transcription function returned {(int)response.StatusCode} from {functionUrl}.");
+                    Truncate(body, 400));
+                throw new HttpRequestException($"Azure Speech returned {(int)response.StatusCode}.");
             }
 
-            using var doc = System.Text.Json.JsonDocument.Parse(body);
-            var text = doc.RootElement.TryGetProperty("transcription", out var prop)
-                ? prop.GetString() ?? string.Empty
+            using var doc = JsonDocument.Parse(string.IsNullOrWhiteSpace(body) ? "{}" : body);
+            var root = doc.RootElement;
+            var text = root.TryGetProperty("DisplayText", out var display)
+                ? display.GetString() ?? string.Empty
                 : string.Empty;
+            text = text.Trim();
 
             _logger.LogInformation(
-                "Transcription function returned. Url={Url} ElapsedMs={Elapsed} Chars={Chars}",
-                functionUrl,
+                "Azure Speech finished. ElapsedMs={Elapsed} Chars={Chars} Status={Status}",
                 sw.ElapsedMilliseconds,
-                text.Length);
+                text.Length,
+                root.TryGetProperty("RecognitionStatus", out var status) ? status.GetString() : "unknown");
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                throw new InvalidOperationException("No speech could be recognized.");
+            }
+
             return text;
         }
 
-        private static bool IsLocalUrl(string url) =>
-            url.Contains("localhost", StringComparison.OrdinalIgnoreCase)
-            || url.Contains("127.0.0.1", StringComparison.OrdinalIgnoreCase);
+        private static string NormalizeLocale(string? speechLocale)
+        {
+            if (string.IsNullOrWhiteSpace(speechLocale))
+            {
+                return "en-US";
+            }
+
+            return speechLocale.Trim().StartsWith("pl", StringComparison.OrdinalIgnoreCase)
+                ? "pl-PL"
+                : "en-US";
+        }
 
         private static string Truncate(string value, int max) =>
             string.IsNullOrEmpty(value) || value.Length <= max ? value : value[..max] + "…";
