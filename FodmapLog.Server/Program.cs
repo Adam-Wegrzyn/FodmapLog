@@ -26,19 +26,11 @@ if (!string.IsNullOrWhiteSpace(appInsightsKey))
     builder.Services.AddApplicationInsightsTelemetry(appInsightsKey);
 }
 
-var tenantId = builder.Configuration["AzureAd:TenantId"];
-var clientId = builder.Configuration["AzureAd:ClientId"];
-var clientSecret = builder.Configuration["AzureAd:ClientSecret"];
-
 var keyVaultName = builder.Configuration["KeyVaultName"];
-if (!string.IsNullOrEmpty(keyVaultName)
-    && !string.IsNullOrWhiteSpace(tenantId)
-    && !string.IsNullOrWhiteSpace(clientId)
-    && !string.IsNullOrWhiteSpace(clientSecret))
+if (!string.IsNullOrWhiteSpace(keyVaultName))
 {
-    var credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
     var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
-    builder.Configuration.AddAzureKeyVault(keyVaultUri, credential);
+    builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
 }
 
 builder.Services.AddCors(options =>
@@ -75,10 +67,6 @@ builder.Services.AddDbContext<FodmapLogDbContext>(options =>
     {
         options.UseSqlite(builder.Configuration.GetConnectionString("LocalSqlite")
             ?? "Data Source=fodmaplog-local.db");
-    }
-    else if (builder.Environment.IsDevelopment())
-    {
-        options.UseSqlServer(builder.Configuration["devConnectionAzure"]);
     }
     else
     {
@@ -133,7 +121,7 @@ var authBuilder = builder.Services.AddAuthentication(options =>
     };
 });
 
-var googleClientSecret = builder.Configuration["googleAuthSecret"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
 if (!string.IsNullOrWhiteSpace(googleClientSecret) && !string.IsNullOrWhiteSpace(googleClientId))
 {

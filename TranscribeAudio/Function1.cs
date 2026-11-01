@@ -56,14 +56,14 @@ namespace TranscribeAudio
                 tempFilePath = Path.Combine(Path.GetTempPath(), $"fodmap-speech-{Guid.NewGuid():N}.wav");
                 await File.WriteAllBytesAsync(tempFilePath, audioBytes);
 
-                var apiKey = Environment.GetEnvironmentVariable("AzureSpeechApiKey");
+                var apiKey = _configuration["AzureSpeechApiKey"];
                 if (string.IsNullOrWhiteSpace(apiKey))
                 {
                     _logger.LogError("AzureSpeechApiKey is not configured.");
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
 
-                var region = Environment.GetEnvironmentVariable("AzureSpeechRegion");
+                var region = _configuration["AzureSpeechRegion"];
                 if (string.IsNullOrWhiteSpace(region))
                 {
                     region = "eastus";
@@ -170,7 +170,7 @@ namespace TranscribeAudio
             }
         }
 
-        private static string ResolveSpeechLanguage(dynamic? languageToken)
+        private string ResolveSpeechLanguage(dynamic? languageToken)
         {
             string? raw = null;
             try
@@ -184,7 +184,7 @@ namespace TranscribeAudio
 
             if (string.IsNullOrWhiteSpace(raw))
             {
-                raw = Environment.GetEnvironmentVariable("AzureSpeechLanguage");
+                raw = _configuration["AzureSpeechLanguage"];
             }
 
             if (string.IsNullOrWhiteSpace(raw))
