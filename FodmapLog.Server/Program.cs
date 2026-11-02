@@ -29,8 +29,15 @@ if (!string.IsNullOrWhiteSpace(appInsightsKey))
 var keyVaultName = builder.Configuration["KeyVaultName"];
 if (!string.IsNullOrWhiteSpace(keyVaultName))
 {
-    var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
-    builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
+    try
+    {
+        var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
+        builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
+    }
+    catch (Exception)
+    {
+        // App Settings / connection strings still apply (CI and App Service without KV RBAC).
+    }
 }
 
 builder.Services.AddCors(options =>
