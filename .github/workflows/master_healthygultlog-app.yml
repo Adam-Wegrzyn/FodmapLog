@@ -52,6 +52,7 @@ jobs:
           npm run build -- --configuration production
 
       - name: Copy SPA into Server wwwroot
+        id: spa
         run: |
           mkdir -p FodmapLog.Server/wwwroot
           if [ -d fodmaplog.client/dist/fodmaplog.client/browser ]; then
@@ -106,10 +107,29 @@ jobs:
           dotnet tool update --global dotnet-ef --version 9.0.4
           export PATH="$PATH:$HOME/.dotnet/tools"
           export ConnectionStrings__prodConnection="$CONN"
+          if [ -n "${SQL_CONNECTION:-}" ]; then
+            echo "Using GitHub secret SQL_PROD_CONNECTION"
+          else
+            echo "Using App Service connection string prodConnection"
+          fi
           dotnet build DataAccess/DataAccess.csproj -c Release --verbosity minimal
           attempt=1
           max_attempts=5
-          until dotnet ef database update --project DataAccess --connection "$CONN"; do
+          while true; do
+            set +e
+            set +o pipefail
+            dotnet ef database update --project DataAccess --connection "$CONN" 2>&1 | tee /tmp/ef-migrate.log
+            status=${PIPESTATUS[0]}
+            set -euo pipefail
+            if [ "$status" -eq 0 ]; then
+              echo "Migrations applied."
+              break
+            fi
+            if grep -Eqi 'Login failed|Error Number:18456' /tmp/ef-migrate.log; then
+              echo "SQL login failed (18456). This is not auto-pause."
+              echo "Reset admin password for user adam on sql-symptom-tracker-dev and update App Service prodConnection (or SQL_PROD_CONNECTION). Do not paste the password into GitHub issues or chat."
+              exit 1
+            fi
             if [ "$attempt" -ge "$max_attempts" ]; then
               echo "Migration failed after $max_attempts attempts (Azure SQL may still be paused)."
               exit 1
@@ -120,9 +140,11 @@ jobs:
           done
 
       - name: Publish server
+        if: always() && steps.spa.outcome == 'success'
         run: dotnet publish FodmapLog.Server/FodmapLog.Server.csproj -c Release -o "${{ github.workspace }}/publish"
 
       - name: Deploy to Azure Web App
+        if: always() && steps.spa.outcome == 'success'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
