@@ -10,8 +10,15 @@ namespace DataAccess
     {
         public FodmapLogDbContext CreateDbContext(string[] args)
         {
+            var cwd = Directory.GetCurrentDirectory();
+            var serverPath = Path.Combine(cwd, "..", "FodmapLog.Server");
+            if (!Directory.Exists(serverPath))
+            {
+                serverPath = Path.Combine(cwd, "FodmapLog.Server");
+            }
+
             var configurationBuilder = new ConfigurationBuilder()
-                .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "..", "FodmapLog.Server"))
+                .SetBasePath(serverPath)
                 .AddJsonFile("appsettings.json", optional: true)
                 .AddUserSecrets("7c0e8527-3921-4c01-a78c-c38c00c95cfd")
                 .AddEnvironmentVariables();
