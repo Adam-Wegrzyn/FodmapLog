@@ -5,8 +5,6 @@
   </label>
   <label class="dt-field">
     <span>{{ 'datetime.time' | translate }}</span>
-    <input type="text" [format]="24" name="currTime" [(ngModel)]="time"
-      (ngModelChange)="onTimeChange($event)" [ngxTimepicker]="timePicker" readonly>
+    <input type="time" name="currTime" [(ngModel)]="time" (ngModelChange)="onTimeChange($event)">
   </label>
-  <ngx-material-timepicker #timePicker></ngx-material-timepicker>
 </div>

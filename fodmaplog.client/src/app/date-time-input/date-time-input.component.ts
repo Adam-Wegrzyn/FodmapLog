@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
@@ -8,7 +7,7 @@ import { TranslateModule } from '@ngx-translate/core';
   templateUrl: './date-time-input.component.html',
   styleUrl: './date-time-input.component.css',
   standalone: true,
-  imports: [NgxMaterialTimepickerModule, FormsModule, TranslateModule]
+  imports: [FormsModule, TranslateModule]
 })
 export class DateTimeInputComponent {
   @Input() date: string;
@@ -28,12 +27,17 @@ export class DateTimeInputComponent {
     this.timeChange.emit(this.time);
     this.emitDateTimeChange();
   }
-  
+
   private emitDateTimeChange() {
+    if (!this.date || !this.time) {
+      return;
+    }
     const [year, month, day] = this.date.split('-');
     const [hour, minute] = this.time.split(':');
-    const customDate = new Date(Date.UTC(+year, +month - 1, +day, +hour, +minute, 0));
+    if (!year || !month || !day || hour == null || minute == null) {
+      return;
+    }
+    const customDate = new Date(+year, +month - 1, +day, +hour, +minute, 0);
     this.dateTimeChange.emit(customDate);
   }
-
 }

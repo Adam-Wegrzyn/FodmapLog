@@ -7,8 +7,7 @@ import { getLocaleDateTimeFormat } from '@angular/common';
 import { MealLog } from '../domain/MealLog';
 import { FodmapLogService } from '../services/fodmap-log-service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgxMaterialTimepickerComponent } from 'ngx-material-timepicker';
-import { DateTimeInputComponent } from '../date-time-input/date-time-input.component';
+import { formatClockTime } from '../services/clock-time';
 import { MealLogTransferService } from '../services/meal-log-transfer.service';
 import { SymptomsLogTransferService } from '../services/symptoms-log-transfer.service';
 import { Symptom } from '../domain/Symptom';
@@ -25,7 +24,6 @@ import { resolveUnitId, translateUnit } from '../services/reference-i18n';
 export class addMealLogComponent implements OnInit {
 
   @ViewChild('closeModalBtn') closeModalBtn: ElementRef;
-  @ViewChild('timePicker') timePicker: NgxMaterialTimepickerComponent;
   form: FormGroup;
   name: string;
   units: Unit[];
@@ -35,11 +33,7 @@ export class addMealLogComponent implements OnInit {
   unit: Unit;
   isNew: boolean = true;
   currDate = new Date().toISOString().split('T')[0];
-  currTime = new Date().toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
+  currTime = formatClockTime();
   isPending: boolean = false;
   showComposer = false;
 
@@ -83,11 +77,7 @@ export class addMealLogComponent implements OnInit {
             this.form.patchValue(data);
             this.setProductQuantities(data.productQuantity);
             this.currDate = new Date(data.date).toISOString().split('T')[0];
-            this.currTime = new Date(data.date).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false
-            });
+            this.currTime = formatClockTime(new Date(data.date));
           },
           () => { },
           () => {
@@ -98,11 +88,7 @@ export class addMealLogComponent implements OnInit {
       else if (this.route.snapshot.queryParamMap.get('isPending') == 'true') {
         var pendingMealLog = this.mealLogTransferService.mealLog;
         if (pendingMealLog) {
-            this.currTime = new Date(pendingMealLog.date).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-          });
+            this.currTime = formatClockTime(new Date(pendingMealLog.date));
           pendingMealLog.date = this.currDate + 'T' + this.currTime;
           pendingMealLog
           this.form.patchValue(pendingMealLog);

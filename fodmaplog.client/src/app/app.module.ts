@@ -6,7 +6,6 @@ import { CommonModule, registerLocaleData } from '@angular/common';
 import localePl from '@angular/common/locales/pl';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
@@ -69,7 +68,6 @@ export function initLanguage(language: LanguageService): () => Promise<unknown> 
     ReactiveFormsModule,
     CommonModule,
     FontAwesomeModule,
-    NgxMaterialTimepickerModule,
     DateTimeInputComponent,
     TranslateModule.forRoot({
       defaultLanguage: 'en',

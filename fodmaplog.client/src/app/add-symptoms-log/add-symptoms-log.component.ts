@@ -11,6 +11,7 @@ import { SymptomScale } from '../domain/SymptomScale';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SymptomTypesService } from '../services/symptom-types.service';
 import { SymptomsLogTransferService } from '../services/symptoms-log-transfer.service';
+import { formatClockTime } from '../services/clock-time';
 import { resolveSymptomTypeId } from '../services/reference-i18n';
 
 @Component({
@@ -31,11 +32,7 @@ export class addSymptomsLogComponent implements OnInit {
   symptomRange: number;
   symptomScale = SymptomScale;
   currDate = new Date().toISOString().split('T')[0];
-  currTime = new Date().toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
+  currTime = formatClockTime();
   isNew: boolean = true;
 
   constructor(private productsApiService: ProductsApiService,
@@ -77,11 +74,7 @@ export class addSymptomsLogComponent implements OnInit {
             this.form.patchValue(data);
             this.populateSymptoms(data.symptoms);
             this.currDate = new Date(data.date).toISOString().split('T')[0];
-            this.currTime = new Date(data.date).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false
-            });
+            this.currTime = formatClockTime(new Date(data.date));
           },
           () => {},
           () => {
@@ -92,11 +85,7 @@ export class addSymptomsLogComponent implements OnInit {
         else if (this.route.snapshot.queryParamMap.get('isPending') == 'true') {
         var pendingSymptomsLog = this.SymptomsLogTransferService.symptomsLog;
         if (pendingSymptomsLog){
-                      this.currTime = new Date(pendingSymptomsLog.date).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-          });
+                      this.currTime = formatClockTime(new Date(pendingSymptomsLog.date));
           pendingSymptomsLog.date = this.currDate + 'T' + this.currTime;
           this.form.patchValue(pendingSymptomsLog);
           this.populateSymptoms(pendingSymptomsLog.symptoms);
