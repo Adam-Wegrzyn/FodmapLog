@@ -106,9 +106,9 @@ jobs:
           dotnet tool update --global dotnet-ef --version 9.0.4
           export PATH="$PATH:$HOME/.dotnet/tools"
           export ConnectionStrings__prodConnection="$CONN"
+          dotnet build DataAccess/DataAccess.csproj -c Release --verbosity minimal
           dotnet ef database update \
             --project DataAccess \
-            --startup-project FodmapLog.Server \
             --connection "$CONN"
 
       - name: Publish server
