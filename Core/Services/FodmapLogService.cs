@@ -167,5 +167,10 @@ namespace Core.Services
             var deleted = await _fodmapLogRepository.DeleteSymptomsLog(id, userId, cancellationToken);
             return deleted == null ? null : _mapper.Map<SymptomsLogDto>(deleted);
         }
+
+        public Task DeleteAllLogsForUser(string userId, CancellationToken cancellationToken)
+        {
+            return _fodmapLogRepository.DeleteAllLogsForUser(userId, cancellationToken);
+        }
     }
 }

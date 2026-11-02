@@ -31,6 +31,10 @@ export class AuthService {
     });
   }
 
+  deleteAccount(password: string, confirm?: string): Observable<unknown> {
+    return this.http.post(`${this.url}/deleteAccount`, { password, confirm }, { responseType: 'text' });
+  }
+
   loginWithGoogle(): void {
     window.location.href = `${this.url}/external-login?provider=Google&returnUrl=${environment.frontendBaseUrl}/login-callback`;
   }

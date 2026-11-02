@@ -66,7 +66,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<JwtTokenService>();
-builder.Services.AddTransient<IEmailSender, LoggingEmailSender>();
+builder.Services.AddTransient<IEmailSender, ConfigurableEmailSender>();
 
 var useLocalSqlite = builder.Configuration.GetValue("UseLocalSqlite", false);
 builder.Services.AddDbContext<FodmapLogDbContext>(options =>
@@ -198,6 +198,14 @@ builder.Services.AddRateLimiter(options =>
         RateLimitPartition.GetFixedWindowLimiter(PartitionKey(httpContext), _ => new FixedWindowRateLimiterOptions
         {
             PermitLimit = 120,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        }));
+
+    options.AddPolicy("auth", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(PartitionKey(httpContext), _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
             Window = TimeSpan.FromMinutes(1),
             QueueLimit = 0
         }));

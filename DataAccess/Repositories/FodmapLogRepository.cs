@@ -162,6 +162,23 @@ namespace DataAccess.Repositories
             return symptomsLog;
         }
 
+        public async Task DeleteAllLogsForUser(string userId, CancellationToken cancellationToken)
+        {
+            var meals = await _context.MealLogs
+                .Include(m => m.ProductQuantity)
+                .Where(m => m.UserId == userId)
+                .ToListAsync(cancellationToken);
+            _context.MealLogs.RemoveRange(meals);
+
+            var symptoms = await _context.SymptomsLogs
+                .Include(s => s.Symptoms)
+                .Where(s => s.UserId == userId)
+                .ToListAsync(cancellationToken);
+            _context.SymptomsLogs.RemoveRange(symptoms);
+
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
         public async Task<IEnumerable<Product>> GetAllProducts(CancellationToken cancellationToken)
         {
             return await _context.Products.ToListAsync(cancellationToken);
