@@ -326,8 +326,8 @@
   min-height: 2.75rem;
 }
 
-@media (min-width: 992px) {
-  .daily-log-page { padding-bottom: 6rem; max-width: 28rem; margin: 0 auto; }
+@media (min-width: 768px) {
+  .daily-log-page { padding-bottom: 3rem; }
   .review-sheet {
     width: min(28rem, 100%);
   }

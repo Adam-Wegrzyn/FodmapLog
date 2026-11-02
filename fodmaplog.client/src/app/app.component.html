@@ -1,54 +1,40 @@
-<div class="lang-switch" role="group" [attr.aria-label]="'nav.language' | translate">
+<div *ngIf="!loggedIn" class="lang-switch" role="group" [attr.aria-label]="'nav.language' | translate">
   <button type="button" class="lang-btn" [class.is-active]="language.currentLang === 'en'" (click)="setLang('en')">EN</button>
   <button type="button" class="lang-btn" [class.is-active]="language.currentLang === 'pl'" (click)="setLang('pl')">PL</button>
 </div>
 
-<ng-container *ngIf="isLoggedIn()">
-  <header class="app-topbar d-none d-lg-flex">
-    <a class="brand" routerLink="/daily-log" aria-label="Mova">
-      <img class="brand-mark" src="assets/brand/mova-mark.svg" width="28" height="28" alt="" />
-      <span class="brand-name">Mova</span>
-    </a>
-    <nav class="top-nav" [attr.aria-label]="'nav.main' | translate">
-      <a routerLink="/daily-log" routerLinkActive="is-active">{{ 'nav.today' | translate }}</a>
-      <a routerLink="/export-logs" routerLinkActive="is-active">{{ 'nav.export' | translate }}</a>
-      <div class="nav-dropdown">
-        <button type="button" class="nav-dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          {{ 'nav.add' | translate }}
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" routerLink="/add-meal-log">{{ 'nav.meal' | translate }}</a></li>
-          <li><a class="dropdown-item" routerLink="/add-symptoms-log">{{ 'nav.symptoms' | translate }}</a></li>
-        </ul>
-      </div>
-      <div class="nav-dropdown">
-        <button type="button" class="nav-dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          {{ username || ('nav.account' | translate) }}
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" routerLink="/account">{{ 'nav.account' | translate }}</a></li>
-          <li><button type="button" class="dropdown-item" (click)="logout()">{{ 'nav.logOut' | translate }}</button></li>
-        </ul>
-      </div>
-    </nav>
-  </header>
-
-  <nav class="app-bottombar d-flex d-lg-none" [attr.aria-label]="'nav.mobile' | translate">
-    <a class="bottom-link" routerLink="/daily-log" routerLinkActive="is-active">
-      <i class="fas fa-calendar-day" aria-hidden="true"></i>
-      <span>{{ 'nav.today' | translate }}</span>
-    </a>
-    <a class="bottom-link" routerLink="/export-logs" routerLinkActive="is-active">
-      <i class="fas fa-file-export" aria-hidden="true"></i>
-      <span>{{ 'nav.export' | translate }}</span>
-    </a>
-    <a class="bottom-link" routerLink="/account" routerLinkActive="is-active">
-      <i class="fas fa-user" aria-hidden="true"></i>
-      <span>{{ 'nav.account' | translate }}</span>
-    </a>
+<header *ngIf="loggedIn" class="app-topbar">
+  <a class="brand" routerLink="/daily-log" aria-label="Mova">
+    <img class="brand-mark" src="assets/brand/mova-mark.svg" width="28" height="28" alt="" />
+    <span class="brand-name">Mova</span>
+  </a>
+  <nav class="top-nav" [attr.aria-label]="'nav.main' | translate">
+    <a class="top-link top-link--wide" routerLink="/daily-log" routerLinkActive="is-active">{{ 'nav.today' | translate }}</a>
+    <a class="top-link top-link--wide" routerLink="/export-logs" routerLinkActive="is-active">{{ 'nav.export' | translate }}</a>
+    <a class="top-link" routerLink="/account" routerLinkActive="is-active" [attr.title]="username">{{ 'nav.account' | translate }}</a>
+    <button type="button" class="top-link top-link--wide top-link--button" (click)="logout()">{{ 'nav.logOut' | translate }}</button>
   </nav>
-</ng-container>
+  <div class="lang-switch lang-switch--bar" role="group" [attr.aria-label]="'nav.language' | translate">
+    <button type="button" class="lang-btn" [class.is-active]="language.currentLang === 'en'" (click)="setLang('en')">EN</button>
+    <button type="button" class="lang-btn" [class.is-active]="language.currentLang === 'pl'" (click)="setLang('pl')">PL</button>
+  </div>
+</header>
 
-<main class="app-shell" [class.app-shell--authed]="isLoggedIn()">
+<nav *ngIf="loggedIn" class="app-bottombar" [attr.aria-label]="'nav.mobile' | translate">
+  <a class="bottom-link" routerLink="/daily-log" routerLinkActive="is-active">
+    <i class="fas fa-calendar-day" aria-hidden="true"></i>
+    <span>{{ 'nav.today' | translate }}</span>
+  </a>
+  <a class="bottom-link" routerLink="/export-logs" routerLinkActive="is-active">
+    <i class="fas fa-file-export" aria-hidden="true"></i>
+    <span>{{ 'nav.export' | translate }}</span>
+  </a>
+  <a class="bottom-link" routerLink="/account" routerLinkActive="is-active">
+    <i class="fas fa-user" aria-hidden="true"></i>
+    <span>{{ 'nav.account' | translate }}</span>
+  </a>
+</nav>
+
+<main class="app-shell" [class.app-shell--authed]="loggedIn">
   <router-outlet></router-outlet>
 </main>

@@ -17,6 +17,12 @@
   border: 1px solid var(--hg-line, #dfe7e2);
   box-shadow: var(--hg-shadow, 0 8px 24px rgba(21, 32, 26, .06));
 }
+.lang-switch--bar {
+  position: static;
+  z-index: auto;
+  box-shadow: none;
+  flex-shrink: 0;
+}
 .lang-btn {
   border: 0;
   background: transparent;
@@ -35,22 +41,17 @@
   color: var(--hg-meal, #1f7a4d);
 }
 
-@media (min-width: 992px) {
-  .lang-switch {
-    top: .95rem;
-    right: 1.2rem;
-  }
-}
-
 .app-topbar {
+  display: flex;
   position: sticky;
   top: 0;
   z-index: 1040;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: .85rem 1.35rem;
-  background: rgba(255, 255, 255, .82);
+  gap: .6rem;
+  width: 100%;
+  padding: .7rem .85rem;
+  background: rgba(255, 255, 255, .94);
   backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--hg-line);
 }
@@ -64,6 +65,7 @@
   letter-spacing: -.03em;
   color: var(--hg-ink);
   text-decoration: none;
+  min-height: 2.4rem;
 }
 .brand-mark {
   width: 1.75rem;
@@ -80,32 +82,38 @@
 .top-nav {
   display: flex;
   align-items: center;
-  gap: .35rem;
+  justify-content: flex-end;
+  flex: 1;
+  gap: .2rem;
+  min-width: 0;
 }
 
-.top-nav > a,
-.nav-dropdown-toggle {
+.top-link,
+.top-link--button {
   border: 0;
   background: transparent;
   color: var(--hg-muted);
   font-weight: 600;
   font-size: .92rem;
-  padding: .45rem .8rem;
+  padding: .45rem .7rem;
   border-radius: 999px;
   text-decoration: none;
   cursor: pointer;
+  white-space: nowrap;
+  min-height: 2.4rem;
+  display: inline-flex;
+  align-items: center;
 }
 
-.top-nav > a.is-active,
-.top-nav > a:hover,
-.nav-dropdown-toggle:hover {
+.top-link.is-active,
+.top-link:hover,
+.top-link--button:hover {
   color: var(--hg-ink);
   background: var(--hg-bg-deep);
 }
 
-.nav-dropdown { position: relative; }
-
 .app-bottombar {
+  display: flex;
   position: fixed;
   left: .65rem;
   right: .65rem;
@@ -114,7 +122,7 @@
   justify-content: space-around;
   gap: .5rem;
   padding: .45rem .4rem;
-  background: rgba(255, 255, 255, .92);
+  background: rgba(255, 255, 255, .94);
   backdrop-filter: blur(14px);
   border: 1px solid var(--hg-line);
   border-radius: 1.15rem;
@@ -149,10 +157,30 @@
   padding: 1rem 1rem 1.5rem;
 }
 .app-shell--authed {
-  padding-bottom: 5.75rem;
+  padding-bottom: 6.5rem;
 }
 
-@media (min-width: 992px) {
+/* Phone / narrow window: keep Account in the top bar; Today/Export/Log out live in the bottom bar. */
+@media (max-width: 767.98px) {
+  .top-link--wide {
+    display: none;
+  }
+  .brand-name {
+    font-size: 1.05rem;
+  }
+}
+
+/* Tablet and desktop: full top bar, no bottom bar, content can use more width. */
+@media (min-width: 768px) {
+  .app-topbar {
+    padding: .85rem 1.35rem;
+  }
+  .app-bottombar {
+    display: none;
+  }
+  .app-shell {
+    width: min(56rem, 100%);
+  }
   .app-shell--authed {
     padding: 1.35rem 1.5rem 2rem;
   }

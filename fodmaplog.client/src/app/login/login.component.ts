@@ -27,7 +27,7 @@ export class LoginComponent {
   login(): void {
     this.auth.login(this.email, this.password).subscribe(
       response => {
-        localStorage.setItem('token', response.token);
+        this.auth.setSession(response.token);
         this.router.navigate(['/daily-log']);
       },
       error => {

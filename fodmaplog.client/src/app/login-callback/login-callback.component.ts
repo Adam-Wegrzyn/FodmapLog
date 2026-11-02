@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-login-callback',
@@ -7,7 +8,11 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrl: './login-callback.component.css'
 })
 export class LoginCallbackComponent implements OnInit {
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private auth: AuthService
+  ) {}
 
   ngOnInit(): void {
     // Prefer fragment (#token=...) — avoids JWT in query string / Referer
@@ -19,8 +24,7 @@ export class LoginCallbackComponent implements OnInit {
       const error = fragmentError || params['error'];
 
       if (token) {
-        localStorage.setItem('token', token);
-        // Clear fragment from address bar after storing token
+        this.auth.setSession(token);
         this.router.navigate(['/daily-log'], { replaceUrl: true });
       } else if (error) {
         console.error('Login error:', error);

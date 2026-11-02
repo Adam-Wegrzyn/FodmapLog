@@ -1,13 +1,18 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private http: HttpClient) { }
+  private readonly session = new BehaviorSubject<boolean>(false);
+  readonly session$ = this.session.asObservable();
+
+  constructor(private http: HttpClient) {
+    this.session.next(this.isTokenValid());
+  }
   url: string = environment.authApiUrl
   urlIdentity: string = environment.authIdentityApiUrl
 
@@ -64,7 +69,13 @@ export class AuthService {
     return profile.exp * 1000 > Date.now();
   }
 
+  setSession(token: string): void {
+    localStorage.setItem('token', token);
+    this.session.next(true);
+  }
+
   clearSession(): void {
     localStorage.removeItem('token');
+    this.session.next(false);
   }
 }
