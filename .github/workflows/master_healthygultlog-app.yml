@@ -96,6 +96,32 @@ jobs:
             echo "No prodConnection on the web app and no SQL_PROD_CONNECTION secret."
             exit 1
           fi
+          echo "SQL administratorLogin=$(az sql server show -g "$AZURE_RESOURCE_GROUP" -n "$AZURE_SQL_SERVER" --query administratorLogin -o tsv)"
+          echo "SQL Entra-only auth:"
+          az sql server ad-only-auth get -g "$AZURE_RESOURCE_GROUP" -n "$AZURE_SQL_SERVER" -o json || true
+          export CONN
+          python3 - <<'PY'
+import os, re
+c = os.environ.get("CONN", "")
+def grab(pat, default="missing"):
+    m = re.search(pat, c, re.I)
+    return m.group(1).strip() if m else default
+print("conn_chars", len(c))
+print("server", grab(r"server=([^;]+)"))
+print("database", grab(r"(?:initial catalog|database)=([^;]+)"))
+print("user_id", grab(r"(?:user\s*id|uid)=([^;]+)"))
+print("authentication", grab(r"authentication=([^;]+)", "sql-password-or-none"))
+print("has_password_key", bool(re.search(r"(?i)(?:password|pwd)\s*=", c)))
+m = re.search(r"(?i)(?:password|pwd)=([^;]*)", c)
+print("password_chars", len(m.group(1)) if m else 0)
+print("has_entra_auth", bool(re.search(r"(?i)active directory|entra", c)))
+PY
+          AD_ONLY=$(az sql server ad-only-auth get -g "$AZURE_RESOURCE_GROUP" -n "$AZURE_SQL_SERVER" --query azureADOnlyAuthentication -o tsv || true)
+          if [ "$AD_ONLY" = "true" ]; then
+            echo "SQL server has Microsoft Entra-only authentication. User/password logins (adam) always fail with 18456."
+            echo "Disable with: az sql server ad-only-auth disable -g $AZURE_RESOURCE_GROUP -n $AZURE_SQL_SERVER"
+            exit 1
+          fi
           RUNNER_IP=$(curl -fsS https://api.ipify.org)
           az sql server firewall-rule create \
             -g "$AZURE_RESOURCE_GROUP" \
