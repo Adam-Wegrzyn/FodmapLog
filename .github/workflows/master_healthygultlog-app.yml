@@ -61,14 +61,25 @@ jobs:
           fi
           test -f FodmapLog.Server/wwwroot/index.html
 
+      - name: Check Azure credentials
+        id: azure
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+        run: |
+          if [ -n "$AZURE_CREDENTIALS" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Azure login
-        if: ${{ secrets.AZURE_CREDENTIALS != '' }}
+        if: steps.azure.outputs.enabled == 'true'
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Apply EF migrations
-        if: ${{ secrets.AZURE_CREDENTIALS != '' }}
+        if: steps.azure.outputs.enabled == 'true'
         env:
           SQL_CONNECTION: ${{ secrets.SQL_PROD_CONNECTION }}
         run: |
