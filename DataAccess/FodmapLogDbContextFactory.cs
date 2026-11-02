@@ -48,8 +48,9 @@ namespace DataAccess
             }
 
             var optionsBuilder = new DbContextOptionsBuilder<FodmapLogDbContext>();
-            optionsBuilder.UseSqlServer(connection
-                ?? "Server=(localdb)\\mssqllocaldb;Database=FodmapLog;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer(
+                connection ?? "Server=(localdb)\\mssqllocaldb;Database=FodmapLog;Trusted_Connection=True;",
+                sql => sql.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null));
 
             return new FodmapLogDbContext(optionsBuilder.Options);
         }

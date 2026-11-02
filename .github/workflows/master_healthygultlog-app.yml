@@ -107,9 +107,17 @@ jobs:
           export PATH="$PATH:$HOME/.dotnet/tools"
           export ConnectionStrings__prodConnection="$CONN"
           dotnet build DataAccess/DataAccess.csproj -c Release --verbosity minimal
-          dotnet ef database update \
-            --project DataAccess \
-            --connection "$CONN"
+          attempt=1
+          max_attempts=5
+          until dotnet ef database update --project DataAccess --connection "$CONN"; do
+            if [ "$attempt" -ge "$max_attempts" ]; then
+              echo "Migration failed after $max_attempts attempts (Azure SQL may still be paused)."
+              exit 1
+            fi
+            echo "SQL not ready (often auto-pause 40613). Retry $attempt/$max_attempts in 25s..."
+            attempt=$((attempt + 1))
+            sleep 25
+          done
 
       - name: Publish server
         run: dotnet publish FodmapLog.Server/FodmapLog.Server.csproj -c Release -o "${{ github.workspace }}/publish"

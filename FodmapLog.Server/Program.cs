@@ -77,7 +77,9 @@ builder.Services.AddDbContext<FodmapLogDbContext>(options =>
     }
     else
     {
-        options.UseSqlServer(builder.Configuration.GetConnectionString("prodConnection"));
+        options.UseSqlServer(
+            builder.Configuration.GetConnectionString("prodConnection"),
+            sql => sql.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null));
     }
 });
 
