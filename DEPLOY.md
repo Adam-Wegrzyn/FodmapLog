@@ -84,9 +84,9 @@ The app also runs `Database.Migrate()` on startup against Azure SQL, so schema s
 
 **Secrets already used**
 
-- `AZUREAPPSERVICE_PUBLISHPROFILE_3DB2C653394541C595F4B640CF3FF3E8` — App Service publish profile (repo/environment **Production**)
+- `AZURE_CREDENTIALS` — `sp-mova-beta` JSON (Contributor on `rg-symptomtracker`). Used for SQL migrate **and** zip-deploy. The old `AZUREAPPSERVICE_PUBLISHPROFILE_*` secret is unused and can be deleted.
 
-**Add this so Actions can migrate SQL** (same `sp-mova-beta` you created)
+**If `AZURE_CREDENTIALS` is not set yet** (same `sp-mova-beta` you created)
 
 GitHub → Settings → Secrets and variables → Actions → New repository secret named `AZURE_CREDENTIALS`:
 
@@ -101,7 +101,7 @@ GitHub → Settings → Secrets and variables → Actions → New repository sec
 
 Optional override: `SQL_PROD_CONNECTION` (full ADO.NET string). If omitted, the job reads `prodConnection` from the web app.
 
-Without `AZURE_CREDENTIALS`, deploy still runs; migration happens on first app start.
+Without `AZURE_CREDENTIALS`, this workflow cannot migrate or deploy. Migration also runs on first app start if SQL is reachable.
 
 ## Database (laptop)
 
