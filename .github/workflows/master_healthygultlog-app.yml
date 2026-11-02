@@ -102,9 +102,10 @@ jobs:
             -n GitHubActionsDeploy \
             --start-ip-address "$RUNNER_IP" \
             --end-ip-address "$RUNNER_IP"
-          trap 'az sql server firewall-rule delete -g "$AZURE_RESOURCE_GROUP" -s "$AZURE_SQL_SERVER" -n GitHubActionsDeploy --yes || true' EXIT
+          trap 'az sql server firewall-rule delete -g "$AZURE_RESOURCE_GROUP" -s "$AZURE_SQL_SERVER" -n GitHubActionsDeploy || true' EXIT
           dotnet tool update --global dotnet-ef --version 9.0.4
           export PATH="$PATH:$HOME/.dotnet/tools"
+          export ConnectionStrings__prodConnection="$CONN"
           dotnet ef database update \
             --project DataAccess \
             --startup-project FodmapLog.Server \
