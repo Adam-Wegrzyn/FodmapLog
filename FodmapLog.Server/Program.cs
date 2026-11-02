@@ -190,11 +190,17 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
-if (useLocalSqlite)
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<FodmapLogDbContext>();
-    db.Database.EnsureCreated();
+    if (useLocalSqlite)
+    {
+        db.Database.EnsureCreated();
+    }
+    else
+    {
+        db.Database.Migrate();
+    }
 }
 
 app.UseDefaultFiles();
