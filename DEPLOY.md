@@ -71,7 +71,39 @@ az webapp config connection-string set -g $RG -n $APP --connection-string-type S
 
 No Function URL or function key.
 
-## Database
+## GitHub Actions (build + migrate + publish)
+
+Workflow: `.github/workflows/master_healthygultlog-app.yml`  
+On every push to `master` (and **Run workflow**) it:
+
+1. Builds the Angular SPA into `FodmapLog.Server/wwwroot`
+2. Applies EF migrations (if Azure login secrets exist)
+3. Publishes and deploys `healthygultlog-app`
+
+The app also runs `Database.Migrate()` on startup against Azure SQL, so schema still updates if the Actions migrate step is skipped.
+
+**Secrets already used**
+
+- `AZUREAPPSERVICE_PUBLISHPROFILE_3DB2C653394541C595F4B640CF3FF3E8` — App Service publish profile (repo/environment **Production**)
+
+**Add this so Actions can migrate SQL** (same `sp-mova-beta` you created)
+
+GitHub → Settings → Secrets and variables → Actions → New repository secret named `AZURE_CREDENTIALS`:
+
+```json
+{
+  "clientId": "<AZURE_CLIENT_ID>",
+  "clientSecret": "<AZURE_CLIENT_SECRET>",
+  "subscriptionId": "6fad62f1-1e94-42be-81af-98c4be1fc740",
+  "tenantId": "4f6b0b9d-3d4c-4ae3-9c09-f96c12200d58"
+}
+```
+
+Optional override: `SQL_PROD_CONNECTION` (full ADO.NET string). If omitted, the job reads `prodConnection` from the web app.
+
+Without `AZURE_CREDENTIALS`, deploy still runs; migration happens on first app start.
+
+## Database (laptop)
 
 ```bash
 dotnet ef database update --project DataAccess --startup-project FodmapLog.Server

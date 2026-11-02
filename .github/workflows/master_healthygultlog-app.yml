@@ -1,51 +1,112 @@
+name: Build, migrate, and deploy
+
 on:
   push:
+    branches:
+      - master
     paths:
       - 'FodmapLog.Server/**'
+      - 'Core/**'
+      - 'DataAccess/**'
+      - 'Data.Common/**'
+      - 'fodmaplog.client/**'
+      - '.github/workflows/master_healthygultlog-app.yml'
   workflow_dispatch:
 
+env:
+  AZURE_WEBAPP_NAME: healthygultlog-app
+  AZURE_RESOURCE_GROUP: rg-symptomtracker
+  AZURE_SQL_SERVER: sql-symptom-tracker-dev
+  DOTNET_NOLOGO: true
+
 jobs:
-  build:
-    runs-on: windows-latest
+  build-migrate-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: Production
+      url: https://healthygultlog-app.azurewebsites.net
     permissions:
-      contents: read # This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Pre-installed .NET Core
-        run: dotnet --version # Verify pre-installed .NET version
-        
-      - name: Build with dotnet
-        run: dotnet build FodmapLog.Server/FodmapLog.Server.csproj --configuration Release
-
-      - name: dotnet publish
-        run: dotnet publish FodmapLog.Server/FodmapLog.Server.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
-
-      - name: Upload artifact for .NET app
-        uses: actions/upload-artifact@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          dotnet-version: |
+            9.0.x
+            10.0.x
 
-  deploy:
-    runs-on: windows-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
-    steps:
-      - name: Download artifact for .NET app
-        uses: actions/download-artifact@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          name: .net-app
-      
-      - name: Deploy .NET App to Azure Web App
+          node-version: 20
+          cache: npm
+          cache-dependency-path: fodmaplog.client/package-lock.json
+
+      - name: Build Angular SPA
+        working-directory: fodmaplog.client
+        run: |
+          npm ci
+          npm run build -- --configuration production
+
+      - name: Copy SPA into Server wwwroot
+        run: |
+          mkdir -p FodmapLog.Server/wwwroot
+          if [ -d fodmaplog.client/dist/fodmaplog.client/browser ]; then
+            cp -R fodmaplog.client/dist/fodmaplog.client/browser/. FodmapLog.Server/wwwroot/
+          else
+            cp -R fodmaplog.client/dist/fodmaplog.client/. FodmapLog.Server/wwwroot/
+          fi
+          test -f FodmapLog.Server/wwwroot/index.html
+
+      - name: Azure login
+        if: ${{ secrets.AZURE_CREDENTIALS != '' }}
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Apply EF migrations
+        if: ${{ secrets.AZURE_CREDENTIALS != '' }}
+        env:
+          SQL_CONNECTION: ${{ secrets.SQL_PROD_CONNECTION }}
+        run: |
+          set -euo pipefail
+          CONN="${SQL_CONNECTION:-}"
+          if [ -z "$CONN" ]; then
+            CONN=$(az webapp config connection-string list \
+              -g "$AZURE_RESOURCE_GROUP" \
+              -n "$AZURE_WEBAPP_NAME" \
+              --query "[?name=='prodConnection'].value" -o tsv)
+          fi
+          if [ -z "$CONN" ]; then
+            echo "No prodConnection on the web app and no SQL_PROD_CONNECTION secret."
+            exit 1
+          fi
+          RUNNER_IP=$(curl -fsS https://api.ipify.org)
+          az sql server firewall-rule create \
+            -g "$AZURE_RESOURCE_GROUP" \
+            -s "$AZURE_SQL_SERVER" \
+            -n GitHubActionsDeploy \
+            --start-ip-address "$RUNNER_IP" \
+            --end-ip-address "$RUNNER_IP"
+          trap 'az sql server firewall-rule delete -g "$AZURE_RESOURCE_GROUP" -s "$AZURE_SQL_SERVER" -n GitHubActionsDeploy --yes || true' EXIT
+          dotnet tool update --global dotnet-ef --version 9.0.4
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          dotnet ef database update \
+            --project DataAccess \
+            --startup-project FodmapLog.Server \
+            --connection "$CONN"
+
+      - name: Publish server
+        run: dotnet publish FodmapLog.Server/FodmapLog.Server.csproj -c Release -o "${{ github.workspace }}/publish"
+
+      - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'healthygultlog-app'
-          slot-name: 'Production'
-          package: .
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          slot-name: Production
+          package: ${{ github.workspace }}/publish
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3DB2C653394541C595F4B640CF3FF3E8 }}
