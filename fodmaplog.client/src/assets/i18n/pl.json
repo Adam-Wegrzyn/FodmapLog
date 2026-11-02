@@ -104,6 +104,7 @@
     "deleteTitle": "Usunąć konto?",
     "deleteBody": "To trwale usunie posiłki, objawy i logowanie. Tej operacji nie da się cofnąć.",
     "deletePassword": "Aktualne hasło",
+    "deleteGoogleHint": "Logowanie przez Google bez hasła? Wpisz DELETE poniżej.",
     "deleteTypeDelete": "Wpisz DELETE, aby potwierdzić",
     "deleteNeedPassword": "Podaj hasło, aby potwierdzić.",
     "deleteNeedConfirm": "Wpisz DELETE, aby potwierdzić.",

@@ -17,7 +17,6 @@ export class AccountComponent implements OnInit {
   deleteConfirm = '';
   deleteError: string | null = null;
   isDeleting = false;
-  hasPasswordLogin = true;
 
   constructor(
     public language: LanguageService,
@@ -57,12 +56,8 @@ export class AccountComponent implements OnInit {
 
   confirmDelete(): void {
     this.deleteError = null;
-    if (this.hasPasswordLogin && !this.deletePassword) {
+    if (!this.deletePassword && this.deleteConfirm !== 'DELETE') {
       this.deleteError = this.translate.instant('account.deleteNeedPassword');
-      return;
-    }
-    if (!this.hasPasswordLogin && this.deleteConfirm !== 'DELETE') {
-      this.deleteError = this.translate.instant('account.deleteNeedConfirm');
       return;
     }
 

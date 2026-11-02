@@ -107,5 +107,6 @@
 }
 .confirm-title { margin: 0 0 .35rem; font-size: 1.05rem; font-weight: 800; }
 .confirm-body { margin: 0 0 .9rem; color: var(--hg-muted, #5a6b61); font-size: .92rem; line-height: 1.45; }
+.confirm-google { margin: .75rem 0 .35rem; color: var(--hg-muted, #5a6b61); font-size: .85rem; }
 .confirm-actions { display: flex; gap: .55rem; margin-top: .85rem; }
 .confirm-error { margin: .7rem 0 0; color: #842029; font-weight: 650; font-size: .88rem; }

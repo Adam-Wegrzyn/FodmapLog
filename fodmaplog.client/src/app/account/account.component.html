@@ -44,11 +44,12 @@
   <div class="confirm-sheet" role="dialog" aria-modal="true">
     <h2 class="confirm-title">{{ 'account.deleteTitle' | translate }}</h2>
     <p class="confirm-body">{{ 'account.deleteBody' | translate }}</p>
-    <label *ngIf="hasPasswordLogin" class="form-label" for="deletePassword">{{ 'account.deletePassword' | translate }}</label>
-    <input *ngIf="hasPasswordLogin" class="form-control" id="deletePassword" name="deletePassword" type="password"
+    <label class="form-label" for="deletePassword">{{ 'account.deletePassword' | translate }}</label>
+    <input class="form-control" id="deletePassword" name="deletePassword" type="password"
       [(ngModel)]="deletePassword" autocomplete="current-password">
-    <label *ngIf="!hasPasswordLogin" class="form-label" for="deleteConfirm">{{ 'account.deleteTypeDelete' | translate }}</label>
-    <input *ngIf="!hasPasswordLogin" class="form-control" id="deleteConfirm" name="deleteConfirm" type="text"
+    <p class="confirm-google">{{ 'account.deleteGoogleHint' | translate }}</p>
+    <label class="form-label" for="deleteConfirm">{{ 'account.deleteTypeDelete' | translate }}</label>
+    <input class="form-control" id="deleteConfirm" name="deleteConfirm" type="text"
       [(ngModel)]="deleteConfirm" autocomplete="off">
     <div class="confirm-actions">
       <button type="button" class="btn btn-outline-secondary flex-fill" (click)="cancelDelete()"

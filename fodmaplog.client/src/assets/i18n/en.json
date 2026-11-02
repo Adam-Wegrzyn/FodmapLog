@@ -104,6 +104,7 @@
     "deleteTitle": "Delete your account?",
     "deleteBody": "This permanently removes your meals, symptoms, and login. This cannot be undone.",
     "deletePassword": "Current password",
+    "deleteGoogleHint": "Signed in with Google and have no password? Type DELETE below instead.",
     "deleteTypeDelete": "Type DELETE to confirm",
     "deleteNeedPassword": "Enter your password to confirm.",
     "deleteNeedConfirm": "Type DELETE to confirm.",
