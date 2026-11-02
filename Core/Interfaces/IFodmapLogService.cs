@@ -27,5 +27,6 @@ namespace Core.Interfaces
         Task<SymptomsLogDto?> GetSymptomsLogById(int id, string userId, CancellationToken cancellationToken);
         Task<SymptomsLogDto?> UpdateSymptomsLog(SymptomsLogDto symptomsLogDto, string userId, CancellationToken cancellationToken);
         Task<SymptomsLogDto?> DeleteSymptomsLog(int id, string userId, CancellationToken cancellationToken);
+        Task DeleteAllLogsForUser(string userId, CancellationToken cancellationToken);
     }
 }

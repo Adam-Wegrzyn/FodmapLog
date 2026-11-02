@@ -99,7 +99,18 @@
     "unknownEmail": "Zalogowano",
     "security": "Bezpieczeństwo",
     "resetPassword": "Zresetuj hasło",
-    "export": "Eksport PDF"
+    "export": "Eksport PDF",
+    "deleteAccount": "Usuń konto",
+    "deleteTitle": "Usunąć konto?",
+    "deleteBody": "To trwale usunie posiłki, objawy i logowanie. Tej operacji nie da się cofnąć.",
+    "deletePassword": "Aktualne hasło",
+    "deleteTypeDelete": "Wpisz DELETE, aby potwierdzić",
+    "deleteNeedPassword": "Podaj hasło, aby potwierdzić.",
+    "deleteNeedConfirm": "Wpisz DELETE, aby potwierdzić.",
+    "deleteBadPassword": "Hasło jest niepoprawne.",
+    "deleteFail": "Nie udało się usunąć konta. Spróbuj ponownie.",
+    "deleteCancel": "Anuluj",
+    "deleteConfirm": "Usuń wszystko"
   },
   "forgot": {
     "title": "Nie pamiętam hasła",
@@ -109,7 +120,8 @@
     "emailRequired": "E-mail jest wymagany.",
     "submit": "Wyślij link",
     "submitting": "Wysyłanie…",
-    "success": "Jeśli konto istnieje, wysłaliśmy wiadomość z resetem. Sprawdź skrzynkę (lub logi serwera w trybie deweloperskim).",
+    "success": "Jeśli konto istnieje, wysłaliśmy wiadomość z resetem. Sprawdź skrzynkę.",
+    "unavailable": "Nie udało się wysłać e-maila. Spróbuj później albo napisz do operatora aplikacji.",
     "haveCode": "Mam już kod",
     "backLogin": "Wróć do logowania"
   },

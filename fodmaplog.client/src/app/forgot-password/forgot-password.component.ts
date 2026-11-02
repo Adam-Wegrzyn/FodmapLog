@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -34,9 +35,12 @@ export class ForgotPasswordComponent {
         this.isSubmitting = false;
         this.successMessage = this.translate.instant('forgot.success');
       },
-      error: () => {
-        // Always show success-style copy to avoid account enumeration.
+      error: (error: unknown) => {
         this.isSubmitting = false;
+        if (error instanceof HttpErrorResponse && error.status >= 500) {
+          this.errorMessage = this.translate.instant('forgot.unavailable');
+          return;
+        }
         this.successMessage = this.translate.instant('forgot.success');
       }
     });

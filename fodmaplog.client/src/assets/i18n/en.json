@@ -99,7 +99,18 @@
     "unknownEmail": "Signed in",
     "security": "Security",
     "resetPassword": "Reset password",
-    "export": "Export PDF"
+    "export": "Export PDF",
+    "deleteAccount": "Delete account",
+    "deleteTitle": "Delete your account?",
+    "deleteBody": "This permanently removes your meals, symptoms, and login. This cannot be undone.",
+    "deletePassword": "Current password",
+    "deleteTypeDelete": "Type DELETE to confirm",
+    "deleteNeedPassword": "Enter your password to confirm.",
+    "deleteNeedConfirm": "Type DELETE to confirm.",
+    "deleteBadPassword": "Password is incorrect.",
+    "deleteFail": "Could not delete the account. Try again.",
+    "deleteCancel": "Cancel",
+    "deleteConfirm": "Delete everything"
   },
   "forgot": {
     "title": "Forgot password",
@@ -109,7 +120,8 @@
     "emailRequired": "Email is required.",
     "submit": "Send reset link",
     "submitting": "Sending…",
-    "success": "If an account exists for that email, a reset message was sent. Check your inbox (or server logs in development).",
+    "success": "If an account exists for that email, a reset message was sent. Check your inbox.",
+    "unavailable": "Could not send email. Try again later or contact the app operator.",
     "haveCode": "I already have a code",
     "backLogin": "Back to login"
   },

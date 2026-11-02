@@ -27,6 +27,32 @@ Do **not** set `UseLocalSqlite` or `UseAiStubs` in Production.
 | `openAIApiKey` | Server-side only + spend cap on OpenAI |
 | `AzureSpeechApiKey` | Key from `speech-service-symptomtracker` |
 | `AzureSpeechRegion` | `eastus` (must match the Speech resource) |
+| `Email__From` | From-address for password reset |
+| `Email__SendGridApiKey` | **or** SMTP below (SendGrid is simpler from App Service) |
+| `Email__AppBaseUrl` | `https://healthygultlog-app.azurewebsites.net` |
+
+Password reset uses Identity `/forgotPassword`. Without email settings the API returns 5xx and the UI says mail could not be sent.
+
+SendGrid (recommended from Azure):
+
+```bash
+az webapp config appsettings set -g rg-symptomtracker -n healthygultlog-app --settings \
+  Email__From="mova@yourdomain.com" \
+  Email__SendGridApiKey="SG...." \
+  Email__AppBaseUrl="https://healthygultlog-app.azurewebsites.net"
+```
+
+Or SMTP (port 587; App Service often blocks port 25):
+
+```bash
+az webapp config appsettings set -g rg-symptomtracker -n healthygultlog-app --settings \
+  Email__From="you@gmail.com" \
+  Email__SmtpHost="smtp.gmail.com" \
+  Email__SmtpPort="587" \
+  Email__SmtpUser="you@gmail.com" \
+  Email__SmtpPassword="app-password" \
+  Email__AppBaseUrl="https://healthygultlog-app.azurewebsites.net"
+```
 
 Angular `environment.prod.ts` must use `https://healthygultlog-app.azurewebsites.net`.
 

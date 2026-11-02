@@ -92,3 +92,20 @@
   font-weight: 750;
   cursor: pointer;
 }
+.btn-delete-account {
+  margin-top: .65rem;
+}
+
+.confirm-layer {
+  position: fixed; inset: 0; z-index: 1100;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.confirm-backdrop { position: absolute; inset: 0; border: 0; background: rgba(21, 32, 26, .45); }
+.confirm-sheet {
+  position: relative; width: min(28rem, 100%); margin: 0 .65rem .85rem;
+  background: #fff; border-radius: 1.15rem; padding: 1.1rem 1rem 1rem;
+}
+.confirm-title { margin: 0 0 .35rem; font-size: 1.05rem; font-weight: 800; }
+.confirm-body { margin: 0 0 .9rem; color: var(--hg-muted, #5a6b61); font-size: .92rem; line-height: 1.45; }
+.confirm-actions { display: flex; gap: .55rem; margin-top: .85rem; }
+.confirm-error { margin: .7rem 0 0; color: #842029; font-weight: 650; font-size: .88rem; }
