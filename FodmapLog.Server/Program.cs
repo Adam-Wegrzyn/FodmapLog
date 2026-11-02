@@ -208,7 +208,15 @@ using (var scope = app.Services.CreateScope())
     }
     else
     {
-        db.Database.Migrate();
+        try
+        {
+            db.Database.Migrate();
+        }
+        catch (Exception ex)
+        {
+            var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
+            logger.LogError(ex, "EF migrations failed. Serving the app; fix prodConnection / SQL auth if login failed.");
+        }
     }
 }
 
