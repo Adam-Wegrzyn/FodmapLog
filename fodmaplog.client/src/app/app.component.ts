@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { LanguageService, AppLang } from './services/language.service';
 import { AuthService } from './services/auth.service';
 
@@ -7,21 +8,27 @@ import { AuthService } from './services/auth.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'fodmaplog.client';
-  isAuthenticated = false;
+  loggedIn = false;
   username = '';
+  private sessionSub?: Subscription;
 
   constructor(
     public language: LanguageService,
     private auth: AuthService
-  ) {
-    const profile = this.auth.readTokenProfile();
-    this.username = profile.email || profile.sub || '';
+  ) {}
+
+  ngOnInit(): void {
+    this.sessionSub = this.auth.session$.subscribe((loggedIn) => {
+      this.loggedIn = loggedIn;
+      const profile = this.auth.readTokenProfile();
+      this.username = profile.email || profile.sub || '';
+    });
   }
 
-  isLoggedIn(): boolean {
-    return this.auth.isTokenValid();
+  ngOnDestroy(): void {
+    this.sessionSub?.unsubscribe();
   }
 
   setLang(lang: AppLang): void {
@@ -30,8 +37,6 @@ export class AppComponent {
 
   logout(): void {
     this.auth.clearSession();
-    this.isAuthenticated = false;
-    this.username = '';
     window.location.href = '/login';
   }
 }
