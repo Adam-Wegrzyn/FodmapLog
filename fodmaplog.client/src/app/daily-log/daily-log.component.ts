@@ -150,7 +150,11 @@ export class DailyLogComponent implements OnInit {
     }
     this.isUnderstanding = true;
     this.reviewError = null;
-    this.openAiService.generateMealLogFromAI(transcription, this.language.currentLang).pipe(
+    this.openAiService.generateMealLogFromAI(
+      transcription,
+      this.language.currentLang,
+      this.setDateCalendar
+    ).pipe(
       finalize(() => {
         this.isUnderstanding = false;
         this.cdr.detectChanges();
@@ -188,7 +192,7 @@ export class DailyLogComponent implements OnInit {
           this.logs = [newDailyLog, ...this.logs];
         }
         this.showReviewSheet = true;
-        this.transcriptExpanded = false;
+        this.transcriptExpanded = true;
         this.cdr.detectChanges();
       },
       error: (err) => {

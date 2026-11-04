@@ -159,12 +159,14 @@
         </button>
       </header>
 
-      <button type="button" class="transcript-toggle" (click)="toggleTranscript()"
-        *ngIf="lastTranscript">
-        <span>{{ 'daily.transcript' | translate }}</span>
-        <fa-icon [icon]="transcriptExpanded ? faChevronUp : faChevronDown"></fa-icon>
-      </button>
-      <p *ngIf="transcriptExpanded && lastTranscript" class="transcript-body">{{ lastTranscript }}</p>
+      <div class="transcript-panel" *ngIf="lastTranscript">
+        <button type="button" class="transcript-toggle" (click)="toggleTranscript()">
+          <span>{{ 'daily.transcript' | translate }}</span>
+          <fa-icon [icon]="transcriptExpanded ? faChevronUp : faChevronDown"></fa-icon>
+        </button>
+        <p class="transcript-hint">{{ 'daily.transcriptHint' | translate }}</p>
+        <p *ngIf="transcriptExpanded" class="transcript-body">{{ lastTranscript }}</p>
+      </div>
 
       <p *ngIf="truncatedPendingCount > 0" class="soft-cap-note">
         {{ 'daily.softCap' | translate: { shown: pendingCount, omitted: truncatedPendingCount } }}
