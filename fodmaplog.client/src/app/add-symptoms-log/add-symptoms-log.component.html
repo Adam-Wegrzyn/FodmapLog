@@ -7,7 +7,8 @@
       <p class="editor-kicker">{{ 'symptoms.kicker' | translate }}</p>
       <h1 class="editor-title">{{ 'symptoms.title' | translate }}</h1>
     </div>
-    <button type="button" class="btn-primary" (click)="saveSymptomsLog()" [disabled]="symptomsArr.length === 0">
+    <button type="button" class="btn-primary" (click)="saveSymptomsLog()"
+      [disabled]="symptomsArr.length === 0 || isSaving">
       {{ 'symptoms.save' | translate }}
     </button>
   </header>
@@ -64,4 +65,5 @@
   <p class="editor-foot-hint" *ngIf="symptomsArr.length === 0">
     {{ 'symptoms.needOne' | translate }}
   </p>
+  <p class="editor-foot-hint editor-foot-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
 </div>

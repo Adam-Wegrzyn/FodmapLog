@@ -7,8 +7,7 @@ import { getLocaleDateTimeFormat } from '@angular/common';
 import { MealLog } from '../domain/MealLog';
 import { FodmapLogService } from '../services/fodmap-log-service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgxMaterialTimepickerComponent } from 'ngx-material-timepicker';
-import { DateTimeInputComponent } from '../date-time-input/date-time-input.component';
+import { combineLocalDateTime, formatClockTime, formatDateInput } from '../services/clock-time';
 import { MealLogTransferService } from '../services/meal-log-transfer.service';
 import { SymptomsLogTransferService } from '../services/symptoms-log-transfer.service';
 import { Symptom } from '../domain/Symptom';
@@ -25,7 +24,6 @@ import { resolveUnitId, translateUnit } from '../services/reference-i18n';
 export class addMealLogComponent implements OnInit {
 
   @ViewChild('closeModalBtn') closeModalBtn: ElementRef;
-  @ViewChild('timePicker') timePicker: NgxMaterialTimepickerComponent;
   form: FormGroup;
   name: string;
   units: Unit[];
@@ -34,14 +32,12 @@ export class addMealLogComponent implements OnInit {
   mealLog: MealLog;
   unit: Unit;
   isNew: boolean = true;
-  currDate = new Date().toISOString().split('T')[0];
-  currTime = new Date().toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
+  currDate = formatDateInput();
+  currTime = formatClockTime();
   isPending: boolean = false;
   showComposer = false;
+  saveError: string | null = null;
+  isSaving = false;
 
   constructor(private productsApiService: ProductsApiService,
     private fodmapLogService: FodmapLogService,
@@ -70,10 +66,10 @@ export class addMealLogComponent implements OnInit {
     }
     this.form = this.fb.group({
       id: 0,
-      date: new Date(),
+      date: combineLocalDateTime(this.currDate, this.currTime),
       productQuantity: this.fb.array([
       ]),
-    })
+    });
     this.route.params.subscribe(params => {
       // check if this is existing record
       if (params['id']) {
@@ -82,12 +78,10 @@ export class addMealLogComponent implements OnInit {
           data => {
             this.form.patchValue(data);
             this.setProductQuantities(data.productQuantity);
-            this.currDate = new Date(data.date).toISOString().split('T')[0];
-            this.currTime = new Date(data.date).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false
-            });
+            const when = new Date(data.date);
+            this.currDate = formatDateInput(when);
+            this.currTime = formatClockTime(when);
+            this.applyWhenToForm();
           },
           () => { },
           () => {
@@ -98,12 +92,9 @@ export class addMealLogComponent implements OnInit {
       else if (this.route.snapshot.queryParamMap.get('isPending') == 'true') {
         var pendingMealLog = this.mealLogTransferService.mealLog;
         if (pendingMealLog) {
-            this.currTime = new Date(pendingMealLog.date).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-          });
-          pendingMealLog.date = this.currDate + 'T' + this.currTime;
+            const when = new Date(pendingMealLog.date);
+            this.currTime = formatClockTime(when);
+            pendingMealLog.date = combineLocalDateTime(this.currDate, this.currTime);
           pendingMealLog
           this.form.patchValue(pendingMealLog);
 
@@ -167,28 +158,22 @@ export class addMealLogComponent implements OnInit {
   }
 
   SaveMealLog(): void {
-    console.log('SaveMealLog');
-    console.log(this.mealLog)
-    console.log(this.form.value);
-    if (this.isNew) {
-      this.fodmapLogService.addMealLog(this.form.value).subscribe(
-        () => { },
-        () => { },
-
-        () => {
-          this.router.navigate(['/daily-log', this.currDate]);
-        }
-      );
-    }
-    else {
-      this.fodmapLogService.updateMealLog(this.form.value).subscribe(
-        () => { },
-        () => { },
-        () => {
-          this.router.navigate(['/daily-log', this.currDate]);
-        }
-      );
-    }
+    this.saveError = null;
+    this.applyWhenToForm();
+    this.isSaving = true;
+    const request = this.isNew
+      ? this.fodmapLogService.addMealLog(this.form.value)
+      : this.fodmapLogService.updateMealLog(this.form.value);
+    request.subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.router.navigate(['/daily-log', this.currDate]);
+      },
+      error: () => {
+        this.isSaving = false;
+        this.saveError = this.translate.instant('meal.saveFail');
+      }
+    });
   }
 
 
@@ -196,8 +181,12 @@ export class addMealLogComponent implements OnInit {
     this.form.reset();
   }
 
-  onDateTimeChanged(newDate: Date) {
-    this.form.controls['date'].setValue(newDate);
+  onDateTimeChanged(when: string) {
+    this.form.controls['date'].setValue(when);
+  }
+
+  private applyWhenToForm(): void {
+    this.form.controls['date'].setValue(combineLocalDateTime(this.currDate, this.currTime));
   }
 
   fillUnits(): void {

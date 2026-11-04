@@ -256,30 +256,7 @@ namespace DataAccess.Repositories
         {
             foreach (var symptom in symptomsLog.Symptoms)
             {
-                if (symptom.SymptomType == null)
-                {
-                    symptom.SymptomType = new SymptomType { Name = "Unknown" };
-                }
-
-                SymptomType? existingSymptomType = null;
-                if (symptom.SymptomType.Id > 0)
-                {
-                    existingSymptomType = await _context.SymptomTypes
-                        .FirstOrDefaultAsync(s => s.Id == symptom.SymptomType.Id, cancellationToken);
-                }
-                if (existingSymptomType == null && !string.IsNullOrWhiteSpace(symptom.SymptomType.Name))
-                {
-                    existingSymptomType = await _context.SymptomTypes
-                        .FirstOrDefaultAsync(s => s.Name.ToLower() == symptom.SymptomType.Name.ToLower(), cancellationToken);
-                }
-                if (existingSymptomType != null)
-                {
-                    symptom.SymptomType = existingSymptomType;
-                }
-                else
-                {
-                    await AddSymptomType(symptom.SymptomType, cancellationToken);
-                }
+                symptom.SymptomType = await ResolveSymptomType(symptom.SymptomType, cancellationToken);
             }
             _context.SymptomsLogs.Add(symptomsLog);
             await _context.SaveChangesAsync(cancellationToken);
@@ -303,6 +280,7 @@ namespace DataAccess.Repositories
         public async Task<SymptomsLog> UpdateSymptomsLog(SymptomsLog symptomsLog, string userId, CancellationToken cancellationToken)
         {
             var existing = await _context.SymptomsLogs
+                .Include(s => s.Symptoms)
                 .FirstOrDefaultAsync(s => s.Id == symptomsLog.Id && s.UserId == userId, cancellationToken);
 
             if (existing == null)
@@ -310,10 +288,52 @@ namespace DataAccess.Repositories
                 throw new InvalidOperationException("SymptomsLog not found");
             }
 
-            symptomsLog.UserId = userId;
-            _context.SymptomsLogs.Update(symptomsLog);
+            existing.Date = symptomsLog.Date;
+            existing.UserId = userId;
+            existing.Symptoms ??= new List<Symptom>();
+
+            if (existing.Symptoms.Count > 0)
+            {
+                _context.Symptoms.RemoveRange(existing.Symptoms);
+                existing.Symptoms.Clear();
+            }
+
+            foreach (var incoming in symptomsLog.Symptoms ?? new List<Symptom>())
+            {
+                var type = await ResolveSymptomType(incoming.SymptomType, cancellationToken);
+                existing.Symptoms.Add(new Symptom
+                {
+                    SymptomType = type,
+                    SymptomScale = incoming.SymptomScale
+                });
+            }
+
             await _context.SaveChangesAsync(cancellationToken);
-            return symptomsLog;
+            return existing;
+        }
+
+        private async Task<SymptomType> ResolveSymptomType(SymptomType? symptomType, CancellationToken cancellationToken)
+        {
+            symptomType ??= new SymptomType { Name = "Unknown" };
+
+            SymptomType? existingSymptomType = null;
+            if (symptomType.Id > 0)
+            {
+                existingSymptomType = await _context.SymptomTypes
+                    .FirstOrDefaultAsync(s => s.Id == symptomType.Id, cancellationToken);
+            }
+            if (existingSymptomType == null && !string.IsNullOrWhiteSpace(symptomType.Name))
+            {
+                existingSymptomType = await _context.SymptomTypes
+                    .FirstOrDefaultAsync(s => s.Name.ToLower() == symptomType.Name.ToLower(), cancellationToken);
+            }
+            if (existingSymptomType != null)
+            {
+                return existingSymptomType;
+            }
+
+            await AddSymptomType(symptomType, cancellationToken);
+            return symptomType;
         }
 
         public async Task<IEnumerable<SymptomType>> GetAllSymptomTypes(CancellationToken cancellationToken)

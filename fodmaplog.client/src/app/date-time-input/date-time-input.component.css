@@ -17,15 +17,23 @@
 }
 
 .dt-field input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
   border: 1px solid var(--hg-line, #dfe7e2);
   border-radius: .85rem;
-  padding: .7rem .8rem;
+  padding: .7rem .65rem;
   font-size: .98rem;
   font-weight: 600;
   color: var(--hg-ink, #15201a);
   background: #fff;
   text-transform: none;
   letter-spacing: 0;
+}
+
+.dt-field input[type="time"] {
+  cursor: pointer;
 }
 
 .dt-field input:focus {

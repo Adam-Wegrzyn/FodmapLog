@@ -177,7 +177,8 @@
     "unit": "Jednostka",
     "confirmAdd": "Dodaj produkt",
     "removeFood": "Usuń produkt",
-    "needFood": "Dodaj co najmniej jeden produkt, aby zapisać posiłek."
+    "needFood": "Dodaj co najmniej jeden produkt, aby zapisać posiłek.",
+    "saveFail": "Nie udało się zapisać posiłku. Spróbuj ponownie."
   },
   "symptoms": {
     "cancel": "Anuluj",
@@ -189,7 +190,8 @@
     "remove": "Usuń objaw",
     "tapToAdd": "Dotknij, aby dodać",
     "hint": "Wybierz samopoczucie — intensywność ustawisz powyżej",
-    "needOne": "Wybierz co najmniej jeden objaw, aby zapisać."
+    "needOne": "Wybierz co najmniej jeden objaw, aby zapisać.",
+    "saveFail": "Nie udało się zapisać objawów. Spróbuj ponownie."
   },
   "datetime": {
     "date": "Data",

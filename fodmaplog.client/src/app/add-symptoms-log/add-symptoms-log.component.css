@@ -203,3 +203,7 @@
   font-size: .88rem;
   margin: 1rem 0 0;
 }
+.editor-foot-error {
+  color: var(--hg-danger, #b42318);
+  font-weight: 650;
+}
