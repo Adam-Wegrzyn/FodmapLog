@@ -120,15 +120,15 @@ namespace FodmapLog.Server.Controllers
             var now = string.IsNullOrWhiteSpace(input.ClientNow) ? DateTime.Now.ToString("o") : input.ClientNow.Trim();
 
             return
-                $"""
+                $$"""
                 You extract meals and gut/mood symptoms from a spoken food diary.
-                {languageHint}
-                The user is logging calendar day {day}. Use that date for every event. Times in the transcript belong to that day.
-                The client's local now is {now}. If they say "just now" or omit a time, use that clock time.
-                Return a JSON object only: {{ "events": [ ... ] }}. No markdown.
+                {{languageHint}}
+                The user is logging calendar day {{day}}. Use that date for every event. Times in the transcript belong to that day.
+                The client's local now is {{now}}. If they say "just now" or omit a time, use that clock time.
+                Return a JSON object only: { "events": [ ... ] }. No markdown.
 
                 Each event:
-                - date: ISO local datetime on {day} (example  {day}T08:00:00)
+                - date: ISO local datetime on {{day}} (example  {{day}}T08:00:00)
                 - either mealLog OR symptomsLog; set the other to null
                 - mealLog.productQuantity: product.name in the user's language; quantity as a number; unit.name from the unit list
                 - symptomsLog.symptoms: symptomType.name from the symptom list; symptomScale integer 0 (none) through 5 (worst)
@@ -137,31 +137,31 @@ namespace FodmapLog.Server.Controllers
                 Symptoms (English names only): Nausea, Burping, Diarrhea, Constipation, Bloating, Abdominal Pain, Heartburn, Gas, Cramps, Vomiting, Appetite, Headache, Fatigue, Mood, Energy, Sleep Quality, Stress, Concentration, Motivation, Physical Activity, General Well-being
 
                 Example events for a user who said they ate oatmeal with milk at 8 and felt bloated around 10:
-                {{
+                {
                   "events": [
-                    {{
-                      "date": "{day}T08:00:00",
-                      "mealLog": {{
-                        "date": "{day}T08:00:00",
+                    {
+                      "date": "{{day}}T08:00:00",
+                      "mealLog": {
+                        "date": "{{day}}T08:00:00",
                         "productQuantity": [
-                          {{ "product": {{ "name": "oatmeal" }}, "quantity": 50, "unit": {{ "name": "Gram" }} }},
-                          {{ "product": {{ "name": "milk" }}, "quantity": 200, "unit": {{ "name": "Milliliter" }} }}
+                          { "product": { "name": "oatmeal" }, "quantity": 50, "unit": { "name": "Gram" } },
+                          { "product": { "name": "milk" }, "quantity": 200, "unit": { "name": "Milliliter" } }
                         ]
-                      }},
+                      },
                       "symptomsLog": null
-                    }},
-                    {{
-                      "date": "{day}T10:00:00",
+                    },
+                    {
+                      "date": "{{day}}T10:00:00",
                       "mealLog": null,
-                      "symptomsLog": {{
-                        "date": "{day}T10:00:00",
+                      "symptomsLog": {
+                        "date": "{{day}}T10:00:00",
                         "symptoms": [
-                          {{ "symptomType": {{ "name": "Bloating" }}, "symptomScale": 3 }}
+                          { "symptomType": { "name": "Bloating" }, "symptomScale": 3 }
                         ]
-                      }}
-                    }}
+                      }
+                    }
                   ]
-                }}
+                }
                 """;
         }
 
