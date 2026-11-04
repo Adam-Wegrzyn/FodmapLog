@@ -7,7 +7,8 @@
       <p class="editor-kicker">{{ 'meal.kicker' | translate }}</p>
       <h1 class="editor-title">{{ 'meal.title' | translate }}</h1>
     </div>
-    <button type="button" class="btn-primary" (click)="SaveMealLog()" [disabled]="productQuantityArr.length === 0">
+    <button type="button" class="btn-primary" (click)="SaveMealLog()"
+      [disabled]="productQuantityArr.length === 0 || isSaving">
       {{ 'meal.save' | translate }}
     </button>
   </header>
@@ -86,4 +87,5 @@
   <p class="editor-foot-hint" *ngIf="productQuantityArr.length === 0">
     {{ 'meal.needFood' | translate }}
   </p>
+  <p class="editor-foot-hint editor-foot-error" *ngIf="saveError" role="alert">{{ saveError }}</p>
 </div>

@@ -1,21 +1,21 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { TranslateModule } from '@ngx-translate/core';
+import { combineLocalDateTime } from '../services/clock-time';
 
 @Component({
   selector: 'app-date-time-input',
   templateUrl: './date-time-input.component.html',
   styleUrl: './date-time-input.component.css',
   standalone: true,
-  imports: [NgxMaterialTimepickerModule, FormsModule, TranslateModule]
+  imports: [FormsModule, TranslateModule]
 })
 export class DateTimeInputComponent {
   @Input() date: string;
   @Input() time: string;
   @Output() dateChange = new EventEmitter<string>();
   @Output() timeChange = new EventEmitter<string>();
-  @Output() dateTimeChange = new EventEmitter<Date>();
+  @Output() dateTimeChange = new EventEmitter<string>();
 
   onDateChange(newDate: string) {
     this.date = newDate;
@@ -28,12 +28,11 @@ export class DateTimeInputComponent {
     this.timeChange.emit(this.time);
     this.emitDateTimeChange();
   }
-  
-  private emitDateTimeChange() {
-    const [year, month, day] = this.date.split('-');
-    const [hour, minute] = this.time.split(':');
-    const customDate = new Date(Date.UTC(+year, +month - 1, +day, +hour, +minute, 0));
-    this.dateTimeChange.emit(customDate);
-  }
 
+  private emitDateTimeChange() {
+    if (!this.date || !this.time) {
+      return;
+    }
+    this.dateTimeChange.emit(combineLocalDateTime(this.date, this.time));
+  }
 }

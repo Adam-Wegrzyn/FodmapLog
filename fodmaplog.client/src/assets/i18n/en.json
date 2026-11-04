@@ -177,7 +177,8 @@
     "unit": "Unit",
     "confirmAdd": "Add food",
     "removeFood": "Remove food",
-    "needFood": "Add at least one food to save this meal."
+    "needFood": "Add at least one food to save this meal.",
+    "saveFail": "Could not save this meal. Try again."
   },
   "symptoms": {
     "cancel": "Cancel",
@@ -189,7 +190,8 @@
     "remove": "Remove symptom",
     "tapToAdd": "Tap to add",
     "hint": "Choose how you feel — adjust intensity above",
-    "needOne": "Select at least one symptom to save."
+    "needOne": "Select at least one symptom to save.",
+    "saveFail": "Could not save these symptoms. Try again."
   },
   "datetime": {
     "date": "Date",

@@ -12,6 +12,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SymptomTypesService } from '../services/symptom-types.service';
 import { SymptomsLogTransferService } from '../services/symptoms-log-transfer.service';
 import { resolveSymptomTypeId } from '../services/reference-i18n';
+import { combineLocalDateTime, formatClockTime, formatDateInput } from '../services/clock-time';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-add-symptoms-log',
@@ -30,13 +32,11 @@ export class addSymptomsLogComponent implements OnInit {
   symptomType: SymptomType;
   symptomRange: number;
   symptomScale = SymptomScale;
-  currDate = new Date().toISOString().split('T')[0];
-  currTime = new Date().toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
+  currDate = formatDateInput();
+  currTime = formatClockTime();
   isNew: boolean = true;
+  saveError: string | null = null;
+  isSaving = false;
 
   constructor(private productsApiService: ProductsApiService,
     private fodmapLogService: FodmapLogService,
@@ -44,7 +44,8 @@ export class addSymptomsLogComponent implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private SymptomsLogTransferService: SymptomsLogTransferService
+    private SymptomsLogTransferService: SymptomsLogTransferService,
+    private translate: TranslateService
   ) { }
 
   symptomKey(type: { id?: number; name?: string } | null | undefined): string {
@@ -64,10 +65,10 @@ export class addSymptomsLogComponent implements OnInit {
 
     this.form = this.fb.group({
       id: 0,
-      date: this.currDate,
+      date: combineLocalDateTime(this.currDate, this.currTime),
       symptoms: this.fb.array([
       ]),
-    })
+    });
     this.route.params.subscribe(params => {
       // check if this is existing record
       if (params['id']) {
@@ -76,12 +77,10 @@ export class addSymptomsLogComponent implements OnInit {
           data => {
             this.form.patchValue(data);
             this.populateSymptoms(data.symptoms);
-            this.currDate = new Date(data.date).toISOString().split('T')[0];
-            this.currTime = new Date(data.date).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false
-            });
+            const when = new Date(data.date);
+            this.currDate = formatDateInput(when);
+            this.currTime = formatClockTime(when);
+            this.applyWhenToForm();
           },
           () => {},
           () => {
@@ -92,12 +91,9 @@ export class addSymptomsLogComponent implements OnInit {
         else if (this.route.snapshot.queryParamMap.get('isPending') == 'true') {
         var pendingSymptomsLog = this.SymptomsLogTransferService.symptomsLog;
         if (pendingSymptomsLog){
-                      this.currTime = new Date(pendingSymptomsLog.date).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-          });
-          pendingSymptomsLog.date = this.currDate + 'T' + this.currTime;
+                      const when = new Date(pendingSymptomsLog.date);
+                      this.currTime = formatClockTime(when);
+          pendingSymptomsLog.date = combineLocalDateTime(this.currDate, this.currTime);
           this.form.patchValue(pendingSymptomsLog);
           this.populateSymptoms(pendingSymptomsLog.symptoms);
         }
@@ -163,36 +159,35 @@ getProduct(){
     this.symptomsArr.removeAt(index);
   }
 
-  saveSymptomsLog(): void{
-    if(this.isNew){
-    this.fodmapLogService.addSymptomsLog(this.form.value).subscribe(
-      () => {},
-      error => {
-        console.log(error);
-      },
-      () => {
+  saveSymptomsLog(): void {
+    this.saveError = null;
+    this.applyWhenToForm();
+    this.isSaving = true;
+    const request = this.isNew
+      ? this.fodmapLogService.addSymptomsLog(this.form.value)
+      : this.fodmapLogService.updateSymptomsLog(this.form.value);
+    request.subscribe({
+      next: () => {
+        this.isSaving = false;
         this.router.navigate(['/daily-log', this.currDate]);
-      }
-    );
-  } else {
-    this.fodmapLogService.updateSymptomsLog(this.form.value).subscribe(
-      () => {},
-      error => {
-        console.log(error);
       },
-      () => {
-        this.router.navigate(['/daily-log', this.currDate]);
+      error: () => {
+        this.isSaving = false;
+        this.saveError = this.translate.instant('symptoms.saveFail');
       }
-    );
-  }
+    });
   }
   
   cancel(): void{
     this.form.reset();
   }
 
-  onDateTimeChanged(newDate: Date) {
-    this.form.controls['date'].setValue(newDate);
+  onDateTimeChanged(when: string) {
+    this.form.controls['date'].setValue(when);
+  }
+
+  private applyWhenToForm(): void {
+    this.form.controls['date'].setValue(combineLocalDateTime(this.currDate, this.currTime));
   }
 
 }
