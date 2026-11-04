@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Nodes;
+﻿using Core.Ai;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -16,18 +15,25 @@ namespace FodmapLog.Server.Controllers
         private readonly string? _apiKey;
         private readonly bool _useAiStubs;
         private readonly ILogger<OpenAIController> _logger;
+        private readonly AiDailyLogNormalizer _normalizer;
         private const int MaxTranscriptLength = 8000;
 
-        public OpenAIController(IConfiguration configuration, ILogger<OpenAIController> logger)
+        public OpenAIController(
+            IConfiguration configuration,
+            ILogger<OpenAIController> logger,
+            AiDailyLogNormalizer normalizer)
         {
             _apiKey = configuration["openAIApiKey"];
             _useAiStubs = configuration.GetValue("UseAiStubs", false);
             _logger = logger;
+            _normalizer = normalizer;
         }
 
         [HttpPost]
         [Route("GeneratemealLogFromAI")]
-        public async Task<IActionResult> GeneratemealLogFromAI([FromBody] TranscribedInput input, CancellationToken cancellationToken)
+        public async Task<IActionResult> GeneratemealLogFromAI(
+            [FromBody] TranscribedInput input,
+            CancellationToken cancellationToken)
         {
             if (input?.Transcript is null || string.IsNullOrWhiteSpace(input.Transcript))
             {
@@ -39,6 +45,8 @@ namespace FodmapLog.Server.Controllers
                 return BadRequest(new { error = $"Transcript exceeds {MaxTranscriptLength} characters." });
             }
 
+            var selectedDate = ParseSelectedDate(input.SelectedDate);
+
             if (_useAiStubs || string.IsNullOrWhiteSpace(_apiKey))
             {
                 if (_useAiStubs)
@@ -47,98 +55,39 @@ namespace FodmapLog.Server.Controllers
                         "UseAiStubs enabled — returning local stub daily logs. TranscriptLength={Length}",
                         input.Transcript.Length);
                     await Task.Delay(350, cancellationToken);
-                    return Content(BuildStubDailyLogsJson(), "application/json");
+                    var stub = await _normalizer.NormalizeAsync(
+                        BuildStubDailyLogsJson(selectedDate),
+                        selectedDate,
+                        cancellationToken);
+                    return Ok(stub.Logs);
                 }
 
                 _logger.LogWarning("OpenAI is not configured (missing openAIApiKey).");
                 return StatusCode(StatusCodes.Status503ServiceUnavailable, new { error = "AI is temporarily unavailable." });
             }
 
-            var jsonExample = @"[
-   {
-        ""date"": ""2025-05-10T06:11:08.945"",
-        ""mealLog"": {
-          ""date"": ""2025-05-10T06:11:08.945"",
-          ""productQuantity"": [
-            {
-              ""product"": {
-                ""name"": ""płatki ryżowe""
-              },
-              ""quantity"": 100,
-              ""unit"":{
-                    ""name"" : ""Kilogram""
-                }
-            },
-            {
-              ""product"": {
-                ""name"": ""mleko""
-              },
-              ""quantity"": 1,
-              ""unit"": {
-                    ""name"" : ""Liter""
-                }
-            }
-          ]
-        },
-        ""symptomsLog"": null
-      },
-      {
-        ""date"": ""2025-05-10T08:31:00"",
-        ""mealLog"": null,
-        ""symptomsLog"": {
-          ""date"": ""2025-05-10T08:31:00"",
-          ""symptoms"": [
-            {
-              ""symptomType"": {
-                    ""name"" : ""Nausea""
-                },
-              ""symptomScale"": 1
-            },
-            {
-              ""symptomType"": {
-                    ""name"" : ""Burping""
-                },
-              ""symptomScale"": 2
-            }
-          ]
-        }
-      }
-    ]";
-
-            var isPolish = IsPolish(input.Language);
-            var languageHint = isPolish
-                ? "The transcript may be in Polish. Understand Polish food and symptom descriptions."
-                : "The transcript may be in English.";
-            var unitList = "Gram, Kilogram, Milligram, Liter, Milliliter, Teaspoon, Tablespoon, Cup, Piece, Slice, Drop, Pinch, Ounce, Pound, Fluid Ounce, Pint, Quart, Gallon, Can, Package, Bottle";
-            var symptomList = "Nausea, Burping, Diarrhea, Constipation, Bloating, Abdominal Pain, Heartburn, Gas, Cramps, Vomiting, Appetite, Headache, Fatigue, Mood, Energy, Sleep Quality, Stress, Concentration, Motivation, Physical Activity, General Well-being";
-
-            var prompt =
-                $@"Convert the following user input (Meal and symptom dairy) into a JSON format with no additional text,
-                without any formatting, code blocks, or extra characters.. Return only the JSON.
-                {languageHint}
-                Keep product.name in the language the user used (Polish food names are fine).
-                Always use ENGLISH names for unit.name from this exact list: {unitList}.
-                Always use ENGLISH names for symptomType.name from this exact list: {symptomList}.
-                User Input: '{input.Transcript}'
-                Symptom scale must be an integer 0 (none / fine) through 5 (worst / serious). Do not use a 0-10 scale.
-                JSON Format Example:
-                {jsonExample}
-                Output only the JSON in this format based on the provided input.";
-
             _logger.LogInformation(
                 "OpenAI meal/symptom extract requested. TranscriptLength={Length} Language={Language}",
                 input.Transcript.Length,
                 input.Language ?? "en");
 
-            string cleaned;
+            string raw;
             try
             {
-                ChatClient client = new(model: "gpt-4o", apiKey: _apiKey);
+                var client = new ChatClient(model: "gpt-4o", apiKey: _apiKey);
+                var options = new ChatCompletionOptions
+                {
+                    Temperature = 0,
+                    ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat()
+                };
                 ChatCompletion completion = await client.CompleteChatAsync(
-                    [new UserChatMessage(prompt)],
-                    cancellationToken: cancellationToken);
-                var raw = completion.Content[0].Text?.Trim() ?? string.Empty;
-                cleaned = StripMarkdownFences(raw);
+                    [
+                        new SystemChatMessage(BuildSystemPrompt(input, selectedDate)),
+                        new UserChatMessage(input.Transcript.Trim())
+                    ],
+                    options,
+                    cancellationToken);
+                raw = completion.Content[0].Text?.Trim() ?? string.Empty;
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -150,134 +99,119 @@ namespace FodmapLog.Server.Controllers
                 return StatusCode(StatusCodes.Status503ServiceUnavailable, new { error = "AI is temporarily unavailable." });
             }
 
-            try
+            var cleaned = StripMarkdownFences(raw);
+            var outcome = await _normalizer.NormalizeAsync(cleaned, selectedDate, cancellationToken);
+            if (!outcome.Success)
             {
-                using var document = JsonDocument.Parse(cleaned);
-                if (document.RootElement.ValueKind != JsonValueKind.Array)
-                {
-                    return UnprocessableEntity(new { error = "AI response was not a JSON array." });
-                }
+                _logger.LogWarning("OpenAI JSON rejected. Error={Error} Length={Length}", outcome.Error, cleaned.Length);
+                return UnprocessableEntity(new { error = outcome.Error });
+            }
 
-                var normalized = NormalizeSymptomScales(cleaned);
-                return Content(normalized, "application/json");
-            }
-            catch (JsonException)
-            {
-                _logger.LogWarning("OpenAI returned unparseable JSON. Length={Length}", cleaned.Length);
-                return UnprocessableEntity(new { error = "AI response could not be parsed as JSON." });
-            }
+            return Ok(outcome.Logs);
         }
 
-        /// <summary>
-        /// Force symptomScale values into the app 0–5 range.
-        /// Values 6–10 (legacy prompt) are mapped down; others are clamped.
-        /// </summary>
-        private static string NormalizeSymptomScales(string json)
+        private static string BuildSystemPrompt(TranscribedInput input, DateOnly? selectedDate)
         {
-            var node = JsonNode.Parse(json);
-            if (node is not JsonArray array)
-            {
-                return json;
-            }
+            var isPolish = IsPolish(input.Language);
+            var languageHint = isPolish
+                ? "The transcript may be in Polish. Understand Polish food and symptom wording."
+                : "The transcript may be in English.";
+            var day = selectedDate?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd");
+            var now = string.IsNullOrWhiteSpace(input.ClientNow) ? DateTime.Now.ToString("o") : input.ClientNow.Trim();
 
-            foreach (var item in array)
-            {
-                var symptoms = item?["symptomsLog"]?["symptoms"] as JsonArray;
-                if (symptoms == null)
-                {
-                    continue;
-                }
+            return
+                $"""
+                You extract meals and gut/mood symptoms from a spoken food diary.
+                {languageHint}
+                The user is logging calendar day {day}. Use that date for every event. Times in the transcript belong to that day.
+                The client's local now is {now}. If they say "just now" or omit a time, use that clock time.
+                Return a JSON object only: {{ "events": [ ... ] }}. No markdown.
 
-                foreach (var symptom in symptoms)
-                {
-                    if (symptom is null || symptom["symptomScale"] is null)
-                    {
-                        continue;
-                    }
+                Each event:
+                - date: ISO local datetime on {day} (example  {day}T08:00:00)
+                - either mealLog OR symptomsLog; set the other to null
+                - mealLog.productQuantity: product.name in the user's language; quantity as a number; unit.name from the unit list
+                - symptomsLog.symptoms: symptomType.name from the symptom list; symptomScale integer 0 (none) through 5 (worst)
 
-                    if (!symptom["symptomScale"]!.AsValue().TryGetValue<int>(out var scale))
-                    {
-                        continue;
-                    }
+                Units (English names only): Gram, Kilogram, Milligram, Liter, Milliliter, Teaspoon, Tablespoon, Cup, Piece, Slice, Drop, Pinch, Ounce, Pound, Fluid Ounce, Pint, Quart, Gallon, Can, Package, Bottle
+                Symptoms (English names only): Nausea, Burping, Diarrhea, Constipation, Bloating, Abdominal Pain, Heartburn, Gas, Cramps, Vomiting, Appetite, Headache, Fatigue, Mood, Energy, Sleep Quality, Stress, Concentration, Motivation, Physical Activity, General Well-being
 
-                    symptom["symptomScale"] = NormalizeScale(scale);
-                }
-            }
-
-            return node.ToJsonString();
+                Example events for a user who said they ate oatmeal with milk at 8 and felt bloated around 10:
+                {{
+                  "events": [
+                    {{
+                      "date": "{day}T08:00:00",
+                      "mealLog": {{
+                        "date": "{day}T08:00:00",
+                        "productQuantity": [
+                          {{ "product": {{ "name": "oatmeal" }}, "quantity": 50, "unit": {{ "name": "Gram" }} }},
+                          {{ "product": {{ "name": "milk" }}, "quantity": 200, "unit": {{ "name": "Milliliter" }} }}
+                        ]
+                      }},
+                      "symptomsLog": null
+                    }},
+                    {{
+                      "date": "{day}T10:00:00",
+                      "mealLog": null,
+                      "symptomsLog": {{
+                        "date": "{day}T10:00:00",
+                        "symptoms": [
+                          {{ "symptomType": {{ "name": "Bloating" }}, "symptomScale": 3 }}
+                        ]
+                      }}
+                    }}
+                  ]
+                }}
+                """;
         }
 
-        private static int NormalizeScale(int scale)
+        private static DateOnly? ParseSelectedDate(string? value)
         {
-            if (scale >= 0 && scale <= 5)
+            if (string.IsNullOrWhiteSpace(value))
             {
-                return scale;
+                return null;
             }
 
-            if (scale >= 6 && scale <= 10)
-            {
-                // Map old 0–10 style (here 6–10) onto 0–5.
-                return (int)Math.Round(scale / 2.0);
-            }
-
-            return Math.Clamp(scale, 0, 5);
+            return DateOnly.TryParse(value, out var day) ? day : null;
         }
 
-        private static string BuildStubDailyLogsJson()
+        private static string BuildStubDailyLogsJson(DateOnly? selectedDate)
         {
-            var day = DateTime.Today;
-            var mealAt = day.AddHours(8);
-            var symptomAt = day.AddHours(10);
-            var mealIso = mealAt.ToString("yyyy-MM-ddTHH:mm:ss");
-            var symptomIso = symptomAt.ToString("yyyy-MM-ddTHH:mm:ss");
-
+            var day = selectedDate?.ToDateTime(TimeOnly.MinValue) ?? DateTime.Today;
+            var mealIso = day.AddHours(8).ToString("yyyy-MM-ddTHH:mm:ss");
+            var symptomIso = day.AddHours(10).ToString("yyyy-MM-ddTHH:mm:ss");
             return $$"""
-            [
-              {
-                "date": "{{mealIso}}",
-                "mealLog": {
+            {
+              "events": [
+                {
                   "date": "{{mealIso}}",
-                  "productQuantity": [
-                    {
-                      "product": { "name": "Oatmeal" },
-                      "quantity": 1,
-                      "unit": { "name": "Bowl" }
-                    },
-                    {
-                      "product": { "name": "Milk" },
-                      "quantity": 200,
-                      "unit": { "name": "ml" }
-                    }
-                  ]
+                  "mealLog": {
+                    "date": "{{mealIso}}",
+                    "productQuantity": [
+                      { "product": { "name": "oatmeal" }, "quantity": 50, "unit": { "name": "Gram" } },
+                      { "product": { "name": "milk" }, "quantity": 200, "unit": { "name": "Milliliter" } }
+                    ]
+                  },
+                  "symptomsLog": null
                 },
-                "symptomsLog": null
-              },
-              {
-                "date": "{{symptomIso}}",
-                "mealLog": null,
-                "symptomsLog": {
+                {
                   "date": "{{symptomIso}}",
-                  "symptoms": [
-                    {
-                      "symptomType": { "name": "Bloating" },
-                      "symptomScale": 3
-                    }
-                  ]
+                  "mealLog": null,
+                  "symptomsLog": {
+                    "date": "{{symptomIso}}",
+                    "symptoms": [
+                      { "symptomType": { "name": "Bloating" }, "symptomScale": 3 }
+                    ]
+                  }
                 }
-              }
-            ]
+              ]
+            }
             """;
         }
 
-        private static bool IsPolish(string? language)
-        {
-            if (string.IsNullOrWhiteSpace(language))
-            {
-                return false;
-            }
-
-            return language.Trim().StartsWith("pl", StringComparison.OrdinalIgnoreCase);
-        }
+        private static bool IsPolish(string? language) =>
+            !string.IsNullOrWhiteSpace(language)
+            && language.Trim().StartsWith("pl", StringComparison.OrdinalIgnoreCase);
 
         private static string StripMarkdownFences(string text)
         {
@@ -307,7 +241,10 @@ namespace FodmapLog.Server.Controllers
     public class TranscribedInput
     {
         public string Transcript { get; set; } = string.Empty;
-        /// <summary>App UI language: en or pl (also accepts pl-PL / en-US).</summary>
         public string? Language { get; set; }
+        /// <summary>Calendar day the user is viewing (yyyy-MM-dd).</summary>
+        public string? SelectedDate { get; set; }
+        /// <summary>Client local now (ISO).</summary>
+        public string? ClientNow { get; set; }
     }
 }

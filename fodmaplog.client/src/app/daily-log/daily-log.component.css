@@ -276,14 +276,22 @@
   outline: none;
 }
 
+.transcript-panel {
+  flex-shrink: 0;
+  background: #f4f7f5;
+  border-bottom: 1px solid var(--log-line);
+}
 .transcript-toggle {
   display: flex; width: 100%; align-items: center; justify-content: space-between;
-  border: none; background: #f4f7f5; padding: .55rem 1rem; font-size: .88rem;
-  font-weight: 600; color: var(--log-muted); flex-shrink: 0;
+  border: none; background: transparent; padding: .55rem 1rem 0; font-size: .88rem;
+  font-weight: 700; color: var(--log-ink);
+}
+.transcript-hint {
+  margin: .2rem 0 0; padding: 0 1rem; font-size: .78rem; color: var(--log-muted); text-align: left;
 }
 .transcript-body {
-  margin: 0; padding: .65rem 1rem; font-size: .9rem; color: #3d4a43; background: #f4f7f5;
-  border-bottom: 1px solid var(--log-line); text-align: left; max-height: 6rem; overflow: auto; flex-shrink: 0;
+  margin: 0; padding: .45rem 1rem .7rem; font-size: .9rem; color: #3d4a43;
+  text-align: left; max-height: 7rem; overflow: auto;
 }
 .soft-cap-note {
   margin: 0; padding: .4rem 1rem; font-size: .8rem; color: #856404; background: #fff8e8; flex-shrink: 0;

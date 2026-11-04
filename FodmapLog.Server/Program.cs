@@ -1,4 +1,5 @@
 using Azure.Identity;
+using Core.Ai;
 using Core.CQRS;
 using Core.Interfaces;
 using Core.Services;
@@ -61,6 +62,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IFodmapLogRepository, FodmapLogRepository>();
 builder.Services.AddScoped<IFodmapLogService, FodmapLogService>();
 builder.Services.AddScoped<IAudioTranscriptionService, AudioTranscriptionService>();
+builder.Services.AddScoped<AiDailyLogNormalizer>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddHttpClient();

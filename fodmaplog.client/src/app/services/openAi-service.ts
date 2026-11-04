@@ -13,10 +13,16 @@ export class OpenAiService {
 
     constructor(private httpClient: HttpClient) { }
     
-    generateMealLogFromAI(input: string, language: AppLang = 'en'): Observable<DailyLog[]> {
+    generateMealLogFromAI(
+        input: string,
+        language: AppLang = 'en',
+        selectedDate?: string
+    ): Observable<DailyLog[]> {
         const body = {
             transcript: input,
-            language
+            language,
+            selectedDate,
+            clientNow: new Date().toISOString()
         };
         return this.httpClient.post<DailyLog[] | string>(`${this.url}/GenerateMealLogFromAI`, body)
         .pipe(
