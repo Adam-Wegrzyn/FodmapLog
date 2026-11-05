@@ -191,6 +191,10 @@
     "remove": "Usuń objaw",
     "tapToAdd": "Dotknij, aby dodać",
     "hint": "Wybierz samopoczucie — intensywność ustawisz powyżej",
+    "ownPlaceholder": "np. mgła mózgowa",
+    "addOwn": "Dodaj",
+    "ownHint": "Twoje nazwy są widoczne tylko na tym koncie.",
+    "ownFail": "Nie udało się dodać objawu. Spróbuj ponownie.",
     "needOne": "Wybierz co najmniej jeden objaw, aby zapisać.",
     "saveFail": "Nie udało się zapisać objawów. Spróbuj ponownie."
   },

@@ -30,7 +30,7 @@
     <div class="selected-list" formArrayName="symptoms">
       <article class="severity-card" *ngFor="let p of symptomsArr.controls; let i = index" [formGroupName]="i">
         <div class="severity-card-top">
-          <h3>{{ symptomKey(p.value.symptomType) | translate }}</h3>
+          <h3>{{ symptomLabel(p.value.symptomType) }}</h3>
           <button type="button" class="btn-icon-danger" (click)="deleteSymptom(i)" [attr.aria-label]="'symptoms.remove' | translate">
             &times;
           </button>
@@ -49,15 +49,34 @@
   <section class="editor-card">
     <h2 class="card-label">{{ 'symptoms.tapToAdd' | translate }}</h2>
     <p class="card-hint">{{ 'symptoms.hint' | translate }}</p>
+    <div class="composer-row">
+      <input
+        class="composer-input"
+        type="text"
+        maxlength="80"
+        [(ngModel)]="customName"
+        [placeholder]="'symptoms.ownPlaceholder' | translate"
+        (keydown.enter)="$event.preventDefault(); addCustomSymptom()">
+      <button
+        type="button"
+        class="btn-secondary composer-add"
+        (click)="addCustomSymptom()"
+        [disabled]="!customName.trim() || isAddingCustom">
+        {{ 'symptoms.addOwn' | translate }}
+      </button>
+    </div>
+    <p class="card-hint">{{ 'symptoms.ownHint' | translate }}</p>
+    <p class="editor-foot-error" *ngIf="customError" role="alert">{{ customError }}</p>
     <div class="chip-grid">
       <button
         type="button"
         class="symptom-chip"
         *ngFor="let s of symptomTypes"
         [class.is-added]="isAdded(s)"
+        [class.is-personal]="isPersonal(s)"
         [disabled]="isAdded(s)"
         (click)="addSymptom(s)">
-        {{ symptomKey(s) | translate }}
+        {{ symptomLabel(s) }}
       </button>
     </div>
   </section>

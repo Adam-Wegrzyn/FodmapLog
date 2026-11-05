@@ -6,6 +6,6 @@ namespace Core.CQRS
 {
     public class GetSymptomTypesQuery : IRequest<IEnumerable<SymptomType>>
     {
-
+        public required string UserId { get; init; }
     }
 }

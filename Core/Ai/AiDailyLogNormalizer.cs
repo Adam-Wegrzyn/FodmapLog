@@ -35,6 +35,7 @@ namespace Core.Ai
         public async Task<AiExtractOutcome> NormalizeAsync(
             string rawJson,
             DateOnly? selectedDate,
+            string userId,
             CancellationToken cancellationToken)
         {
             if (!TryReadEvents(rawJson, out var eventsJson, out var parseError))
@@ -58,7 +59,7 @@ namespace Core.Ai
             }
 
             var units = (await _repository.GetAllUnits(cancellationToken)).ToList();
-            var symptoms = (await _repository.GetAllSymptomTypes(cancellationToken)).ToList();
+            var symptoms = (await _repository.GetAllSymptomTypes(userId, cancellationToken)).ToList();
 
             var valid = new List<DailyLogDto>();
             foreach (var item in parsed)
@@ -175,12 +176,17 @@ namespace Core.Ai
             var id = symptom.SymptomType?.Id > 0
                 ? symptom.SymptomType.Id
                 : ReferenceAliases.ResolveSymptomTypeId(symptom.SymptomType?.Name);
-            if (id == null)
+            SymptomType? match = id != null
+                ? types.FirstOrDefault(t => t.Id == id)
+                : null;
+
+            if (match == null && !string.IsNullOrWhiteSpace(symptom.SymptomType?.Name))
             {
-                return;
+                var name = symptom.SymptomType.Name.Trim();
+                match = types.FirstOrDefault(t =>
+                    t.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             }
 
-            var match = types.FirstOrDefault(t => t.Id == id);
             if (match == null)
             {
                 return;

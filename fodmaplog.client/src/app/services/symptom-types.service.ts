@@ -15,4 +15,8 @@ export class SymptomTypesService {
   getSymptomTypes(): Observable<SymptomType[]> {
     return this.httpClient.get<SymptomType[]>(`${this.url}`);
   }
+
+  addSymptomType(name: string): Observable<SymptomType> {
+    return this.httpClient.post<SymptomType>(`${this.url}/add`, { name });
+  }
 }
