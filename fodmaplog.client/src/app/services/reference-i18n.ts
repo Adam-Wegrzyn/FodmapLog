@@ -23,7 +23,36 @@ const SYMPTOM_NAME_TO_ID: Record<string, number> = {
   motivation: 19,
   'physical activity': 20,
   'general well-being': 21,
-  'general wellbeing': 21
+  'general wellbeing': 21,
+  'brain fog': 22,
+  dizziness: 23,
+  anxiety: 24,
+  'joint pain': 25,
+  itching: 26,
+  urgency: 27,
+  'incomplete evacuation': 28,
+  mucus: 29,
+  palpitations: 30,
+  irritability: 31,
+  'mgła mózgowa': 22,
+  'mgla mozgowa': 22,
+  'zawroty głowy': 23,
+  'zawroty glowy': 23,
+  lęk: 24,
+  lek: 24,
+  'ból stawów': 25,
+  'bol stawow': 25,
+  swędzenie: 26,
+  swedzenie: 26,
+  parcie: 27,
+  'niepełne wypróżnienie': 28,
+  'niepelne wyproznienie': 28,
+  śluz: 29,
+  sluz: 29,
+  'kołatanie serca': 30,
+  'kolatanie serca': 30,
+  drażliwość: 31,
+  drazliwosc: 31
 };
 
 const UNIT_NAME_TO_ID: Record<string, number> = {
@@ -100,8 +129,54 @@ export function translateUnit(
   return unit?.name || '';
 }
 
-export function translateScale(translate: TranslateService, scale: number): string {
-  const key = `ref.scale.${scale}`;
+export function isPositiveScale(type?: { scaleKind?: number } | null): boolean {
+  return type?.scaleKind === 1;
+}
+
+export function clampSymptomScale(scale: number): number {
+  if (scale == null || Number.isNaN(scale)) {
+    return 0;
+  }
+  if (scale >= 0 && scale <= 5) {
+    return scale;
+  }
+  if (scale >= 6 && scale <= 10) {
+    return Math.round(scale / 2);
+  }
+  return Math.max(0, Math.min(5, scale));
+}
+
+export function translateScale(
+  translate: TranslateService,
+  scale: number,
+  type?: { scaleKind?: number } | null
+): string {
+  const n = clampSymptomScale(scale);
+  const key = isPositiveScale(type) ? `ref.scaleGood.${n}` : `ref.scale.${n}`;
   const value = translate.instant(key);
-  return value !== key ? value : `${scale}`;
+  return value !== key ? value : `${n}`;
+}
+
+export function scaleTone(
+  scale: number,
+  type?: { scaleKind?: number } | null
+): 'calm' | 'mild' | 'hot' {
+  const n = clampSymptomScale(scale);
+  if (isPositiveScale(type)) {
+    if (n >= 4) return 'calm';
+    if (n >= 2) return 'mild';
+    return 'hot';
+  }
+  if (n <= 0) return 'calm';
+  if (n < 4) return 'mild';
+  return 'hot';
+}
+
+/** Higher = worse, for timeline markers on mixed positive/negative logs. */
+export function distressScale(
+  scale: number,
+  type?: { scaleKind?: number } | null
+): number {
+  const n = clampSymptomScale(scale);
+  return isPositiveScale(type) ? 5 - n : n;
 }

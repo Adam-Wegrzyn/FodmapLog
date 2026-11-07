@@ -20,7 +20,7 @@ import { AudioRecorderComponent } from '../audio-recorder/audio-recorder.compone
 import { TranslateService } from '@ngx-translate/core';
 import { LanguageService } from '../services/language.service';
 import { Unit } from '../domain/Unit';
-import { translateScale, translateSymptomType, translateUnit } from '../services/reference-i18n';
+import { scaleTone, translateScale, translateSymptomType, translateUnit } from '../services/reference-i18n';
 import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 
@@ -261,8 +261,8 @@ export class DailyLogComponent implements OnInit {
     return translateSymptomType(this.translate, type);
   }
 
-  severityLabel(scale: number): string {
-    return translateScale(this.translate, this.displayScale(scale));
+  severityLabel(scale: number, type?: { scaleKind?: number } | null): string {
+    return translateScale(this.translate, this.displayScale(scale), type);
   }
 
   /** Clamp legacy 6–10 values onto the app 0–5 scale for display. */
@@ -279,10 +279,8 @@ export class DailyLogComponent implements OnInit {
     return Math.max(0, Math.min(5, scale));
   }
 
-  severityTone(scale: number): 'calm' | 'mild' | 'hot' {
-    if (scale <= 0) return 'calm';
-    if (scale < 4) return 'mild';
-    return 'hot';
+  severityTone(scale: number, type?: { scaleKind?: number } | null): 'calm' | 'mild' | 'hot' {
+    return scaleTone(this.displayScale(scale), type);
   }
 
   editSavedMeal(log: DailyLogUI, event?: Event): void {

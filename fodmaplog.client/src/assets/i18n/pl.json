@@ -199,9 +199,14 @@
     "remove": "Usuń objaw",
     "tapToAdd": "Dotknij, aby dodać",
     "hint": "Wybierz samopoczucie — intensywność ustawisz powyżej",
-    "ownPlaceholder": "np. mgła mózgowa",
+    "ownPlaceholder": "np. niespokojne nogi",
     "addOwn": "Dodaj",
     "ownHint": "Twoje nazwy są widoczne tylko na tym koncie.",
+    "kindLabel": "Rodzaj skali",
+    "kindProblem": "Dolegliwość",
+    "kindGood": "Jak się czuję",
+    "kindProblemHint": "5 to poważny",
+    "kindGoodHint": "5 to świetny",
     "ownFail": "Nie udało się dodać objawu. Spróbuj ponownie.",
     "needOne": "Wybierz co najmniej jeden objaw, aby zapisać.",
     "saveFail": "Nie udało się zapisać objawów. Spróbuj ponownie."
@@ -283,7 +288,17 @@
       "18": "Koncentracja",
       "19": "Motywacja",
       "20": "Aktywność fizyczna",
-      "21": "Ogólne samopoczucie"
+      "21": "Ogólne samopoczucie",
+      "22": "Mgła mózgowa",
+      "23": "Zawroty głowy",
+      "24": "Lęk",
+      "25": "Ból stawów",
+      "26": "Swędzenie",
+      "27": "Parcie",
+      "28": "Niepełne wypróżnienie",
+      "29": "Śluz",
+      "30": "Kołatanie serca",
+      "31": "Drażliwość"
     },
     "unit": {
       "1": "Gram",
@@ -315,6 +330,14 @@
       "3": "Umiarkowany",
       "4": "Silny",
       "5": "Poważny"
+    },
+    "scaleGood": {
+      "0": "Bardzo zły",
+      "1": "Słaby",
+      "2": "W porządku",
+      "3": "Dobry",
+      "4": "Bardzo dobry",
+      "5": "Świetny"
     }
   }
 }

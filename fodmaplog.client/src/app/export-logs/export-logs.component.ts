@@ -107,7 +107,7 @@ export class ExportLogsComponent implements OnInit {
         const symptoms = log.symptomsLog.symptoms
           .map(s => {
             const name = this.symptomLabel(s.symptomType);
-            const scale = this.scaleLabel(s.symptomScale);
+            const scale = this.scaleLabel(s.symptomScale, s.symptomType);
             return `${name} (${scale})`;
           })
           .join(', ');
@@ -216,8 +216,8 @@ export class ExportLogsComponent implements OnInit {
     return translateSymptomType(this.translate, type) || this.translate.instant('daily.symptom');
   }
 
-  private scaleLabel(scale: number): string {
-    return translateScale(this.translate, scale);
+  private scaleLabel(scale: number, type?: { scaleKind?: number } | null): string {
+    return translateScale(this.translate, scale, type);
   }
 
   private formatWhen(value: string): string {

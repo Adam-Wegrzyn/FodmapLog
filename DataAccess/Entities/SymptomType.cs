@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DataAccess.Enums;
 
 namespace DataAccess.Entities
 {
@@ -13,5 +9,9 @@ namespace DataAccess.Entities
         /// Null = shared catalog (seeded). Set = this user's private type.
         /// </summary>
         public string? UserId { get; set; }
+        /// <summary>
+        /// Negative (default): 5 = serious. Positive: 5 = great (mood, energy, …).
+        /// </summary>
+        public SymptomScaleKind ScaleKind { get; set; } = SymptomScaleKind.Negative;
     }
 }

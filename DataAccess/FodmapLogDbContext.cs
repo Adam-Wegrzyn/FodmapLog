@@ -1,4 +1,5 @@
 ﻿using DataAccess.Entities;
+using DataAccess.Enums;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -51,27 +52,37 @@ namespace DataAccess
             });
 
             modelBuilder.Entity<SymptomType>().HasData(
-                new SymptomType { Id = 1, Name = "Nausea" },
-                new SymptomType { Id = 2, Name = "Burping" },
-                new SymptomType { Id = 3, Name = "Diarrhea" },
-                new SymptomType { Id = 4, Name = "Constipation" },
-                new SymptomType { Id = 5, Name = "Bloating" },
-                new SymptomType { Id = 6, Name = "Abdominal Pain" },
-                new SymptomType { Id = 7, Name = "Heartburn" },
-                new SymptomType { Id = 8, Name = "Gas" },
-                new SymptomType { Id = 9, Name = "Cramps" },
-                new SymptomType { Id = 10, Name = "Vomiting" },
-                new SymptomType { Id = 11, Name = "Appetite" },
-                new SymptomType { Id = 12, Name = "Headache" },
-                new SymptomType { Id = 13, Name = "Fatigue" },
-                new SymptomType { Id = 14, Name = "Mood" },
-                new SymptomType { Id = 15, Name = "Energy" },
-                new SymptomType { Id = 16, Name = "Sleep Quality" },
-                new SymptomType { Id = 17, Name = "Stress" },
-                new SymptomType { Id = 18, Name = "Concentration" },
-                new SymptomType { Id = 19, Name = "Motivation" },
-                new SymptomType { Id = 20, Name = "Physical Activity" },
-                new SymptomType { Id = 21, Name = "General Well-being" }
+                Seed(1, "Nausea"),
+                Seed(2, "Burping"),
+                Seed(3, "Diarrhea"),
+                Seed(4, "Constipation"),
+                Seed(5, "Bloating"),
+                Seed(6, "Abdominal Pain"),
+                Seed(7, "Heartburn"),
+                Seed(8, "Gas"),
+                Seed(9, "Cramps"),
+                Seed(10, "Vomiting"),
+                Seed(11, "Appetite", SymptomScaleKind.Positive),
+                Seed(12, "Headache"),
+                Seed(13, "Fatigue"),
+                Seed(14, "Mood", SymptomScaleKind.Positive),
+                Seed(15, "Energy", SymptomScaleKind.Positive),
+                Seed(16, "Sleep Quality", SymptomScaleKind.Positive),
+                Seed(17, "Stress"),
+                Seed(18, "Concentration", SymptomScaleKind.Positive),
+                Seed(19, "Motivation", SymptomScaleKind.Positive),
+                Seed(20, "Physical Activity", SymptomScaleKind.Positive),
+                Seed(21, "General Well-being", SymptomScaleKind.Positive),
+                Seed(22, "Brain Fog"),
+                Seed(23, "Dizziness"),
+                Seed(24, "Anxiety"),
+                Seed(25, "Joint Pain"),
+                Seed(26, "Itching"),
+                Seed(27, "Urgency"),
+                Seed(28, "Incomplete Evacuation"),
+                Seed(29, "Mucus"),
+                Seed(30, "Palpitations"),
+                Seed(31, "Irritability")
             );
 
             modelBuilder.Entity<Unit>().HasData(
@@ -98,5 +109,8 @@ namespace DataAccess
              new Unit { Id = 21, Name = "Bottle" }
  );
         }
+
+        private static SymptomType Seed(int id, string name, SymptomScaleKind kind = SymptomScaleKind.Negative)
+            => new() { Id = id, Name = name, ScaleKind = kind };
     }
 }

@@ -199,9 +199,14 @@
     "remove": "Remove symptom",
     "tapToAdd": "Tap to add",
     "hint": "Choose how you feel — adjust intensity above",
-    "ownPlaceholder": "e.g. brain fog",
+    "ownPlaceholder": "e.g. restless legs",
     "addOwn": "Add",
     "ownHint": "Names you add stay private to this account.",
+    "kindLabel": "Scale type",
+    "kindProblem": "Problem",
+    "kindGood": "How I feel",
+    "kindProblemHint": "5 is serious",
+    "kindGoodHint": "5 is great",
     "ownFail": "Could not add that symptom. Try again.",
     "needOne": "Select at least one symptom to save.",
     "saveFail": "Could not save these symptoms. Try again."
@@ -283,7 +288,17 @@
       "18": "Concentration",
       "19": "Motivation",
       "20": "Physical Activity",
-      "21": "General Well-being"
+      "21": "General Well-being",
+      "22": "Brain Fog",
+      "23": "Dizziness",
+      "24": "Anxiety",
+      "25": "Joint Pain",
+      "26": "Itching",
+      "27": "Urgency",
+      "28": "Incomplete Evacuation",
+      "29": "Mucus",
+      "30": "Palpitations",
+      "31": "Irritability"
     },
     "unit": {
       "1": "Gram",
@@ -315,6 +330,14 @@
       "3": "Moderate",
       "4": "Severe",
       "5": "Serious"
+    },
+    "scaleGood": {
+      "0": "Awful",
+      "1": "Poor",
+      "2": "Okay",
+      "3": "Good",
+      "4": "Very good",
+      "5": "Great"
     }
   }
 }

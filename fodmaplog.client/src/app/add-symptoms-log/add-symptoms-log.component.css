@@ -199,6 +199,31 @@
 .symptom-chip.is-personal:not(.is-added) {
   border-style: dashed;
 }
+.symptom-chip.is-wellbeing:not(.is-added) {
+  border-color: color-mix(in srgb, #157347 35%, var(--hg-line));
+}
+
+.kind-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .4rem;
+  margin: 0 0 .45rem;
+}
+.kind-btn {
+  border: 1px solid var(--hg-line);
+  background: #fff;
+  color: var(--hg-muted);
+  border-radius: .85rem;
+  min-height: 2.4rem;
+  font-size: .86rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.kind-btn.is-on {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: transparent;
+}
 
 .composer-row {
   display: grid;
