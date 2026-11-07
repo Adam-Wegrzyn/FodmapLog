@@ -13,15 +13,16 @@ namespace DataAccess.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Hand-written data ops must be SQL: UpdateData/InsertData need a designer model
-            // and fail with "no entity type mapped to the table 'SymptomTypes'".
-            migrationBuilder.Sql("""
-                IF COL_LENGTH('dbo.SymptomTypes', 'ScaleKind') IS NULL
-                BEGIN
-                    ALTER TABLE [SymptomTypes] ADD [ScaleKind] int NOT NULL
-                        CONSTRAINT [DF_SymptomTypes_ScaleKind] DEFAULT 0;
-                END
+            // Own command/batch so later SQL can see the column. SQL Server compiles a
+            // single batch up front; ALTER + UPDATE ScaleKind together raises 207.
+            migrationBuilder.AddColumn<int>(
+                name: "ScaleKind",
+                table: "SymptomTypes",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
 
+            migrationBuilder.Sql("""
                 UPDATE [SymptomTypes]
                 SET [ScaleKind] = 1
                 WHERE [UserId] IS NULL AND [Id] IN (11, 14, 15, 16, 18, 19, 20, 21);
@@ -99,13 +100,11 @@ namespace DataAccess.Migrations
                     N'Brain Fog', N'Dizziness', N'Anxiety', N'Joint Pain', N'Itching',
                     N'Urgency', N'Incomplete Evacuation', N'Mucus', N'Palpitations', N'Irritability'
                 );
-
-                IF COL_LENGTH('dbo.SymptomTypes', 'ScaleKind') IS NOT NULL
-                BEGIN
-                    ALTER TABLE [SymptomTypes] DROP CONSTRAINT [DF_SymptomTypes_ScaleKind];
-                    ALTER TABLE [SymptomTypes] DROP COLUMN [ScaleKind];
-                END
                 """);
+
+            migrationBuilder.DropColumn(
+                name: "ScaleKind",
+                table: "SymptomTypes");
         }
     }
 }
