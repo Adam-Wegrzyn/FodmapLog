@@ -17,7 +17,11 @@
     "iosHint": "Stuknij Udostępnij, potem Dodaj do ekranu początkowego.",
     "add": "Dodaj",
     "gotIt": "Rozumiem",
-    "later": "Nie teraz"
+    "later": "Nie teraz",
+    "updateTitle": "Nowa wersja Movy jest gotowa",
+    "updateHint": "Odśwież, żeby wgrać aktualizację. To chwila.",
+    "updateNow": "Aktualizuj",
+    "updateLater": "Później"
   },
   "login": {
     "title": "Logowanie",

@@ -17,7 +17,11 @@
     "iosHint": "Tap Share, then Add to Home Screen.",
     "add": "Add",
     "gotIt": "Got it",
-    "later": "Not now"
+    "later": "Not now",
+    "updateTitle": "A new version of Mova is ready",
+    "updateHint": "Refresh to load the latest update. Takes a second.",
+    "updateNow": "Update",
+    "updateLater": "Later"
   },
   "login": {
     "title": "Sign In",

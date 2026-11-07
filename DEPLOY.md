@@ -33,6 +33,19 @@ Do **not** set `UseLocalSqlite` or `UseAiStubs` in Production.
 
 Password reset uses Identity `/forgotPassword`. Without email settings the API returns 5xx and the UI says mail could not be sent.
 
+## Azure hardening (portal)
+
+These are not set by the app code. In Cloud Shell:
+
+```bash
+az webapp update -g rg-symptomtracker -n healthygultlog-app --https-only true
+```
+
+- Confirm `Jwt__Key` is a long random value (not anything from git).
+- OpenAI project: set a monthly spend cap / usage limit.
+- Speech (`speech-service-symptomtracker`): budget alert on the resource group.
+- Password reset: set `Email__SendGridApiKey` + `Email__From` (or SMTP). Until then Forgot password cannot send mail.
+
 SendGrid (recommended from Azure):
 
 ```bash
