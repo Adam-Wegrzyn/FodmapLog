@@ -159,6 +159,72 @@
 .app-shell--authed {
   padding-bottom: 6.5rem;
 }
+.app-shell--pwa {
+  padding-bottom: 14rem;
+}
+
+.pwa-banner {
+  position: fixed;
+  left: .65rem;
+  right: .65rem;
+  bottom: calc(.65rem + 4.6rem);
+  z-index: 1050;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "icon copy"
+    "actions actions";
+  gap: .65rem .75rem;
+  padding: .85rem .9rem;
+  background: #fff;
+  border: 1px solid var(--hg-line);
+  border-radius: 1.15rem;
+  box-shadow: var(--hg-shadow);
+  text-align: left;
+}
+.pwa-banner-icon {
+  grid-area: icon;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: .7rem;
+}
+.pwa-banner-copy { grid-area: copy; min-width: 0; }
+.pwa-banner-title {
+  margin: 0;
+  font-size: .98rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  color: var(--hg-ink);
+}
+.pwa-banner-hint {
+  margin: .2rem 0 0;
+  font-size: .84rem;
+  color: var(--hg-muted);
+  line-height: 1.35;
+}
+.pwa-banner-actions {
+  grid-area: actions;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+}
+.pwa-banner-skip,
+.pwa-banner-add {
+  border: 0;
+  border-radius: .85rem;
+  min-height: 2.45rem;
+  font-weight: 700;
+  font-size: .9rem;
+  cursor: pointer;
+}
+.pwa-banner-skip {
+  background: var(--hg-bg-deep, #eef3f0);
+  color: var(--hg-ink);
+}
+.pwa-banner-add {
+  background: var(--hg-meal, #1f7a4d);
+  color: #fff;
+}
 
 /* Phone / narrow window: keep Account in the top bar; Today/Export/Log out live in the bottom bar. */
 @media (max-width: 767.98px) {
@@ -183,5 +249,14 @@
   }
   .app-shell--authed {
     padding: 1.35rem 1.5rem 2rem;
+  }
+  .app-shell--pwa {
+    padding-bottom: 11rem;
+  }
+  .pwa-banner {
+    left: auto;
+    right: 1.35rem;
+    bottom: 1.35rem;
+    width: min(22.5rem, calc(100% - 2.7rem));
   }
 }

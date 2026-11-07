@@ -11,6 +11,14 @@
     "mobile": "Mobile",
     "language": "Language"
   },
+  "pwa": {
+    "title": "Add Mova to your Home Screen?",
+    "chromeHint": "Open it like an app, with its own icon.",
+    "iosHint": "Tap Share, then Add to Home Screen.",
+    "add": "Add",
+    "gotIt": "Got it",
+    "later": "Not now"
+  },
   "login": {
     "title": "Sign In",
     "tagline": "Speak your meals and symptoms.",

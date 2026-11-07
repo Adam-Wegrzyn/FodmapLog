@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { LanguageService, AppLang } from './services/language.service';
 import { AuthService } from './services/auth.service';
+import { PwaInstallService } from './services/pwa-install.service';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +17,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     public language: LanguageService,
+    public pwaInstall: PwaInstallService,
     private auth: AuthService
   ) {}
 
@@ -24,6 +26,9 @@ export class AppComponent implements OnInit, OnDestroy {
       this.loggedIn = loggedIn;
       const profile = this.auth.readTokenProfile();
       this.username = profile.email || profile.sub || '';
+      if (loggedIn) {
+        this.pwaInstall.refresh();
+      }
     });
   }
 

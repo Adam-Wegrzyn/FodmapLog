@@ -35,6 +35,25 @@
   </a>
 </nav>
 
-<main class="app-shell" [class.app-shell--authed]="loggedIn">
+<main class="app-shell" [class.app-shell--authed]="loggedIn" [class.app-shell--pwa]="loggedIn && pwaInstall.visible">
   <router-outlet></router-outlet>
 </main>
+
+<aside
+  *ngIf="loggedIn && pwaInstall.visible"
+  class="pwa-banner"
+  role="dialog"
+  aria-modal="false"
+  [attr.aria-labelledby]="'pwa-banner-title'">
+  <img class="pwa-banner-icon" src="assets/brand/mova-icon-192.png" width="40" height="40" alt="" />
+  <div class="pwa-banner-copy">
+    <p class="pwa-banner-title" id="pwa-banner-title">{{ 'pwa.title' | translate }}</p>
+    <p class="pwa-banner-hint">{{ (pwaInstall.mode === 'ios' ? 'pwa.iosHint' : 'pwa.chromeHint') | translate }}</p>
+  </div>
+  <div class="pwa-banner-actions">
+    <button type="button" class="pwa-banner-skip" (click)="pwaInstall.dismiss()">{{ 'pwa.later' | translate }}</button>
+    <button type="button" class="pwa-banner-add" (click)="pwaInstall.install()">
+      {{ (pwaInstall.mode === 'ios' ? 'pwa.gotIt' : 'pwa.add') | translate }}
+    </button>
+  </div>
+</aside>
