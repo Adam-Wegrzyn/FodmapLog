@@ -11,7 +11,7 @@ namespace Core.Services
 {
     /// <summary>
     /// Sends the recorded WAV to Azure Speech Fast Transcription REST in-process.
-    /// Same Speech key/region as before; this API accepts clips up to hours (short-audio REST is capped at 60s and cannot be raised in the portal).
+    /// Same Speech key/region as before. Fast Transcription is used because short-audio REST is capped at 60s (not configurable in the portal). Voice logs are capped at 3 minutes by the recorder and API body limit.
     /// </summary>
     public class AudioTranscriptionService : IAudioTranscriptionService
     {

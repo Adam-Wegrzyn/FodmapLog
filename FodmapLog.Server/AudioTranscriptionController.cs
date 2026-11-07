@@ -12,8 +12,7 @@ namespace FodmapLog.Server.Controllers
     public class AudioTranscriptionController : ControllerBase
     {
         /// <summary>
-        /// ~8MB base64 ≈ 3 min of 16 kHz 16-bit mono WAV.
-        /// Fast Transcription accepts hours of audio; we still cap the body for cost.
+        /// ~8MB base64 ≈ 3 min of 16 kHz 16-bit mono WAV. That is the product cap.
         /// </summary>
         private const int MaxBase64Length = 8_000_000;
 

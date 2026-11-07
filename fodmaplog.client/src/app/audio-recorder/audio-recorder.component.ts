@@ -16,7 +16,7 @@ import { faMicrophone, faStop } from '@fortawesome/free-solid-svg-icons';
 
 export type RecorderUiState = 'idle' | 'recording' | 'transcribing' | 'error';
 
-/** Fast Transcription accepts long clips; 3 min keeps the upload and Speech cost bounded. */
+/** Product cap: 3 minutes. Fast Transcription is required for anything over the 60s short-audio REST limit. */
 const MAX_RECORDING_SECONDS = 180;
 
 @Component({
