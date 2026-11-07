@@ -11,6 +11,14 @@
     "mobile": "Mobilne",
     "language": "Język"
   },
+  "pwa": {
+    "title": "Dodać Movę do ekranu głównego?",
+    "chromeHint": "Otwieraj jak aplikację, z własną ikoną.",
+    "iosHint": "Stuknij Udostępnij, potem Dodaj do ekranu początkowego.",
+    "add": "Dodaj",
+    "gotIt": "Rozumiem",
+    "later": "Nie teraz"
+  },
   "login": {
     "title": "Logowanie",
     "tagline": "Powiedz, co zjadłeś i jak się czujesz.",
