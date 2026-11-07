@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 import { LanguageService, AppLang } from './services/language.service';
 import { AuthService } from './services/auth.service';
 import { PwaInstallService } from './services/pwa-install.service';
+import { PwaUpdateService } from './services/pwa-update.service';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,7 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     public language: LanguageService,
     public pwaInstall: PwaInstallService,
+    public pwaUpdate: PwaUpdateService,
     private auth: AuthService
   ) {}
 
