@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
+using Core.Audio;
 using Core.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -8,12 +10,13 @@ using Microsoft.Extensions.Logging;
 namespace Core.Services
 {
     /// <summary>
-    /// Sends the recorded WAV to Azure Speech REST (short-audio) in-process.
-    /// No Azure Function hop — keys live on the web app.
+    /// Sends the recorded WAV to Azure Speech Fast Transcription REST in-process.
+    /// Same Speech key/region as before. Fast Transcription is used because short-audio REST is capped at 60s (not configurable in the portal). Voice logs are capped at 3 minutes by the recorder and API body limit.
     /// </summary>
     public class AudioTranscriptionService : IAudioTranscriptionService
     {
-        private static readonly TimeSpan RequestTimeout = TimeSpan.FromMinutes(2);
+        private const string ApiVersion = "2024-11-15";
+        private static readonly TimeSpan RequestTimeout = TimeSpan.FromMinutes(3);
 
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _config;
@@ -25,6 +28,7 @@ namespace Core.Services
             ILogger<AudioTranscriptionService> logger)
         {
             _httpClient = httpClient;
+            _httpClient.Timeout = RequestTimeout;
             _config = config;
             _logger = logger;
         }
@@ -65,21 +69,28 @@ namespace Core.Services
             }
 
             var url =
-                $"https://{region}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1" +
-                $"?language={Uri.EscapeDataString(locale)}&format=simple";
+                $"https://{region}.api.cognitive.microsoft.com/speechtotext/transcriptions:transcribe" +
+                $"?api-version={ApiVersion}";
 
             var sw = Stopwatch.StartNew();
             _logger.LogInformation(
-                "Calling Azure Speech. Region={Region} Locale={Locale} Bytes={Bytes}",
+                "Calling Azure Speech Fast Transcription. Region={Region} Locale={Locale} Bytes={Bytes}",
                 region,
                 locale,
                 wav.Length);
 
+            using var content = new MultipartFormDataContent();
+            var audioContent = new ByteArrayContent(wav);
+            audioContent.Headers.ContentType = new MediaTypeHeaderValue("audio/wav");
+            content.Add(audioContent, "audio", "speech.wav");
+
+            var definitionJson = JsonSerializer.Serialize(new { locales = new[] { locale } });
+            content.Add(new StringContent(definitionJson, Encoding.UTF8, "application/json"), "definition");
+
             using var request = new HttpRequestMessage(HttpMethod.Post, url);
             request.Headers.TryAddWithoutValidation("Ocp-Apim-Subscription-Key", apiKey);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            request.Content = new ByteArrayContent(wav);
-            request.Content.Headers.ContentType = new MediaTypeHeaderValue("audio/wav");
+            request.Content = content;
 
             using var cts = new CancellationTokenSource(RequestTimeout);
             HttpResponseMessage response;
@@ -107,18 +118,11 @@ namespace Core.Services
                 throw new HttpRequestException($"Azure Speech returned {(int)response.StatusCode}.");
             }
 
-            using var doc = JsonDocument.Parse(string.IsNullOrWhiteSpace(body) ? "{}" : body);
-            var root = doc.RootElement;
-            var text = root.TryGetProperty("DisplayText", out var display)
-                ? display.GetString() ?? string.Empty
-                : string.Empty;
-            text = text.Trim();
-
+            var text = FastTranscriptionResult.ReadText(body);
             _logger.LogInformation(
-                "Azure Speech finished. ElapsedMs={Elapsed} Chars={Chars} Status={Status}",
+                "Azure Speech finished. ElapsedMs={Elapsed} Chars={Chars}",
                 sw.ElapsedMilliseconds,
-                text.Length,
-                root.TryGetProperty("RecognitionStatus", out var status) ? status.GetString() : "unknown");
+                text.Length);
 
             if (string.IsNullOrWhiteSpace(text))
             {

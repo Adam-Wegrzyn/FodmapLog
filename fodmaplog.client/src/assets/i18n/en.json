@@ -213,6 +213,8 @@
   "recorder": {
     "listening": "Listening…",
     "pauseHint": "Pauses are OK — tap the mic when finished",
+    "maxHint": "Up to 3 minutes",
+    "tooLong": "That recording is too long. Keep it under three minutes.",
     "cancel": "Cancel",
     "transcribing": "Transcribing…",
     "transcribingHint": "Turning your voice into text",

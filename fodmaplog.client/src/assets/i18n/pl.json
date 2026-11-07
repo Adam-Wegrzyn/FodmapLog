@@ -213,6 +213,8 @@
   "recorder": {
     "listening": "Słucham…",
     "pauseHint": "Pauzy są OK — stuknij mikrofon, gdy skończysz",
+    "maxHint": "Maksymalnie 3 minuty",
+    "tooLong": "Nagranie jest za długie. Mów nie dłużej niż trzy minuty.",
     "cancel": "Anuluj",
     "transcribing": "Transkrypcja…",
     "transcribingHint": "Zamieniam głos na tekst",
