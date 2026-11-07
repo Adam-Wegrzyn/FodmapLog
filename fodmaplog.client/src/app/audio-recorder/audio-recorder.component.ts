@@ -16,8 +16,8 @@ import { faMicrophone, faStop } from '@fortawesome/free-solid-svg-icons';
 
 export type RecorderUiState = 'idle' | 'recording' | 'transcribing' | 'error';
 
-/** Azure Speech short-audio REST rejects clips longer than 60s. */
-const MAX_RECORDING_SECONDS = 60;
+/** Fast Transcription accepts long clips; 3 min keeps the upload and Speech cost bounded. */
+const MAX_RECORDING_SECONDS = 180;
 
 @Component({
   selector: 'app-audio-recorder',
@@ -261,7 +261,7 @@ export class AudioRecorderComponent implements OnDestroy, OnChanges {
                 this.setError(this.translate.instant('daily.aiRateLimited'));
               } else if (status === 503) {
                 this.setError(this.translate.instant('recorder.unavailable'));
-              } else if (status === 400 && /too large|one minute|shorter/i.test(serverError)) {
+              } else if (status === 400 && /too large|three minutes|one minute|shorter/i.test(serverError)) {
                 this.setError(this.translate.instant('recorder.tooLong'));
               } else {
                 this.setError(this.translate.instant('recorder.transcribeFail'));

@@ -12,10 +12,10 @@ namespace FodmapLog.Server.Controllers
     public class AudioTranscriptionController : ControllerBase
     {
         /// <summary>
-        /// ~4MB base64 ≈ 75s of 16 kHz 16-bit mono WAV.
-        /// Azure Speech short-audio REST allows 60s; the recorder stops at 1 minute.
+        /// ~8MB base64 ≈ 3 min of 16 kHz 16-bit mono WAV.
+        /// Fast Transcription accepts hours of audio; we still cap the body for cost.
         /// </summary>
-        private const int MaxBase64Length = 4_000_000;
+        private const int MaxBase64Length = 8_000_000;
 
         private readonly IAudioTranscriptionService _audioService;
         private readonly ILogger<AudioTranscriptionController> _logger;
@@ -29,7 +29,7 @@ namespace FodmapLog.Server.Controllers
         }
 
         [HttpPost("transcribe")]
-        [RequestSizeLimit(8_000_000)]
+        [RequestSizeLimit(12_000_000)]
         public async Task<IActionResult> Transcribe([FromBody] AudioRequestDto audioBase64)
         {
             if (string.IsNullOrEmpty(audioBase64?.value))
@@ -41,7 +41,7 @@ namespace FodmapLog.Server.Controllers
             {
                 _logger.LogWarning("Transcription rejected: payload too large. PayloadChars={Length}",
                     audioBase64.value.Length);
-                return BadRequest(new { error = "Audio payload is too large. Keep recordings under one minute." });
+                return BadRequest(new { error = "Audio payload is too large. Keep recordings under three minutes." });
             }
 
             var language = NormalizeSpeechLocale(audioBase64.language);
