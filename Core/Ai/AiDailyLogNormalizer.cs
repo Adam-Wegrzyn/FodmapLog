@@ -192,7 +192,12 @@ namespace Core.Ai
                 return;
             }
 
-            symptom.SymptomType = new SymptomTypeDto { Id = match.Id, Name = match.Name };
+            symptom.SymptomType = new SymptomTypeDto
+            {
+                Id = match.Id,
+                Name = match.Name,
+                ScaleKind = match.ScaleKind
+            };
         }
     }
 }

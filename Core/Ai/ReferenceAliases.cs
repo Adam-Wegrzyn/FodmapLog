@@ -55,7 +55,18 @@ namespace Core.Ai
             ["motivation"] = 19, ["motywacja"] = 19,
             ["physical activity"] = 20, ["aktywność fizyczna"] = 20, ["aktywnosc fizyczna"] = 20, ["ruch"] = 20,
             ["general well-being"] = 21, ["general wellbeing"] = 21, ["wellbeing"] = 21,
-            ["ogólne samopoczucie"] = 21, ["ogolne samopoczucie"] = 21, ["samopoczucie"] = 21
+            ["ogólne samopoczucie"] = 21, ["ogolne samopoczucie"] = 21, ["samopoczucie"] = 21,
+            ["brain fog"] = 22, ["mgła mózgowa"] = 22, ["mgla mozgowa"] = 22, ["mgła mozgowa"] = 22,
+            ["dizziness"] = 23, ["zawroty głowy"] = 23, ["zawroty glowy"] = 23, ["lightheaded"] = 23,
+            ["anxiety"] = 24, ["lęk"] = 24, ["lek"] = 24, ["niepokój"] = 24, ["niepokoj"] = 24,
+            ["joint pain"] = 25, ["ból stawów"] = 25, ["bol stawow"] = 25, ["stawy"] = 25,
+            ["itching"] = 26, ["itch"] = 26, ["swędzenie"] = 26, ["swedzenie"] = 26, ["świąd"] = 26, ["swiad"] = 26,
+            ["urgency"] = 27, ["bowel urgency"] = 27, ["parcie"] = 27, ["parcie na stolec"] = 27,
+            ["incomplete evacuation"] = 28, ["incomplete bowel movement"] = 28,
+            ["uczucie niepełnego wypróżnienia"] = 28, ["niepelne wyproznienie"] = 28,
+            ["mucus"] = 29, ["śluz"] = 29, ["sluz"] = 29,
+            ["palpitations"] = 30, ["kołatanie serca"] = 30, ["kolatanie serca"] = 30, ["heart racing"] = 30,
+            ["irritability"] = 31, ["drażliwość"] = 31, ["drazliwosc"] = 31, ["irritable"] = 31
         };
 
         public static int? ResolveUnitId(string? name) => Lookup(Units, name);

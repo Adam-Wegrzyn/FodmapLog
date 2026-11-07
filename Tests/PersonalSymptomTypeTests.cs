@@ -46,6 +46,27 @@ namespace Tests
         }
 
         [Fact]
+        public async Task Add_stores_positive_scale_kind_for_custom_wellbeing()
+        {
+            var repo = CreateRepo(out _);
+            var created = await repo.AddPersonalSymptomType(
+                "Calm", "user-a", CancellationToken.None, SymptomScaleKind.Positive);
+
+            Assert.Equal(SymptomScaleKind.Positive, created.ScaleKind);
+            Assert.Equal("user-a", created.UserId);
+        }
+
+        [Fact]
+        public async Task Add_defaults_custom_types_to_negative_scale()
+        {
+            var repo = CreateRepo(out _);
+            var created = await repo.AddPersonalSymptomType(
+                "Brain fog", "user-a", CancellationToken.None);
+
+            Assert.Equal(SymptomScaleKind.Negative, created.ScaleKind);
+        }
+
+        [Fact]
         public async Task Add_is_idempotent_for_the_same_user()
         {
             var repo = CreateRepo(out _);

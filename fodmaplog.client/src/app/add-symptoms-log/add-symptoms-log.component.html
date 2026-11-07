@@ -37,8 +37,8 @@
         </div>
         <input type="range" class="severity-range" min="0" max="5" formControlName="symptomScale">
         <div class="severity-meta">
-          <span class="severity-label" [attr.data-tone]="toneFor(p.value.symptomScale)">
-            {{ ('ref.scale.' + p.value.symptomScale) | translate }}
+          <span class="severity-label" [attr.data-tone]="toneFor(p.value.symptomScale, p.value.symptomType)">
+            {{ scaleLabel(p.value.symptomScale, p.value.symptomType) }}
           </span>
           <span class="severity-scale">{{ p.value.symptomScale }}/5</span>
         </div>
@@ -49,6 +49,23 @@
   <section class="editor-card">
     <h2 class="card-label">{{ 'symptoms.tapToAdd' | translate }}</h2>
     <p class="card-hint">{{ 'symptoms.hint' | translate }}</p>
+    <div class="kind-toggle" role="group" [attr.aria-label]="'symptoms.kindLabel' | translate">
+      <button
+        type="button"
+        class="kind-btn"
+        [class.is-on]="customScaleKind === 0"
+        (click)="setCustomScaleKind(0)">
+        {{ 'symptoms.kindProblem' | translate }}
+      </button>
+      <button
+        type="button"
+        class="kind-btn"
+        [class.is-on]="customScaleKind === 1"
+        (click)="setCustomScaleKind(1)">
+        {{ 'symptoms.kindGood' | translate }}
+      </button>
+    </div>
+    <p class="card-hint">{{ (customScaleKind === 1 ? 'symptoms.kindGoodHint' : 'symptoms.kindProblemHint') | translate }}</p>
     <div class="composer-row">
       <input
         class="composer-input"
@@ -74,6 +91,7 @@
         *ngFor="let s of symptomTypes"
         [class.is-added]="isAdded(s)"
         [class.is-personal]="isPersonal(s)"
+        [class.is-wellbeing]="isWellbeing(s)"
         [disabled]="isAdded(s)"
         (click)="addSymptom(s)">
         {{ symptomLabel(s) }}

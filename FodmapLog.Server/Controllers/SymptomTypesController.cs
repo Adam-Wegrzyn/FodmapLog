@@ -1,4 +1,5 @@
 using DataAccess.Entities;
+using DataAccess.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -43,7 +44,10 @@ namespace FodmapLog.Server.Controllers
                 new Core.CQRS.AddPersonalSymptomTypeCommand
                 {
                     Name = symptomType.Name,
-                    UserId = userId
+                    UserId = userId,
+                    ScaleKind = symptomType.ScaleKind == SymptomScaleKind.Positive
+                        ? SymptomScaleKind.Positive
+                        : SymptomScaleKind.Negative
                 },
                 cancellationToken);
             return Ok(created);

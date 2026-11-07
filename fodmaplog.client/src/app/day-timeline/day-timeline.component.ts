@@ -11,6 +11,8 @@ import { Subscription } from 'rxjs';
 import { DailyLog } from '../domain/DailyLog';
 import { Unit } from '../domain/Unit';
 import {
+  distressScale,
+  scaleTone,
   translateScale,
   translateSymptomType,
   translateUnit
@@ -131,11 +133,15 @@ export class DayTimelineComponent implements OnInit, OnChanges, OnDestroy {
           lines
         });
       } else if (log.symptomsLog?.symptoms?.length) {
-        const scales = log.symptomsLog.symptoms.map(s => s.symptomScale ?? 0);
-        const maxScale = Math.max(...scales, 0);
+        const distress = log.symptomsLog.symptoms.map(s =>
+          distressScale(s.symptomScale ?? 0, s.symptomType));
+        const maxDistress = Math.max(...distress, 0);
         const lines = log.symptomsLog.symptoms.map(s => {
           const name = translateSymptomType(this.translate, s.symptomType);
-          const scale = translateScale(this.translate, this.normalizeScale(s.symptomScale ?? 0));
+          const scale = translateScale(
+            this.translate,
+            this.normalizeScale(s.symptomScale ?? 0),
+            s.symptomType);
           return `${name} · ${scale}`;
         });
         symptoms.push({
@@ -148,8 +154,8 @@ export class DayTimelineComponent implements OnInit, OnChanges, OnDestroy {
             count: lines.length
           }),
           lines,
-          severity: this.normalizeScale(maxScale),
-          tone: this.severityTone(this.normalizeScale(maxScale))
+          severity: maxDistress,
+          tone: this.severityTone(maxDistress)
         });
       }
     });
@@ -193,9 +199,7 @@ export class DayTimelineComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private severityTone(scale: number): 'calm' | 'mild' | 'hot' {
-    if (scale <= 0) return 'calm';
-    if (scale < 4) return 'mild';
-    return 'hot';
+    return scaleTone(scale);
   }
 
   private formatAmount(quantity: number | string, unit?: Unit): string {

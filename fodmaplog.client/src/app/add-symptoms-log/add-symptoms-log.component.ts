@@ -6,12 +6,12 @@ import { Unit } from '../domain/Unit';
 import { FodmapLogService } from '../services/fodmap-log-service';
 import { Symptom } from '../domain/Symptom';
 import { SymptomsLog } from '../domain/SymptomsLog';
-import { SymptomType } from '../domain/SymptomType';
+import { SCALE_KIND_NEGATIVE, SCALE_KIND_POSITIVE, SymptomType } from '../domain/SymptomType';
 import { SymptomScale } from '../domain/SymptomScale';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SymptomTypesService } from '../services/symptom-types.service';
 import { SymptomsLogTransferService } from '../services/symptoms-log-transfer.service';
-import { resolveSymptomTypeId, translateSymptomType } from '../services/reference-i18n';
+import { isPositiveScale, scaleTone, translateScale, translateSymptomType } from '../services/reference-i18n';
 import { combineLocalDateTime, formatClockTime, formatDateInput } from '../services/clock-time';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -26,6 +26,7 @@ export class addSymptomsLogComponent implements OnInit {
   form: FormGroup;
   name: string;
   customName = '';
+  customScaleKind = SCALE_KIND_NEGATIVE;
   symptomTypes: SymptomType[] = [];
   selectedUnit: string = "1";
   quantityInput: number = 1;
@@ -65,6 +66,20 @@ export class addSymptomsLogComponent implements OnInit {
 
   isPersonal(type: SymptomType | null | undefined): boolean {
     return !!type?.userId;
+  }
+
+  isWellbeing(type: SymptomType | null | undefined): boolean {
+    return isPositiveScale(type);
+  }
+
+  setCustomScaleKind(kind: number): void {
+    this.customScaleKind = kind === SCALE_KIND_POSITIVE
+      ? SCALE_KIND_POSITIVE
+      : SCALE_KIND_NEGATIVE;
+  }
+
+  scaleLabel(scale: number, type?: SymptomType | null): string {
+    return translateScale(this.translate, scale, type);
   }
     
   ngOnInit(): void {
@@ -171,12 +186,13 @@ getProduct(){
 
     this.isAddingCustom = true;
     this.customError = null;
-    this.symptomTypeService.addSymptomType(name).subscribe({
+    this.symptomTypeService.addSymptomType(name, this.customScaleKind).subscribe({
       next: (created) => {
         this.isAddingCustom = false;
         this.symptomTypes = [created, ...this.symptomTypes.filter(t => t.id !== created.id)];
         this.addSymptom(created);
         this.customName = '';
+        this.customScaleKind = SCALE_KIND_NEGATIVE;
       },
       error: () => {
         this.isAddingCustom = false;
@@ -192,10 +208,8 @@ getProduct(){
     );
   }
 
-  toneFor(scale: number): 'calm' | 'mild' | 'hot' {
-    if (scale <= 0) return 'calm';
-    if (scale < 4) return 'mild';
-    return 'hot';
+  toneFor(scale: number, type?: SymptomType | null): 'calm' | 'mild' | 'hot' {
+    return scaleTone(scale, type);
   }
 
   deleteSymptom(index: number): void{

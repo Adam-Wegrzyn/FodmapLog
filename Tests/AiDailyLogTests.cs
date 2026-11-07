@@ -21,6 +21,10 @@ namespace Tests
         [InlineData("ból brzucha", 6)]
         [InlineData("zgaga", 7)]
         [InlineData("biegunka", 3)]
+        [InlineData("brain fog", 22)]
+        [InlineData("mgła mózgowa", 22)]
+        [InlineData("anxiety", 24)]
+        [InlineData("joint pain", 25)]
         public void Resolves_symptom_aliases(string name, int expectedId)
         {
             Assert.Equal(expectedId, ReferenceAliases.ResolveSymptomTypeId(name));

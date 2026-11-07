@@ -18,7 +18,8 @@ namespace Core.CQRS
             AddPersonalSymptomTypeCommand request,
             CancellationToken cancellationToken)
         {
-            return _repository.AddPersonalSymptomType(request.Name, request.UserId, cancellationToken);
+            return _repository.AddPersonalSymptomType(
+                request.Name, request.UserId, cancellationToken, request.ScaleKind);
         }
     }
 }

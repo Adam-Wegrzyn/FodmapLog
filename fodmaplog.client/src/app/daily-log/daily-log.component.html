@@ -77,8 +77,8 @@
           <ul class="symptom-list">
             <li *ngFor="let s of log.symptomsLog.symptoms" class="symptom-item">
               <span class="symptom-name">{{ symptomLabel(s.symptomType) }}</span>
-              <span class="severity-pill" [attr.data-tone]="severityTone(displayScale(s.symptomScale))">
-                {{ severityLabel(s.symptomScale) }}
+              <span class="severity-pill" [attr.data-tone]="severityTone(displayScale(s.symptomScale), s.symptomType)">
+                {{ severityLabel(s.symptomScale, s.symptomType) }}
               </span>
             </li>
           </ul>
@@ -232,8 +232,8 @@
       <ul class="symptom-list">
         <li *ngFor="let s of log.symptomsLog.symptoms" class="symptom-item">
           <span class="symptom-name">{{ symptomLabel(s.symptomType) }}</span>
-          <span class="severity-pill" [attr.data-tone]="severityTone(s.symptomScale)">
-            {{ severityLabel(s.symptomScale) }}
+          <span class="severity-pill" [attr.data-tone]="severityTone(s.symptomScale, s.symptomType)">
+            {{ severityLabel(s.symptomScale, s.symptomType) }}
           </span>
         </li>
       </ul>

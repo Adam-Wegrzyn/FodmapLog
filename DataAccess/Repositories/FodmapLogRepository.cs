@@ -1,4 +1,5 @@
 ﻿using DataAccess.Entities;
+using DataAccess.Enums;
 using DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -363,7 +364,8 @@ namespace DataAccess.Repositories
         public async Task<SymptomType> AddPersonalSymptomType(
             string name,
             string userId,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            SymptomScaleKind scaleKind = SymptomScaleKind.Negative)
         {
             var normalized = NormalizeSymptomTypeName(name);
             if (string.IsNullOrEmpty(normalized) || string.IsNullOrWhiteSpace(userId))
@@ -377,7 +379,7 @@ namespace DataAccess.Repositories
                 return existing;
             }
 
-            return await InsertPersonalSymptomType(normalized, userId, cancellationToken);
+            return await InsertPersonalSymptomType(normalized, userId, cancellationToken, scaleKind);
         }
 
         private async Task<SymptomType?> FindVisibleSymptomType(
@@ -397,9 +399,13 @@ namespace DataAccess.Repositories
         private async Task<SymptomType> InsertPersonalSymptomType(
             string name,
             string userId,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            SymptomScaleKind scaleKind = SymptomScaleKind.Negative)
         {
-            var created = new SymptomType { Name = name, UserId = userId };
+            var kind = scaleKind == SymptomScaleKind.Positive
+                ? SymptomScaleKind.Positive
+                : SymptomScaleKind.Negative;
+            var created = new SymptomType { Name = name, UserId = userId, ScaleKind = kind };
             _context.SymptomTypes.Add(created);
             await _context.SaveChangesAsync(cancellationToken);
             return created;

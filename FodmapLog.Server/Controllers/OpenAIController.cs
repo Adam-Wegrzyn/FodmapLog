@@ -133,10 +133,13 @@ namespace FodmapLog.Server.Controllers
                 - date: ISO local datetime on {{day}} (example  {{day}}T08:00:00)
                 - either mealLog OR symptomsLog; set the other to null
                 - mealLog.productQuantity: product.name in the user's language; quantity as a number; unit.name from the unit list
-                - symptomsLog.symptoms: symptomType.name from the symptom list; symptomScale integer 0 (none) through 5 (worst)
+                - symptomsLog.symptoms: symptomType.name from the lists below; symptomScale integer 0 through 5
+                - Problem symptoms: 0 = none, 5 = worst/serious
+                - How-I-feel symptoms: 0 = very bad, 5 = great (e.g. "mood was great" → Mood 5, not 0)
 
                 Units (English names only): Gram, Kilogram, Milligram, Liter, Milliliter, Teaspoon, Tablespoon, Cup, Piece, Slice, Drop, Pinch, Ounce, Pound, Fluid Ounce, Pint, Quart, Gallon, Can, Package, Bottle
-                Symptoms (English names only): Nausea, Burping, Diarrhea, Constipation, Bloating, Abdominal Pain, Heartburn, Gas, Cramps, Vomiting, Appetite, Headache, Fatigue, Mood, Energy, Sleep Quality, Stress, Concentration, Motivation, Physical Activity, General Well-being
+                Problem symptoms (5 = serious): Nausea, Burping, Diarrhea, Constipation, Bloating, Abdominal Pain, Heartburn, Gas, Cramps, Vomiting, Headache, Fatigue, Stress, Brain Fog, Dizziness, Anxiety, Joint Pain, Itching, Urgency, Incomplete Evacuation, Mucus, Palpitations, Irritability
+                How-I-feel symptoms (5 = great): Appetite, Mood, Energy, Sleep Quality, Concentration, Motivation, Physical Activity, General Well-being
 
                 Example events for a user who said they ate oatmeal with milk at 8 and felt bloated around 10:
                 {

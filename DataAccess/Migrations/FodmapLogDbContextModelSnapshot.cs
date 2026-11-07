@@ -132,6 +132,9 @@ namespace DataAccess.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<int>("ScaleKind")
+                        .HasColumnType("int");
+
                     b.Property<string>("UserId")
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
@@ -198,7 +201,8 @@ namespace DataAccess.Migrations
                         new
                         {
                             Id = 11,
-                            Name = "Appetite"
+                            Name = "Appetite",
+                            ScaleKind = 1
                         },
                         new
                         {
@@ -213,17 +217,20 @@ namespace DataAccess.Migrations
                         new
                         {
                             Id = 14,
-                            Name = "Mood"
+                            Name = "Mood",
+                            ScaleKind = 1
                         },
                         new
                         {
                             Id = 15,
-                            Name = "Energy"
+                            Name = "Energy",
+                            ScaleKind = 1
                         },
                         new
                         {
                             Id = 16,
-                            Name = "Sleep Quality"
+                            Name = "Sleep Quality",
+                            ScaleKind = 1
                         },
                         new
                         {
@@ -233,22 +240,76 @@ namespace DataAccess.Migrations
                         new
                         {
                             Id = 18,
-                            Name = "Concentration"
+                            Name = "Concentration",
+                            ScaleKind = 1
                         },
                         new
                         {
                             Id = 19,
-                            Name = "Motivation"
+                            Name = "Motivation",
+                            ScaleKind = 1
                         },
                         new
                         {
                             Id = 20,
-                            Name = "Physical Activity"
+                            Name = "Physical Activity",
+                            ScaleKind = 1
                         },
                         new
                         {
                             Id = 21,
-                            Name = "General Well-being"
+                            Name = "General Well-being",
+                            ScaleKind = 1
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Name = "Brain Fog"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Name = "Dizziness"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Name = "Anxiety"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Name = "Joint Pain"
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Name = "Itching"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Name = "Urgency"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            Name = "Incomplete Evacuation"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            Name = "Mucus"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            Name = "Palpitations"
+                        },
+                        new
+                        {
+                            Id = 31,
+                            Name = "Irritability"
                         });
                 });
 
