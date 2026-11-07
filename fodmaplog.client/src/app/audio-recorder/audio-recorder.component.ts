@@ -16,6 +16,9 @@ import { faMicrophone, faStop } from '@fortawesome/free-solid-svg-icons';
 
 export type RecorderUiState = 'idle' | 'recording' | 'transcribing' | 'error';
 
+/** Azure Speech short-audio REST rejects clips longer than 60s. */
+const MAX_RECORDING_SECONDS = 60;
+
 @Component({
   selector: 'app-audio-recorder',
   templateUrl: './audio-recorder.component.html',
@@ -121,6 +124,9 @@ export class AudioRecorderComponent implements OnDestroy, OnChanges {
         this.timerId = setInterval(() => {
           this.ngZone.run(() => {
             this.elapsedSeconds += 1;
+            if (this.elapsedSeconds >= MAX_RECORDING_SECONDS && this.state === 'recording') {
+              this.stopRecording();
+            }
           });
         }, 1000);
       });
@@ -250,10 +256,13 @@ export class AudioRecorderComponent implements OnDestroy, OnChanges {
             },
             error: (err) => {
               const status = err?.status;
+              const serverError = typeof err?.error?.error === 'string' ? err.error.error : '';
               if (status === 429) {
                 this.setError(this.translate.instant('daily.aiRateLimited'));
               } else if (status === 503) {
                 this.setError(this.translate.instant('recorder.unavailable'));
+              } else if (status === 400 && /too large|one minute|shorter/i.test(serverError)) {
+                this.setError(this.translate.instant('recorder.tooLong'));
               } else {
                 this.setError(this.translate.instant('recorder.transcribeFail'));
               }
