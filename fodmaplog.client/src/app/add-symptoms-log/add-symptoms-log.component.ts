@@ -6,7 +6,12 @@ import { Unit } from '../domain/Unit';
 import { FodmapLogService } from '../services/fodmap-log-service';
 import { Symptom } from '../domain/Symptom';
 import { SymptomsLog } from '../domain/SymptomsLog';
-import { SCALE_KIND_NEGATIVE, SCALE_KIND_POSITIVE, SymptomType } from '../domain/SymptomType';
+import {
+  SCALE_KIND_NEGATIVE,
+  SCALE_KIND_POSITIVE,
+  SymptomScaleKind,
+  SymptomType
+} from '../domain/SymptomType';
 import { SymptomScale } from '../domain/SymptomScale';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SymptomTypesService } from '../services/symptom-types.service';
@@ -26,7 +31,7 @@ export class addSymptomsLogComponent implements OnInit {
   form: FormGroup;
   name: string;
   customName = '';
-  customScaleKind = SCALE_KIND_NEGATIVE;
+  customScaleKind: SymptomScaleKind = SCALE_KIND_NEGATIVE;
   symptomTypes: SymptomType[] = [];
   selectedUnit: string = "1";
   quantityInput: number = 1;
@@ -68,7 +73,7 @@ export class addSymptomsLogComponent implements OnInit {
     return isPositiveScale(type);
   }
 
-  setCustomScaleKind(kind: number): void {
+  setCustomScaleKind(kind: SymptomScaleKind): void {
     this.customScaleKind = kind === SCALE_KIND_POSITIVE
       ? SCALE_KIND_POSITIVE
       : SCALE_KIND_NEGATIVE;
