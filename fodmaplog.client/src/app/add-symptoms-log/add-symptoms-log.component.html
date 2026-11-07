@@ -30,7 +30,7 @@
     <div class="selected-list" formArrayName="symptoms">
       <article class="severity-card" *ngFor="let p of symptomsArr.controls; let i = index" [formGroupName]="i">
         <div class="severity-card-top">
-          <h3>{{ symptomLabel(p.value.symptomType) }}</h3>
+          <h3>{{ symptomKey(p.value.symptomType) | translate }}</h3>
           <button type="button" class="btn-icon-danger" (click)="deleteSymptom(i)" [attr.aria-label]="'symptoms.remove' | translate">
             &times;
           </button>
@@ -38,7 +38,7 @@
         <input type="range" class="severity-range" min="0" max="5" formControlName="symptomScale">
         <div class="severity-meta">
           <span class="severity-label" [attr.data-tone]="toneFor(p.value.symptomScale, p.value.symptomType)">
-            {{ scaleLabel(p.value.symptomScale, p.value.symptomType) }}
+            {{ ((isWellbeing(p.value.symptomType) ? 'ref.scaleGood.' : 'ref.scale.') + p.value.symptomScale) | translate }}
           </span>
           <span class="severity-scale">{{ p.value.symptomScale }}/5</span>
         </div>
@@ -94,7 +94,7 @@
         [class.is-wellbeing]="isWellbeing(s)"
         [disabled]="isAdded(s)"
         (click)="addSymptom(s)">
-        {{ symptomLabel(s) }}
+        {{ symptomKey(s) | translate }}
       </button>
     </div>
   </section>

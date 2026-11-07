@@ -33,7 +33,26 @@ const SYMPTOM_NAME_TO_ID: Record<string, number> = {
   'incomplete evacuation': 28,
   mucus: 29,
   palpitations: 30,
-  irritability: 31
+  irritability: 31,
+  'mgła mózgowa': 22,
+  'mgla mozgowa': 22,
+  'zawroty głowy': 23,
+  'zawroty glowy': 23,
+  lęk: 24,
+  lek: 24,
+  'ból stawów': 25,
+  'bol stawow': 25,
+  swędzenie: 26,
+  swedzenie: 26,
+  parcie: 27,
+  'niepełne wypróżnienie': 28,
+  'niepelne wyproznienie': 28,
+  śluz: 29,
+  sluz: 29,
+  'kołatanie serca': 30,
+  'kolatanie serca': 30,
+  drażliwość: 31,
+  drazliwosc: 31
 };
 
 const UNIT_NAME_TO_ID: Record<string, number> = {

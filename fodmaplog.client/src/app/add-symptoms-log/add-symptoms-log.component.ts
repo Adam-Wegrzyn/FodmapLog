@@ -11,7 +11,7 @@ import { SymptomScale } from '../domain/SymptomScale';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SymptomTypesService } from '../services/symptom-types.service';
 import { SymptomsLogTransferService } from '../services/symptoms-log-transfer.service';
-import { isPositiveScale, scaleTone, translateScale, translateSymptomType } from '../services/reference-i18n';
+import { isPositiveScale, resolveSymptomTypeId, scaleTone } from '../services/reference-i18n';
 import { combineLocalDateTime, formatClockTime, formatDateInput } from '../services/clock-time';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -60,10 +60,6 @@ export class addSymptomsLogComponent implements OnInit {
     return type?.name || '';
   }
 
-  symptomLabel(type: { id?: number; name?: string } | null | undefined): string {
-    return translateSymptomType(this.translate, type) || type?.name || '';
-  }
-
   isPersonal(type: SymptomType | null | undefined): boolean {
     return !!type?.userId;
   }
@@ -78,10 +74,6 @@ export class addSymptomsLogComponent implements OnInit {
       : SCALE_KIND_NEGATIVE;
   }
 
-  scaleLabel(scale: number, type?: SymptomType | null): string {
-    return translateScale(this.translate, scale, type);
-  }
-    
   ngOnInit(): void {
 
     const qDate = this.route.snapshot.queryParamMap.get('date');
