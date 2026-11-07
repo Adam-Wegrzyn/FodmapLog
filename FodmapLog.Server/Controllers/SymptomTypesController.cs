@@ -1,13 +1,13 @@
 using DataAccess.Entities;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace FodmapLog.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class SymptomTypesController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -20,22 +20,33 @@ namespace FodmapLog.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new Core.CQRS.GetSymptomTypesQuery(), cancellationToken);
+            var userId = this.RequireUserId();
+            var result = await _mediator.Send(
+                new Core.CQRS.GetSymptomTypesQuery { UserId = userId },
+                cancellationToken);
             return Ok(result);
         }
 
         [HttpPost]
         [Route("add")]
-        public async Task<IActionResult> AddSymptomType([FromBody] SymptomType symptomType, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddSymptomType(
+            [FromBody] SymptomType symptomType,
+            CancellationToken cancellationToken)
         {
             if (symptomType == null || string.IsNullOrWhiteSpace(symptomType.Name))
             {
-                return BadRequest("Invalid symptom type data.");
+                return BadRequest(new { error = "Symptom name is required." });
             }
-            return Created();
-            //    await _mediator.Send(new Core.CQRS.AddSymptomTypeCommand(symptomType), cancellationToken);
-            //    return CreatedAtAction(nameof(GetAll), new { id = symptomType.Id }, symptomType);
-            //}
+
+            var userId = this.RequireUserId();
+            var created = await _mediator.Send(
+                new Core.CQRS.AddPersonalSymptomTypeCommand
+                {
+                    Name = symptomType.Name,
+                    UserId = userId
+                },
+                cancellationToken);
+            return Ok(created);
         }
     }
 }

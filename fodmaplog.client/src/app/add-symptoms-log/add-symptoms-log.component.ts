@@ -11,7 +11,7 @@ import { SymptomScale } from '../domain/SymptomScale';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SymptomTypesService } from '../services/symptom-types.service';
 import { SymptomsLogTransferService } from '../services/symptoms-log-transfer.service';
-import { resolveSymptomTypeId } from '../services/reference-i18n';
+import { resolveSymptomTypeId, translateSymptomType } from '../services/reference-i18n';
 import { combineLocalDateTime, formatClockTime, formatDateInput } from '../services/clock-time';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -25,7 +25,8 @@ export class addSymptomsLogComponent implements OnInit {
   @ViewChild('closeModalBtn') closeModalBtn: ElementRef;
   form: FormGroup;
   name: string;
-  symptomTypes: SymptomType[];
+  customName = '';
+  symptomTypes: SymptomType[] = [];
   selectedUnit: string = "1";
   quantityInput: number = 1;
   symptomsLog: SymptomsLog;
@@ -37,6 +38,8 @@ export class addSymptomsLogComponent implements OnInit {
   isNew: boolean = true;
   saveError: string | null = null;
   isSaving = false;
+  customError: string | null = null;
+  isAddingCustom = false;
 
   constructor(private productsApiService: ProductsApiService,
     private fodmapLogService: FodmapLogService,
@@ -54,6 +57,14 @@ export class addSymptomsLogComponent implements OnInit {
       return `ref.symptom.${id}`;
     }
     return type?.name || '';
+  }
+
+  symptomLabel(type: { id?: number; name?: string } | null | undefined): string {
+    return translateSymptomType(this.translate, type) || type?.name || '';
+  }
+
+  isPersonal(type: SymptomType | null | undefined): boolean {
+    return !!type?.userId;
   }
     
   ngOnInit(): void {
@@ -140,6 +151,38 @@ getProduct(){
       symptomType: symptomType,
       symptomScale: 2
     }));
+  }
+
+  addCustomSymptom(): void {
+    const name = (this.customName || '').trim();
+    if (!name || this.isAddingCustom) {
+      return;
+    }
+
+    const existing = this.symptomTypes.find(
+      t => (t.name || '').trim().toLowerCase() === name.toLowerCase()
+    );
+    if (existing) {
+      this.addSymptom(existing);
+      this.customName = '';
+      this.customError = null;
+      return;
+    }
+
+    this.isAddingCustom = true;
+    this.customError = null;
+    this.symptomTypeService.addSymptomType(name).subscribe({
+      next: (created) => {
+        this.isAddingCustom = false;
+        this.symptomTypes = [created, ...this.symptomTypes.filter(t => t.id !== created.id)];
+        this.addSymptom(created);
+        this.customName = '';
+      },
+      error: () => {
+        this.isAddingCustom = false;
+        this.customError = this.translate.instant('symptoms.ownFail');
+      }
+    });
   }
 
   isAdded(symptomType: SymptomType): boolean {

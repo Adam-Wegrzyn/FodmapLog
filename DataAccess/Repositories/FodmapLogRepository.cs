@@ -176,6 +176,11 @@ namespace DataAccess.Repositories
                 .ToListAsync(cancellationToken);
             _context.SymptomsLogs.RemoveRange(symptoms);
 
+            var personalTypes = await _context.SymptomTypes
+                .Where(t => t.UserId == userId)
+                .ToListAsync(cancellationToken);
+            _context.SymptomTypes.RemoveRange(personalTypes);
+
             await _context.SaveChangesAsync(cancellationToken);
         }
 
@@ -256,17 +261,14 @@ namespace DataAccess.Repositories
         {
             foreach (var symptom in symptomsLog.Symptoms)
             {
-                symptom.SymptomType = await ResolveSymptomType(symptom.SymptomType, cancellationToken);
+                symptom.SymptomType = await ResolveSymptomType(
+                    symptom.SymptomType,
+                    symptomsLog.UserId,
+                    cancellationToken);
             }
             _context.SymptomsLogs.Add(symptomsLog);
             await _context.SaveChangesAsync(cancellationToken);
             return symptomsLog;
-        }
-
-        private async Task AddSymptomType(SymptomType symptomType, CancellationToken cancellationToken)
-        {
-            _context.SymptomTypes.Add(symptomType);
-            await _context.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<SymptomsLog?> GetSymptomsLogById(int id, string userId, CancellationToken cancellationToken)
@@ -300,7 +302,7 @@ namespace DataAccess.Repositories
 
             foreach (var incoming in symptomsLog.Symptoms ?? new List<Symptom>())
             {
-                var type = await ResolveSymptomType(incoming.SymptomType, cancellationToken);
+                var type = await ResolveSymptomType(incoming.SymptomType, userId, cancellationToken);
                 existing.Symptoms.Add(new Symptom
                 {
                     SymptomType = type,
@@ -312,33 +314,108 @@ namespace DataAccess.Repositories
             return existing;
         }
 
-        private async Task<SymptomType> ResolveSymptomType(SymptomType? symptomType, CancellationToken cancellationToken)
+        private async Task<SymptomType> ResolveSymptomType(
+            SymptomType? symptomType,
+            string? userId,
+            CancellationToken cancellationToken)
         {
-            symptomType ??= new SymptomType { Name = "Unknown" };
+            var name = NormalizeSymptomTypeName(symptomType?.Name);
 
-            SymptomType? existingSymptomType = null;
-            if (symptomType.Id > 0)
+            if (symptomType?.Id > 0)
             {
-                existingSymptomType = await _context.SymptomTypes
-                    .FirstOrDefaultAsync(s => s.Id == symptomType.Id, cancellationToken);
-            }
-            if (existingSymptomType == null && !string.IsNullOrWhiteSpace(symptomType.Name))
-            {
-                existingSymptomType = await _context.SymptomTypes
-                    .FirstOrDefaultAsync(s => s.Name.ToLower() == symptomType.Name.ToLower(), cancellationToken);
-            }
-            if (existingSymptomType != null)
-            {
-                return existingSymptomType;
+                var byId = await _context.SymptomTypes
+                    .FirstOrDefaultAsync(
+                        s => s.Id == symptomType.Id
+                             && (s.UserId == null || s.UserId == userId),
+                        cancellationToken);
+                if (byId != null)
+                {
+                    return byId;
+                }
             }
 
-            await AddSymptomType(symptomType, cancellationToken);
-            return symptomType;
+            if (!string.IsNullOrEmpty(name))
+            {
+                var match = await FindVisibleSymptomType(name, userId, cancellationToken);
+                if (match != null)
+                {
+                    return match;
+                }
+
+                if (!string.IsNullOrWhiteSpace(userId))
+                {
+                    return await InsertPersonalSymptomType(name, userId, cancellationToken);
+                }
+            }
+
+            throw new ArgumentException("Symptom type is required.");
         }
 
-        public async Task<IEnumerable<SymptomType>> GetAllSymptomTypes(CancellationToken cancellationToken)
+        public async Task<IEnumerable<SymptomType>> GetAllSymptomTypes(string userId, CancellationToken cancellationToken)
         {
-            return await _context.SymptomTypes.ToListAsync(cancellationToken);
+            return await _context.SymptomTypes
+                .Where(t => t.UserId == null || t.UserId == userId)
+                .OrderByDescending(t => t.UserId != null)
+                .ThenBy(t => t.Id)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<SymptomType> AddPersonalSymptomType(
+            string name,
+            string userId,
+            CancellationToken cancellationToken)
+        {
+            var normalized = NormalizeSymptomTypeName(name);
+            if (string.IsNullOrEmpty(normalized) || string.IsNullOrWhiteSpace(userId))
+            {
+                throw new ArgumentException("Symptom name is required.");
+            }
+
+            var existing = await FindVisibleSymptomType(normalized, userId, cancellationToken);
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            return await InsertPersonalSymptomType(normalized, userId, cancellationToken);
+        }
+
+        private async Task<SymptomType?> FindVisibleSymptomType(
+            string name,
+            string? userId,
+            CancellationToken cancellationToken)
+        {
+            var matches = await _context.SymptomTypes
+                .Where(s => s.Name.ToLower() == name.ToLower()
+                            && (s.UserId == null || s.UserId == userId))
+                .ToListAsync(cancellationToken);
+
+            return matches.FirstOrDefault(s => s.UserId == null)
+                ?? matches.FirstOrDefault();
+        }
+
+        private async Task<SymptomType> InsertPersonalSymptomType(
+            string name,
+            string userId,
+            CancellationToken cancellationToken)
+        {
+            var created = new SymptomType { Name = name, UserId = userId };
+            _context.SymptomTypes.Add(created);
+            await _context.SaveChangesAsync(cancellationToken);
+            return created;
+        }
+
+        internal static string NormalizeSymptomTypeName(string? name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return string.Empty;
+            }
+
+            var trimmed = string.Join(
+                ' ',
+                name.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+            return trimmed.Length <= 80 ? trimmed : trimmed[..80];
         }
 
         public async Task<IEnumerable<Unit>> GetAllUnits(CancellationToken cancellationToken)

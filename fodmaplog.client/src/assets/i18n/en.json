@@ -191,6 +191,10 @@
     "remove": "Remove symptom",
     "tapToAdd": "Tap to add",
     "hint": "Choose how you feel — adjust intensity above",
+    "ownPlaceholder": "e.g. brain fog",
+    "addOwn": "Add",
+    "ownHint": "Names you add stay private to this account.",
+    "ownFail": "Could not add that symptom. Try again.",
     "needOne": "Select at least one symptom to save.",
     "saveFail": "Could not save these symptoms. Try again."
   },

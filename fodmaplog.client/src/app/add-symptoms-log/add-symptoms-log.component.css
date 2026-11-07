@@ -196,6 +196,29 @@
   border-color: transparent;
   cursor: default;
 }
+.symptom-chip.is-personal:not(.is-added) {
+  border-style: dashed;
+}
+
+.composer-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: .55rem;
+  margin-bottom: .65rem;
+}
+.composer-input {
+  width: 100%;
+  border: 1px solid var(--hg-line);
+  border-radius: .85rem;
+  padding: .7rem .85rem;
+  font-size: 1rem;
+  background: #fff;
+}
+.composer-input:focus {
+  outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-color: var(--accent);
+}
+.composer-add { min-width: 4.5rem; }
 
 .editor-foot-hint {
   text-align: center;

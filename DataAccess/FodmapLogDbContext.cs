@@ -42,6 +42,14 @@ namespace DataAccess
                 entity.HasIndex(e => new { e.UserId, e.Date });
             });
 
+            modelBuilder.Entity<SymptomType>(entity =>
+            {
+                entity.Property(e => e.Name).HasMaxLength(200);
+                entity.Property(e => e.UserId).HasMaxLength(450);
+                entity.HasIndex(e => e.UserId);
+                entity.HasIndex(e => new { e.UserId, e.Name });
+            });
+
             modelBuilder.Entity<SymptomType>().HasData(
                 new SymptomType { Id = 1, Name = "Nausea" },
                 new SymptomType { Id = 2, Name = "Burping" },

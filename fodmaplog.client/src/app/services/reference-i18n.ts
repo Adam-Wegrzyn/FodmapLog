@@ -52,8 +52,10 @@ const UNIT_NAME_TO_ID: Record<string, number> = {
   bottle: 21
 };
 
+const SEEDED_SYMPTOM_IDS = new Set(Object.values(SYMPTOM_NAME_TO_ID));
+
 export function resolveSymptomTypeId(type?: { id?: number; name?: string } | null): number | null {
-  if (type?.id && type.id > 0) {
+  if (type?.id && SEEDED_SYMPTOM_IDS.has(type.id)) {
     return type.id;
   }
   const name = (type?.name || '').trim().toLowerCase();

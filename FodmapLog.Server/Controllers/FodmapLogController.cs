@@ -171,7 +171,10 @@ namespace FodmapLog.Server.Controllers
         [Route("symptomTypes")]
         public async Task<IActionResult> symptomTypes(CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new Core.CQRS.GetSymptomTypesQuery(), cancellationToken);
+            var userId = this.RequireUserId();
+            var result = await _mediator.Send(
+                new Core.CQRS.GetSymptomTypesQuery { UserId = userId },
+                cancellationToken);
             return Ok(result);
         }
     }

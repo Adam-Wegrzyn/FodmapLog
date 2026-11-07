@@ -46,6 +46,7 @@ namespace FodmapLog.Server.Controllers
             }
 
             var selectedDate = ParseSelectedDate(input.SelectedDate);
+            var userId = this.RequireUserId();
 
             if (_useAiStubs || string.IsNullOrWhiteSpace(_apiKey))
             {
@@ -58,6 +59,7 @@ namespace FodmapLog.Server.Controllers
                     var stub = await _normalizer.NormalizeAsync(
                         BuildStubDailyLogsJson(selectedDate),
                         selectedDate,
+                        userId,
                         cancellationToken);
                     return Ok(stub.Logs);
                 }
@@ -100,7 +102,7 @@ namespace FodmapLog.Server.Controllers
             }
 
             var cleaned = StripMarkdownFences(raw);
-            var outcome = await _normalizer.NormalizeAsync(cleaned, selectedDate, cancellationToken);
+            var outcome = await _normalizer.NormalizeAsync(cleaned, selectedDate, userId, cancellationToken);
             if (!outcome.Success)
             {
                 _logger.LogWarning("OpenAI JSON rejected. Error={Error} Length={Length}", outcome.Error, cleaned.Length);

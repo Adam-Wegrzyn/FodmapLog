@@ -20,7 +20,7 @@ namespace Core.CQRS
 
         public async Task<IEnumerable<SymptomType>> Handle(GetSymptomTypesQuery request, CancellationToken cancellationToken)
         {
-            return await _repository.GetAllSymptomTypes(cancellationToken);
+            return await _repository.GetAllSymptomTypes(request.UserId, cancellationToken);
         }
     }
 }
