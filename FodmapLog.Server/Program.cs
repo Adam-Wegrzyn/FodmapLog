@@ -101,7 +101,8 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 })
 .AddApiEndpoints()
 .AddEntityFrameworkStores<FodmapLogDbContext>()
-.AddDefaultTokenProviders();
+.AddDefaultTokenProviders()
+.AddUserManager<AutoConfirmUserManager>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
