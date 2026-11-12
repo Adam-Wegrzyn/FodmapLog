@@ -182,6 +182,9 @@
   box-shadow: var(--hg-shadow);
   text-align: left;
 }
+.pwa-banner--noshift {
+  bottom: .65rem;
+}
 .pwa-banner-icon {
   grid-area: icon;
   width: 2.5rem;

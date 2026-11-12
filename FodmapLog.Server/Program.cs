@@ -217,6 +217,28 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
+app.Use(async (context, next) =>
+{
+    context.Response.OnStarting(() =>
+    {
+        var headers = context.Response.Headers;
+        headers["X-Content-Type-Options"] = "nosniff";
+        headers["X-Frame-Options"] = "DENY";
+        headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+        headers["Permissions-Policy"] = "camera=(), microphone=(self), geolocation=()";
+        var host = context.Request.Host.Host;
+        var isLocal = host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+            || host == "127.0.0.1"
+            || host == "::1";
+        if (context.Request.IsHttps && !isLocal)
+        {
+            headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains";
+        }
+        return Task.CompletedTask;
+    });
+    await next();
+});
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<FodmapLogDbContext>();
