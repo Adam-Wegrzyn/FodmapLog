@@ -44,11 +44,17 @@ namespace FodmapLog.Server.Handlers
                 
                 if (user == null)
                 {
-                    user = new IdentityUser { UserName = email, Email = email };
+                    user = new IdentityUser { UserName = email, Email = email, EmailConfirmed = true };
                     await _userManager.CreateAsync(user);
                     await _userManager.AddLoginAsync(user, info);
                 }
                 await _signInManager.SignInAsync(user, isPersistent: false);
+            }
+
+            if (user is not null && !user.EmailConfirmed)
+            {
+                user.EmailConfirmed = true;
+                await _userManager.UpdateAsync(user);
             }
 
             // Generate JWT
