@@ -105,7 +105,13 @@ az webapp config appsettings set -g $RG -n $APP --settings \
   UseAiStubs=false
 
 az webapp config connection-string set -g $RG -n $APP --connection-string-type SQLAzure \
-  --settings prodConnection="Server=tcp:${SQL_SERVER}.database.windows.net,1433;Initial Catalog=${SQL_DB};User ID=${SQL_USER};Password=${SQL_PASS};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+  --settings prodConnection="Server=tcp:${SQL_SERVER}.database.windows.net,1433;Initial Catalog=${SQL_DB};User ID=${SQL_USER};Password=${SQL_PASS};Encrypt=True;TrustServerCertificate=False;Connection Timeout=90;"
+```
+
+The app also raises Connect Timeout to at least 90s in code. Azure SQL **serverless auto-pause** still makes the first login after idle slow. For beta, disable pause so Google sign-in does not wait on a cold database:
+
+```bash
+az sql db update -g rg-symptomtracker -s sql-symptom-tracker-dev -n sqldb-symptom-tracker --auto-pause-delay -1
 ```
 
 No Function URL or function key.
