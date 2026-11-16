@@ -5,65 +5,84 @@ using System.Security.Claims;
 
 namespace FodmapLog.Server.Handlers
 {
-    public class ExternalLoginCallbackCommandHandler:IRequestHandler<ExternalLoginCallbackCommand, string?>
+    public class ExternalLoginCallbackCommandHandler : IRequestHandler<ExternalLoginCallbackCommand, string?>
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly JwtTokenService _jwtTokenService;
+        private readonly ILogger<ExternalLoginCallbackCommandHandler> _logger;
 
-        public ExternalLoginCallbackCommandHandler(SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager, JwtTokenService jwtTokenService)
+        public ExternalLoginCallbackCommandHandler(
+            SignInManager<IdentityUser> signInManager,
+            UserManager<IdentityUser> userManager,
+            JwtTokenService jwtTokenService,
+            ILogger<ExternalLoginCallbackCommandHandler> logger)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _jwtTokenService = jwtTokenService;
-
+            _logger = logger;
         }
+
         public async Task<string?> Handle(ExternalLoginCallbackCommand request, CancellationToken cancellationToken)
         {
-            var info = await _signInManager.GetExternalLoginInfoAsync();
-            if (info == null)
+            if (!string.IsNullOrEmpty(request.RemoteError))
             {
-                var errorSeparator = request.ReturnUrl.Contains('#') ? "&" : "#";
-                return $"{request.ReturnUrl}{errorSeparator}error=ExternalLoginFailed";
+                return FailUrl(request.ReturnUrl);
             }
 
-            // Try to sign in the user with this external login provider
-            var signInResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
-            IdentityUser user;
-
-            if (signInResult.Succeeded)
+            try
             {
-                user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
-            }
-            else
-            {
-                // If the user does not have an account, create one
-                var email = info.Principal.FindFirstValue(System.Security.Claims.ClaimTypes.Email);
-                user = await _userManager.FindByEmailAsync(email);
-                
-                if (user == null)
+                var info = await _signInManager.GetExternalLoginInfoAsync();
+                if (info == null)
                 {
-                    user = new IdentityUser { UserName = email, Email = email, EmailConfirmed = true };
-                    await _userManager.CreateAsync(user);
-                    await _userManager.AddLoginAsync(user, info);
+                    return FailUrl(request.ReturnUrl);
                 }
-                await _signInManager.SignInAsync(user, isPersistent: false);
-            }
 
-            if (user is not null && !user.EmailConfirmed)
+                var signInResult = await _signInManager.ExternalLoginSignInAsync(
+                    info.LoginProvider, info.ProviderKey, isPersistent: false);
+                IdentityUser user;
+
+                if (signInResult.Succeeded)
+                {
+                    user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+                }
+                else
+                {
+                    var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                    user = await _userManager.FindByEmailAsync(email);
+
+                    if (user == null)
+                    {
+                        user = new IdentityUser { UserName = email, Email = email, EmailConfirmed = true };
+                        await _userManager.CreateAsync(user);
+                        await _userManager.AddLoginAsync(user, info);
+                    }
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                }
+
+                if (user is not null && !user.EmailConfirmed)
+                {
+                    user.EmailConfirmed = true;
+                    await _userManager.UpdateAsync(user);
+                }
+
+                var roles = await _userManager.GetRolesAsync(user);
+                var token = _jwtTokenService.GenerateJwtToken(user.Id, user.Email, roles);
+                var separator = request.ReturnUrl.Contains('#') ? "&" : "#";
+                return $"{request.ReturnUrl}{separator}token={Uri.EscapeDataString(token)}";
+            }
+            catch (Exception ex)
             {
-                user.EmailConfirmed = true;
-                await _userManager.UpdateAsync(user);
+                _logger.LogError(ex, "Google callback failed after SQL or Identity error.");
+                return FailUrl(request.ReturnUrl);
             }
+        }
 
-            // Generate JWT
-            var roles = await _userManager.GetRolesAsync(user);
-            var token = _jwtTokenService.GenerateJwtToken(user.Id, user.Email, roles);
-
-            // Pass JWT in URL fragment so it is not sent to servers via Referer/query logs
-            var separator = request.ReturnUrl.Contains('#') ? "&" : "#";
-            return $"{request.ReturnUrl}{separator}token={Uri.EscapeDataString(token)}";
+        private static string FailUrl(string returnUrl)
+        {
+            var errorSeparator = returnUrl.Contains('#') ? "&" : "#";
+            return $"{returnUrl}{errorSeparator}error=ExternalLoginFailed";
         }
     }
 }

@@ -82,8 +82,16 @@ builder.Services.AddDbContext<FodmapLogDbContext>(options =>
     else
     {
         options.UseSqlServer(
-            builder.Configuration.GetConnectionString("prodConnection"),
-            sql => sql.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null));
+            SqlConnectionOptions.WithMinimumConnectTimeout(
+                builder.Configuration.GetConnectionString("prodConnection")),
+            sql =>
+            {
+                sql.CommandTimeout(60);
+                sql.EnableRetryOnFailure(
+                    5,
+                    TimeSpan.FromSeconds(10),
+                    [40613, 40197, 40501, 10928, 10929, 49918, 49919, 49920]);
+            });
     }
 });
 
@@ -148,6 +156,14 @@ if (!string.IsNullOrWhiteSpace(googleClientSecret) && !string.IsNullOrWhiteSpace
     {
         options.ClientId = googleClientId;
         options.ClientSecret = googleClientSecret;
+        options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.CorrelationCookie.SameSite = SameSiteMode.Lax;
+        options.Events.OnRemoteFailure = context =>
+        {
+            context.HandleResponse();
+            context.Response.Redirect("/login#error=ExternalLoginFailed");
+            return Task.CompletedTask;
+        };
     });
 }
 
