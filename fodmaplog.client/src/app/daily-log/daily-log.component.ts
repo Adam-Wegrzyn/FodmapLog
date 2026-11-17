@@ -92,11 +92,11 @@ export class DailyLogComponent implements OnInit {
   }
 
   get savedLogs(): DailyLogUI[] {
-    return (this.logs || []).filter(l => !l.isPending);
+    return this.byTime((this.logs || []).filter(l => !l.isPending));
   }
 
   get pendingLogs(): DailyLogUI[] {
-    return (this.logs || []).filter(l => l.isPending);
+    return this.byTime((this.logs || []).filter(l => l.isPending));
   }
 
   get pendingCount(): number {
@@ -501,6 +501,10 @@ export class DailyLogComponent implements OnInit {
       this.reviewError = null;
       this.GetDailyLog(this.setDateCalendar);
     });
+  }
+
+  private byTime(items: DailyLogUI[]): DailyLogUI[] {
+    return [...items].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }
 
   /**

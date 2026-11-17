@@ -92,7 +92,7 @@ namespace Core.Services
                     SymptomsLog = _mapper.Map<SymptomsLogDto>(symptomLog)
                 });
             }
-            return dailyLogs;
+            return dailyLogs.OrderBy(d => d.Date).ToList();
         }
 
         public async Task<IEnumerable<DailyLogDto>> GetDailyLogsByDateRange(DateTime fromDate, DateTime toDate, string userId, CancellationToken cancellationToken)
