@@ -45,15 +45,13 @@ if (!string.IsNullOrWhiteSpace(keyVaultName))
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(
-               corsBuilder =>
-               {
-                   corsBuilder.WithOrigins(
-                           "https://localhost:4200",
-                           "https://127.0.0.1:4200")
-                                       .AllowAnyHeader()
-                                       .AllowAnyMethod();
-        });
+    var origins = CorsOrigins.Combine(builder.Configuration);
+    options.AddDefaultPolicy(corsBuilder =>
+    {
+        corsBuilder.WithOrigins(origins)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
 });
 
 builder.Services.AddControllers();
@@ -276,12 +274,12 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+app.UseCors();
+
 app.UseDefaultFiles();
 var staticTypes = new FileExtensionContentTypeProvider();
 staticTypes.Mappings[".webmanifest"] = "application/manifest+json";
 app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = staticTypes });
-
-app.UseCors();
 
 if (app.Environment.IsDevelopment())
 {
