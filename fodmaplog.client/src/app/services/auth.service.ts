@@ -41,7 +41,9 @@ export class AuthService {
   }
 
   loginWithGoogle(): void {
-    window.location.href = `${this.url}/external-login?provider=Google&returnUrl=${environment.frontendBaseUrl}/login-callback`;
+    const origin = environment.frontendBaseUrl || window.location.origin;
+    const returnUrl = encodeURIComponent(`${origin}/login-callback`);
+    window.location.href = `${this.url}/external-login?provider=Google&returnUrl=${returnUrl}`;
   }
 
   /** Returns email/sub from JWT, or empty fields if missing/invalid. */

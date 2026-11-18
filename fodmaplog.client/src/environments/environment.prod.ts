@@ -1,12 +1,13 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://healthygultlog-app.azurewebsites.net/api',
-  apiUrl: 'https://healthygultlog-app.azurewebsites.net/api/FodmapLog',
-  apiSymptomTypes: 'https://healthygultlog-app.azurewebsites.net/api/SymptomTypes',
-  apiOpenFood: 'https://healthygultlog-app.azurewebsites.net/api/ProductsApi',
-  apiOpenAi: 'https://healthygultlog-app.azurewebsites.net/api/OpenAi',
-  authApiUrl: 'https://healthygultlog-app.azurewebsites.net/api/Auth',
-  authIdentityApiUrl: 'https://healthygultlog-app.azurewebsites.net',
-  frontendBaseUrl: 'https://healthygultlog-app.azurewebsites.net',
-  apiAudioTranscription: 'https://healthygultlog-app.azurewebsites.net/api/AudioTranscription',
+  // Same-origin on whatever host serves the SPA (mova.app.pl or azurewebsites.net).
+  apiBaseUrl: '/api',
+  apiUrl: '/api/FodmapLog',
+  apiSymptomTypes: '/api/SymptomTypes',
+  apiOpenFood: '/api/ProductsApi',
+  apiOpenAi: '/api/OpenAi',
+  authApiUrl: '/api/Auth',
+  authIdentityApiUrl: '',
+  frontendBaseUrl: '',
+  apiAudioTranscription: '/api/AudioTranscription',
 };

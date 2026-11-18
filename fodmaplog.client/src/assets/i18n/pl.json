@@ -36,7 +36,7 @@
     "signUpLink": "Zarejestruj się",
     "forgot": "Nie pamiętasz hasła?",
     "invalidCredentials": "Nieprawidłowy e-mail lub hasło.",
-    "apiUnreachable": "Brak połączenia z API. Uruchom serwer Mova na http://localhost:5115."
+    "apiUnreachable": "Brak połączenia z API. Sprawdź internet i spróbuj ponownie."
   },
   "signup": {
     "title": "Utwórz konto",

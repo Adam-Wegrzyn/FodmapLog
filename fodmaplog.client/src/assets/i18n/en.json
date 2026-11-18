@@ -36,7 +36,7 @@
     "signUpLink": "Sign up",
     "forgot": "Forgot password?",
     "invalidCredentials": "Invalid email or password.",
-    "apiUnreachable": "Cannot reach the API. Start the Mova server on http://localhost:5115."
+    "apiUnreachable": "Cannot reach the API. Check your connection and try again."
   },
   "signup": {
     "title": "Create Account",
