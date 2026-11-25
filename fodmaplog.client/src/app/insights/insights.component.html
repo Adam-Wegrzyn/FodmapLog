@@ -1,0 +1,95 @@
+<div class="insights-page">
+  <header class="insights-head">
+    <p class="insights-kicker">{{ 'insights.kicker' | translate }}</p>
+    <h1 class="insights-title">{{ 'insights.title' | translate }}</h1>
+  </header>
+
+  <p *ngIf="loading" class="insights-status">{{ 'insights.loading' | translate }}</p>
+
+  <section *ngIf="loadError && !loading" class="insights-card" role="alert">
+    <p class="card-copy">{{ 'insights.loadError' | translate }}</p>
+    <button type="button" class="btn-primary btn-block" (click)="load()">{{ 'insights.retry' | translate }}</button>
+  </section>
+
+  <ng-container *ngIf="!loading && insight as data">
+    <section *ngIf="data.status === 'locked'" class="insights-card">
+      <h2 class="card-title">{{ 'insights.lockedTitle' | translate }}</h2>
+      <p class="card-copy">{{ 'insights.lockedHint' | translate }}</p>
+
+      <div class="progress-row">
+        <span>{{ 'insights.progressDays' | translate: { current: data.progress.daysWithEntries, required: data.progress.daysRequired } }}</span>
+        <div class="meter" aria-hidden="true">
+          <div class="meter-fill" [style.width.%]="meter(data.progress.daysWithEntries, data.progress.daysRequired)"></div>
+        </div>
+      </div>
+      <div class="progress-row">
+        <span>{{ 'insights.progressMeals' | translate: { current: data.progress.meals, required: data.progress.mealsRequired } }}</span>
+        <div class="meter" aria-hidden="true">
+          <div class="meter-fill" [style.width.%]="meter(data.progress.meals, data.progress.mealsRequired)"></div>
+        </div>
+      </div>
+      <div class="progress-row">
+        <span>{{ 'insights.progressSymptoms' | translate: { current: data.progress.symptomLogs, required: data.progress.symptomLogsRequired } }}</span>
+        <div class="meter" aria-hidden="true">
+          <div class="meter-fill" [style.width.%]="meter(data.progress.symptomLogs, data.progress.symptomLogsRequired)"></div>
+        </div>
+      </div>
+    </section>
+
+    <ng-container *ngIf="data.status === 'ready'">
+      <p class="window-note">{{ 'insights.windowNote' | translate: { days: data.days } }}</p>
+
+      <article
+        *ngFor="let finding of data.findings; trackBy: trackFinding"
+        class="insights-card finding-card">
+        <p class="chip" [class.chip-strong]="finding.label === 'stronger pattern'" [class.chip-weak]="finding.label !== 'stronger pattern'">
+          {{ labelKey(finding.label) | translate }}
+        </p>
+        <p class="finding-copy">{{ sentence(finding) }}</p>
+        <p class="suggestion">{{ 'insights.suggestion' | translate }}</p>
+        <p *ngIf="eatenWith(finding) as together" class="together">{{ together }}</p>
+
+        <p *ngIf="votes[finding.foodKey] === 'up' || votes[finding.foodKey] === 'down'" class="thanks">
+          {{ 'insights.thanks' | translate }}
+        </p>
+        <p *ngIf="votes[finding.foodKey] === 'error'" class="feedback-error" role="alert">
+          {{ 'insights.feedbackError' | translate }}
+        </p>
+        <div
+          *ngIf="votes[finding.foodKey] !== 'up' && votes[finding.foodKey] !== 'down'"
+          class="vote-row">
+          <button
+            type="button"
+            class="vote-btn"
+            [disabled]="votes[finding.foodKey] === 'pending'"
+            (click)="vote(finding, true)">
+            <i class="fas fa-thumbs-up" aria-hidden="true"></i>
+            {{ 'insights.helpful' | translate }}
+          </button>
+          <button
+            type="button"
+            class="vote-btn"
+            [disabled]="votes[finding.foodKey] === 'pending'"
+            (click)="vote(finding, false)">
+            <i class="fas fa-thumbs-down" aria-hidden="true"></i>
+            {{ 'insights.notHelpful' | translate }}
+          </button>
+        </div>
+      </article>
+
+      <section *ngIf="data.findings.length === 0" class="insights-card">
+        <h2 class="card-title">{{ 'insights.emptyTitle' | translate }}</h2>
+        <p class="card-copy">{{ 'insights.emptyHint' | translate: { days: data.days } }}</p>
+      </section>
+
+      <section *ngIf="data.rarelyFollowed.length > 0" class="insights-card">
+        <h2 class="card-title">{{ 'insights.rarelyTitle' | translate }}</h2>
+        <ul class="rare-list">
+          <li *ngFor="let item of data.rarelyFollowed; trackBy: trackRare">{{ rareSentence(item) }}</li>
+        </ul>
+      </section>
+    </ng-container>
+  </ng-container>
+
+  <p class="disclaimer">{{ 'insights.disclaimer' | translate }}</p>
+</div>

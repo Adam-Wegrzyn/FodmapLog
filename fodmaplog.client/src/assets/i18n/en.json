@@ -1,6 +1,7 @@
 {
   "nav": {
     "today": "Today",
+    "patterns": "Patterns",
     "export": "Export",
     "add": "Add",
     "meal": "Meal",
@@ -269,6 +270,37 @@
     "typeMeal": "Meal",
     "typeSymptom": "Symptom",
     "page": "Page {{page}}"
+  },
+  "insights": {
+    "kicker": "Your entries",
+    "title": "What might not agree with you",
+    "disclaimer": "Mova shows patterns from your own entries. This is not a diagnosis or medical advice, and it does not identify the cause of symptoms. Talk to a doctor or dietitian before changing your diet.",
+    "loading": "Looking through your entries…",
+    "loadError": "Could not load patterns. Try again.",
+    "retry": "Try again",
+    "lockedTitle": "Not enough entries yet",
+    "lockedHint": "Keep logging meals and symptoms. Patterns show up once there is enough of your own data.",
+    "progressDays": "{{current}} of {{required}} days with entries",
+    "progressMeals": "{{current}} of {{required}} meals",
+    "progressSymptoms": "{{current}} of {{required}} symptom logs",
+    "emptyTitle": "No pattern stood out",
+    "emptyHint": "Nothing in the last {{days}} days cleared the bar we use before showing a pattern. Keep logging.",
+    "windowNote": "Last {{days}} days. A symptom counts when it was logged 2–6 hours after a meal.",
+    "finding": "In {{hits}} of {{exposures}} meals with {{product}} you logged {{symptoms}} within 2‑6h. After other meals: {{baselineHits}} of {{baselineMeals}}.",
+    "findingNoName": "In {{hits}} of {{exposures}} meals with {{product}} you logged a symptom within 2‑6h. After other meals: {{baselineHits}} of {{baselineMeals}}.",
+    "or": "or",
+    "and": "and",
+    "suggestion": "Try limiting it for a week and keep logging. Best discussed with a dietitian or doctor.",
+    "eatenWithOne": "{{product}} and {{other}} are usually eaten together, so these patterns are hard to separate.",
+    "eatenWithMany": "{{product}} is usually eaten with {{others}}, so these patterns are hard to separate.",
+    "labelStronger": "Stronger pattern",
+    "labelWeak": "Weak signal",
+    "helpful": "Helpful",
+    "notHelpful": "Not helpful",
+    "thanks": "Thanks, noted.",
+    "feedbackError": "Could not save that. Try again.",
+    "rarelyTitle": "Rarely followed by symptoms",
+    "rarelyItem": "{{product}} was in {{exposures}} meals and was not followed by a symptom within 2‑6h."
   },
   "ref": {
     "symptom": {

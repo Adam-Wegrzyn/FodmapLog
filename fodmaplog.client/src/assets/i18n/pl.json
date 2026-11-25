@@ -1,6 +1,7 @@
 {
   "nav": {
     "today": "Dziś",
+    "patterns": "Wzorce",
     "export": "Eksport",
     "add": "Dodaj",
     "meal": "Posiłek",
@@ -269,6 +270,37 @@
     "typeMeal": "Posiłek",
     "typeSymptom": "Objaw",
     "page": "Strona {{page}}"
+  },
+  "insights": {
+    "kicker": "Twoje wpisy",
+    "title": "Co mogło Ci nie służyć",
+    "disclaimer": "Mova pokazuje wzorce z Twoich własnych wpisów. To nie jest diagnoza ani porada medyczna i nie wskazuje przyczyny objawów. Zanim zmienisz dietę, skonsultuj się z lekarzem lub dietetykiem.",
+    "loading": "Przeglądam Twoje wpisy…",
+    "loadError": "Nie udało się wczytać wzorców. Spróbuj ponownie.",
+    "retry": "Spróbuj ponownie",
+    "lockedTitle": "Za mało wpisów",
+    "lockedHint": "Zapisuj dalej posiłki i objawy. Wzorce pojawią się, gdy będzie dość Twoich własnych danych.",
+    "progressDays": "{{current}} z {{required}} dni z wpisami",
+    "progressMeals": "{{current}} z {{required}} posiłków",
+    "progressSymptoms": "{{current}} z {{required}} wpisów objawów",
+    "emptyTitle": "Żaden wzorzec się nie wyróżnił",
+    "emptyHint": "W ostatnich {{days}} dniach nic nie przekroczyło progu, od którego pokazujemy wzorzec. Loguj dalej.",
+    "windowNote": "Ostatnie {{days}} dni. Objaw liczy się, gdy został zapisany 2–6 godzin po posiłku.",
+    "finding": "W {{hits}} z {{exposures}} posiłków z {{product}} w ciągu 2‑6 godz. był zapis: {{symptoms}}. Po innych posiłkach: {{baselineHits}} z {{baselineMeals}}.",
+    "findingNoName": "W {{hits}} z {{exposures}} posiłków z {{product}} w ciągu 2‑6 godz. był zapis objawu. Po innych posiłkach: {{baselineHits}} z {{baselineMeals}}.",
+    "or": "lub",
+    "and": "i",
+    "suggestion": "Spróbuj ograniczyć to przez tydzień i dalej prowadź dziennik. Najlepiej omówić to z dietetykiem lub lekarzem.",
+    "eatenWithOne": "{{product}} i {{other}} zwykle jesz razem, więc te wzorce trudno rozdzielić.",
+    "eatenWithMany": "{{product}} zwykle jesz razem z {{others}}, więc te wzorce trudno rozdzielić.",
+    "labelStronger": "Wyraźniejszy wzorzec",
+    "labelWeak": "Słabszy sygnał",
+    "helpful": "Pomocne",
+    "notHelpful": "Niepomocne",
+    "thanks": "Dziękujemy, zapisane.",
+    "feedbackError": "Nie udało się zapisać. Spróbuj ponownie.",
+    "rarelyTitle": "Rzadko pojawiał się po nich objaw",
+    "rarelyItem": "{{product}} było w {{exposures}} posiłkach, bez objawu w ciągu 2‑6 godz."
   },
   "ref": {
     "symptom": {

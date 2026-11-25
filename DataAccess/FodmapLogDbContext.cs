@@ -24,10 +24,19 @@ namespace DataAccess
         public DbSet<SymptomType> SymptomTypes { get; set; }
         public DbSet<Unit> Units { get; set; }
         public DbSet<ProductQuantity> ProductQuantities { get; set; }
+        public DbSet<InsightFeedback> InsightFeedback { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<InsightFeedback>(entity =>
+            {
+                entity.Property(e => e.UserId).HasMaxLength(450).IsRequired();
+                entity.Property(e => e.FoodKey).HasMaxLength(200).IsRequired();
+                entity.Property(e => e.ProductName).HasMaxLength(200).IsRequired();
+                entity.HasIndex(e => e.UserId);
+            });
 
             modelBuilder.Entity<MealLog>(entity =>
             {
