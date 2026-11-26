@@ -60,6 +60,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IFodmapLogRepository, FodmapLogRepository>();
 builder.Services.AddScoped<IFodmapLogService, FodmapLogService>();
+builder.Services.AddScoped<IInsightFeedbackRepository, InsightFeedbackRepository>();
+builder.Services.AddScoped<IInsightsService, InsightsService>();
 builder.Services.AddScoped<IAudioTranscriptionService, AudioTranscriptionService>();
 builder.Services.AddScoped<AiDailyLogNormalizer>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

@@ -29,6 +29,7 @@ import { DayTimelineComponent } from './day-timeline/day-timeline.component';
 import { AccountComponent } from './account/account.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { InsightsComponent } from './insights/insights.component';
 import { LanguageService } from './services/language.service';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
@@ -60,6 +61,7 @@ export function initLanguage(language: LanguageService): () => Promise<unknown> 
     AccountComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
+    InsightsComponent,
   ],
   imports: [
     BrowserModule,

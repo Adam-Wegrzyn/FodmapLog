@@ -10,6 +10,7 @@
   </a>
   <nav class="top-nav" [attr.aria-label]="'nav.main' | translate">
     <a class="top-link top-link--wide" routerLink="/daily-log" routerLinkActive="is-active">{{ 'nav.today' | translate }}</a>
+    <a class="top-link top-link--wide" routerLink="/insights" routerLinkActive="is-active">{{ 'nav.patterns' | translate }}</a>
     <a class="top-link top-link--wide" routerLink="/export-logs" routerLinkActive="is-active">{{ 'nav.export' | translate }}</a>
     <a class="top-link" routerLink="/account" routerLinkActive="is-active" [attr.title]="username">{{ 'nav.account' | translate }}</a>
     <button type="button" class="top-link top-link--wide top-link--button" (click)="logout()">{{ 'nav.logOut' | translate }}</button>
@@ -24,6 +25,10 @@
   <a class="bottom-link" routerLink="/daily-log" routerLinkActive="is-active">
     <i class="fas fa-calendar-day" aria-hidden="true"></i>
     <span>{{ 'nav.today' | translate }}</span>
+  </a>
+  <a class="bottom-link" routerLink="/insights" routerLinkActive="is-active">
+    <i class="fas fa-chart-bar" aria-hidden="true"></i>
+    <span>{{ 'nav.patterns' | translate }}</span>
   </a>
   <a class="bottom-link" routerLink="/export-logs" routerLinkActive="is-active">
     <i class="fas fa-file-export" aria-hidden="true"></i>

@@ -13,6 +13,7 @@ import { ExportLogsComponent } from './export-logs/export-logs.component';
 import { AccountComponent } from './account/account.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { InsightsComponent } from './insights/insights.component';
 
 const routes: Routes = [
   {
@@ -48,6 +49,10 @@ const routes: Routes = [
   },
   {
     path: 'export-logs', component: ExportLogsComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'insights', component: InsightsComponent,
     canActivate: [AuthGuard]
   },
   {
