@@ -18,6 +18,12 @@ namespace Tests
         [Theory]
         [InlineData("wzdęcia", 5)]
         [InlineData("Bloating", 5)]
+        [InlineData("ciężkość", 5)]
+        [InlineData("lekka ciężkość", 5)]
+        [InlineData("dyskomfort", 5)]
+        [InlineData("lekki dyskomfort żołądka", 5)]
+        [InlineData("stomach discomfort", 5)]
+        [InlineData("heaviness", 5)]
         [InlineData("ból brzucha", 6)]
         [InlineData("zgaga", 7)]
         [InlineData("biegunka", 3)]
@@ -38,6 +44,28 @@ namespace Tests
         public void Clamps_symptom_scale(int input, int expected)
         {
             Assert.Equal(expected, ReferenceAliases.ClampScale(input));
+        }
+
+        [Theory]
+        [InlineData("lekka ciężkość", true)]
+        [InlineData("lekki dyskomfort żołądka", true)]
+        [InlineData("stomach discomfort", true)]
+        [InlineData("Bloating", true)]
+        [InlineData("ból brzucha", false)]
+        [InlineData("Abdominal Pain", false)]
+        public void Discomfort_is_not_pain(string name, bool discomfort)
+        {
+            Assert.Equal(discomfort, ReferenceAliases.IsDiscomfortNotPain(name));
+        }
+
+        [Theory]
+        [InlineData("lekka ciężkość", "lekka ciężkość")]
+        [InlineData("lekki dyskomfort żołądka", "lekki dyskomfort żołądka")]
+        [InlineData("Bloating", null)]
+        [InlineData("ból brzucha", null)]
+        public void Keeps_discomfort_wording(string name, string? expected)
+        {
+            Assert.Equal(expected, ReferenceAliases.DiscomfortWording(name));
         }
 
         [Fact]

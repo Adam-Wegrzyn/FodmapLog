@@ -52,6 +52,11 @@ namespace DataAccess
                 entity.HasIndex(e => new { e.UserId, e.Date });
             });
 
+            modelBuilder.Entity<Symptom>(entity =>
+            {
+                entity.Property(e => e.SpokenName).HasMaxLength(200);
+            });
+
             modelBuilder.Entity<SymptomType>(entity =>
             {
                 entity.Property(e => e.Name).HasMaxLength(200);

@@ -4,6 +4,7 @@ import { HttpClient } from "@angular/common/http";
 import { catchError, map, Observable, throwError } from "rxjs";
 import { DailyLog } from "../domain/DailyLog";
 import { AppLang } from "./language.service";
+import { formatLocalDateTime, ianaTimeZone, utcOffsetMinutes } from "./clock-time";
 
 @Injectable({
     providedIn: 'root'
@@ -22,7 +23,9 @@ export class OpenAiService {
             transcript: input,
             language,
             selectedDate,
-            clientNow: new Date().toISOString()
+            clientNow: formatLocalDateTime(),
+            timeZone: ianaTimeZone(),
+            utcOffsetMinutes: utcOffsetMinutes()
         };
         return this.httpClient.post<DailyLog[] | string>(`${this.url}/GenerateMealLogFromAI`, body)
         .pipe(

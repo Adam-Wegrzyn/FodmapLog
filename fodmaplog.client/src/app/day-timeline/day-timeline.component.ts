@@ -137,7 +137,8 @@ export class DayTimelineComponent implements OnInit, OnChanges, OnDestroy {
           distressScale(s.symptomScale ?? 0, s.symptomType));
         const maxDistress = Math.max(...distress, 0);
         const lines = log.symptomsLog.symptoms.map(s => {
-          const name = translateSymptomType(this.translate, s.symptomType);
+          const spoken = (s.spokenName || '').trim();
+          const name = spoken || translateSymptomType(this.translate, s.symptomType);
           const scale = translateScale(
             this.translate,
             this.normalizeScale(s.symptomScale ?? 0),

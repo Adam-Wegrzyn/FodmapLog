@@ -115,6 +115,7 @@ export class addSymptomsLogComponent implements OnInit {
         var pendingSymptomsLog = this.SymptomsLogTransferService.symptomsLog;
         if (pendingSymptomsLog){
                       const when = new Date(pendingSymptomsLog.date);
+                      this.currDate = formatDateInput(when);
                       this.currTime = formatClockTime(when);
           pendingSymptomsLog.date = combineLocalDateTime(this.currDate, this.currTime);
           this.form.patchValue(pendingSymptomsLog);

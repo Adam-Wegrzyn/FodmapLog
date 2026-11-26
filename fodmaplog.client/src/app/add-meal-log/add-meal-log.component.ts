@@ -25,7 +25,7 @@ export class addMealLogComponent implements OnInit {
 
   @ViewChild('closeModalBtn') closeModalBtn: ElementRef;
   form: FormGroup;
-  name: string;
+  name = '';
   units: Unit[];
   selectedUnit: Unit;
   quantityInput: number = 1;
@@ -93,6 +93,7 @@ export class addMealLogComponent implements OnInit {
         var pendingMealLog = this.mealLogTransferService.mealLog;
         if (pendingMealLog) {
             const when = new Date(pendingMealLog.date);
+            this.currDate = formatDateInput(when);
             this.currTime = formatClockTime(when);
             pendingMealLog.date = combineLocalDateTime(this.currDate, this.currTime);
           pendingMealLog

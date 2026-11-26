@@ -64,6 +64,8 @@ builder.Services.AddScoped<IInsightFeedbackRepository, InsightFeedbackRepository
 builder.Services.AddScoped<IInsightsService, InsightsService>();
 builder.Services.AddScoped<IAudioTranscriptionService, AudioTranscriptionService>();
 builder.Services.AddScoped<AiDailyLogNormalizer>();
+builder.Services.AddScoped<UserClockAccessor>();
+builder.Services.AddScoped<IUserClock>(sp => sp.GetRequiredService<UserClockAccessor>());
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddHttpClient();
@@ -232,6 +234,17 @@ builder.Services.AddRateLimiter(options =>
 });
 
 var app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    var accessor = context.RequestServices.GetRequiredService<UserClockAccessor>();
+    var zone = context.Request.Headers["X-Time-Zone"].FirstOrDefault();
+    int? offset = int.TryParse(context.Request.Headers["X-Utc-Offset-Minutes"].FirstOrDefault(), out var minutes)
+        ? minutes
+        : null;
+    accessor.Use(UserClock.FromClient(zone, offset));
+    await next();
+});
 
 app.Use(async (context, next) =>
 {
