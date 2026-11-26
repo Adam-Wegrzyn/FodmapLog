@@ -1,6 +1,6 @@
 import { HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
-import { Inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { ianaTimeZone, utcOffsetMinutes } from './services/clock-time';
 
 
 export const authInterceptor: HttpInterceptorFn = (
@@ -8,13 +8,13 @@ export const authInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ): Observable<HttpEvent<any>> => {
   const token = localStorage.getItem('token');
+  const headers: Record<string, string> = {
+    'X-Time-Zone': ianaTimeZone(),
+    'X-Utc-Offset-Minutes': String(utcOffsetMinutes())
+  };
   if (token) {
-    req = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    headers['Authorization'] = `Bearer ${token}`;
   }
-  return next(req);
+  return next(req.clone({ setHeaders: headers }));
 };
 

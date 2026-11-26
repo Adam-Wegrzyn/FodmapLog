@@ -32,7 +32,51 @@ export function normalizeClockTime(time: string | null | undefined): string {
   return formatClockTime();
 }
 
-/** Local wall-clock ISO without Z, so SQL and the date pipe keep the same hour. */
+/** Local wall-clock ISO without Z. The API converts this to UTC when it knows the zone. */
 export function combineLocalDateTime(date: string, time: string): string {
   return `${date}T${normalizeClockTime(time)}:00`;
+}
+
+/** YYYY-MM-DDTHH:mm:ss in the user's local zone, no Z. */
+export function formatLocalDateTime(date: Date = new Date()): string {
+  return combineLocalDateTime(formatDateInput(date), formatClockTime(date));
+}
+
+/** IANA zone from the browser, for example Asia/Bangkok. */
+export function ianaTimeZone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  } catch {
+    return 'UTC';
+  }
+}
+
+/** Minutes east of UTC. Asia/Bangkok is 420. */
+export function utcOffsetMinutes(date: Date = new Date()): number {
+  return -date.getTimezoneOffset();
+}
+
+/**
+ * Keep a civil local timestamp. Strings without a zone are already wall-clock.
+ * Instants with Z or an offset are converted to this browser's local wall clock.
+ */
+export function asCivilDateTime(value: string | Date | null | undefined): string {
+  if (value == null || value === '') {
+    return formatLocalDateTime();
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    const zoned = /[zZ]$/.test(trimmed) || /[+-]\d{2}:\d{2}$/.test(trimmed);
+    if (!zoned) {
+      const match = trimmed.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})(?::(\d{2}))?/);
+      if (match) {
+        return `${match[1]}T${match[2]}:${match[3] ?? '00'}`;
+      }
+    }
+  }
+  const parsed = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return formatLocalDateTime();
+  }
+  return combineLocalDateTime(formatDateInput(parsed), formatClockTime(parsed));
 }

@@ -76,7 +76,7 @@
           </header>
           <ul class="symptom-list">
             <li *ngFor="let s of log.symptomsLog.symptoms" class="symptom-item">
-              <span class="symptom-name">{{ symptomLabel(s.symptomType) }}</span>
+              <span class="symptom-name">{{ symptomLabel(s.symptomType, s.spokenName) }}</span>
               <span class="severity-pill" [attr.data-tone]="severityTone(displayScale(s.symptomScale), s.symptomType)">
                 {{ severityLabel(s.symptomScale, s.symptomType) }}
               </span>
@@ -214,7 +214,7 @@
         [class.type-label--symptom]="!isMealLog(log)">
         {{ (isMealLog(log) ? 'daily.meal' : 'daily.symptom') | translate }}
       </span>
-      <time class="log-entry-time">{{ log.date | date: 'shortTime' : undefined : dateLocale }}</time>
+      <time class="log-entry-time">{{ formatEventWhen(log.date) }}</time>
       <button type="button" class="btn btn-sm btn-link text-danger pending-discard"
         (click)="discardPending(log, $event)">{{ 'daily.remove' | translate }}</button>
     </div>
@@ -231,7 +231,7 @@
     <div *ngIf="!isMealLog(log)" class="pending-body">
       <ul class="symptom-list">
         <li *ngFor="let s of log.symptomsLog.symptoms" class="symptom-item">
-          <span class="symptom-name">{{ symptomLabel(s.symptomType) }}</span>
+          <span class="symptom-name">{{ symptomLabel(s.symptomType, s.spokenName) }}</span>
           <span class="severity-pill" [attr.data-tone]="severityTone(s.symptomScale, s.symptomType)">
             {{ severityLabel(s.symptomScale, s.symptomType) }}
           </span>

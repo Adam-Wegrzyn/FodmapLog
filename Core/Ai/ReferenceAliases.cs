@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace Core.Ai
 {
     /// <summary>
@@ -38,6 +40,13 @@ namespace Core.Ai
             ["diarrhea"] = 3, ["diarrhoea"] = 3, ["biegunka"] = 3, ["rozwolnienie"] = 3,
             ["constipation"] = 4, ["zaparcie"] = 4, ["zaparcia"] = 4,
             ["bloating"] = 5, ["wzdęcia"] = 5, ["wzdecia"] = 5, ["wzdęcie"] = 5, ["wzdecie"] = 5,
+            ["ciężkość"] = 5, ["ciezkosc"] = 5, ["ciężkość żołądka"] = 5, ["ciezkosc zoladka"] = 5,
+            ["heaviness"] = 5, ["heavy stomach"] = 5, ["stomach heaviness"] = 5,
+            ["fullness"] = 5, ["pełność"] = 5, ["pelnosc"] = 5,
+            ["dyskomfort"] = 5, ["dyskomfort żołądka"] = 5, ["dyskomfort zoladka"] = 5,
+            ["dyskomfort brzucha"] = 5, ["stomach discomfort"] = 5, ["abdominal discomfort"] = 5,
+            ["discomfort"] = 5, ["lekka ciężkość"] = 5, ["lekka ciezkosc"] = 5,
+            ["lekki dyskomfort"] = 5, ["lekki dyskomfort żołądka"] = 5, ["lekki dyskomfort zoladka"] = 5,
             ["abdominal pain"] = 6, ["stomach pain"] = 6, ["belly pain"] = 6,
             ["ból brzucha"] = 6, ["bol brzucha"] = 6, ["brzuch"] = 6, ["ból"] = 6, ["bol"] = 6,
             ["heartburn"] = 7, ["zgaga"] = 7,
@@ -72,6 +81,55 @@ namespace Core.Ai
         public static int? ResolveUnitId(string? name) => Lookup(Units, name);
 
         public static int? ResolveSymptomTypeId(string? name) => Lookup(Symptoms, name);
+
+        /// <summary>
+        /// Heaviness, bloating, and discomfort are not pain. A phrase that also says ból/pain stays pain.
+        /// </summary>
+        public static bool IsDiscomfortNotPain(string? text)
+        {
+            var folded = Fold(text);
+            if (folded.Length == 0)
+            {
+                return false;
+            }
+
+            if (Regex.IsMatch(folded, @"\b(bol\w*|pain\w*|ache\w*)\b"))
+            {
+                return false;
+            }
+
+            return Regex.IsMatch(folded,
+                @"\b(dyskomfort\w*|discomfort\w*|ciezkosc\w*|heaviness|heavy|fullness|pelnosc\w*|wzdec\w*|bloat\w*|ucisk\w*)\b");
+        }
+
+        public static bool MentionsMild(string? text)
+        {
+            var folded = Fold(text);
+            return folded.Length > 0
+                && Regex.IsMatch(folded, @"\b(lekki|lekka|lekkie|lekkim|slight|mild|troche|niewielk\w*|a bit)\b");
+        }
+
+        /// <summary>
+        /// User's own wording when it is discomfort/heaviness and not the canonical type label.
+        /// </summary>
+        public static string? DiscomfortWording(string? text)
+        {
+            if (!IsDiscomfortNotPain(text))
+            {
+                return null;
+            }
+
+            var folded = Fold(text);
+            if (folded is "bloating" or "bloat" or "wzdecia" or "wzdecie" or "wzdęcie")
+            {
+                return null;
+            }
+
+            var raw = text!.Trim();
+            return raw.Length <= 80 ? raw : raw[..80];
+        }
+
+        private static string Fold(string? value) => SpokenTimeResolver.Fold(value);
 
         public static int ClampScale(int scale)
         {

@@ -21,10 +21,10 @@ namespace DataAccess.Interfaces
         Task<Product> UpdateProduct(Product product, CancellationToken cancellationToken);
         Task<Product> DeleteProduct(int id, CancellationToken cancellationToken);
 
-        Task<IEnumerable<MealLog>> GetMealLogsByDate(DateTime date, string userId, CancellationToken cancellationToken);
-        Task<IEnumerable<SymptomsLog>> GetSymptomsLogsByDate(DateTime date, string userId, CancellationToken cancellationToken);
-        Task<IEnumerable<MealLog>> GetMealLogsByDateRange(DateTime fromDate, DateTime toDate, string userId, CancellationToken cancellationToken);
-        Task<IEnumerable<SymptomsLog>> GetSymptomsLogsByDateRange(DateTime fromDate, DateTime toDate, string userId, CancellationToken cancellationToken);
+        Task<IEnumerable<MealLog>> GetMealLogsByDate(DateTime date, string userId, CancellationToken cancellationToken, DateTime? utcDayStart = null, DateTime? utcDayEnd = null);
+        Task<IEnumerable<SymptomsLog>> GetSymptomsLogsByDate(DateTime date, string userId, CancellationToken cancellationToken, DateTime? utcDayStart = null, DateTime? utcDayEnd = null);
+        Task<IEnumerable<MealLog>> GetMealLogsByDateRange(DateTime fromDate, DateTime toDate, string userId, CancellationToken cancellationToken, DateTime? utcRangeStart = null, DateTime? utcRangeEnd = null);
+        Task<IEnumerable<SymptomsLog>> GetSymptomsLogsByDateRange(DateTime fromDate, DateTime toDate, string userId, CancellationToken cancellationToken, DateTime? utcRangeStart = null, DateTime? utcRangeEnd = null);
         Task<SymptomsLog> AddSymptomsLog(SymptomsLog symptomsLog, CancellationToken cancellationToken);
         Task<SymptomsLog?> GetSymptomsLogById(int id, string userId, CancellationToken cancellationToken);
         Task<SymptomsLog> UpdateSymptomsLog(SymptomsLog symptomsLog, string userId, CancellationToken cancellationToken);

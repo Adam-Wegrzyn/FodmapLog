@@ -8,5 +8,7 @@ namespace Data.Common.DTO
     {
         public SymptomTypeDto SymptomType { get; set; }
         public SymptomScale SymptomScale { get; set; }
+        /// <summary>The user's own wording, when it should stay visible beside the mapped type.</summary>
+        public string? SpokenName { get; set; }
     }
 }

@@ -102,7 +102,9 @@
     "deleteBody": "To trwale usunie zapisany posiłek lub objawy.",
     "cancelDelete": "Anuluj",
     "confirmDelete": "Usuń",
-    "deleteFail": "Nie udało się usunąć. Sprawdź połączenie i spróbuj ponownie."
+    "deleteFail": "Nie udało się usunąć. Sprawdź połączenie i spróbuj ponownie.",
+    "yesterday": "Wczoraj",
+    "dayBeforeYesterday": "Przedwczoraj"
   },
   "account": {
     "back": "Wróć",

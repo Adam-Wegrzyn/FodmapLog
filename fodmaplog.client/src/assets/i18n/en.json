@@ -102,7 +102,9 @@
     "deleteBody": "This permanently removes the saved meal or symptom log.",
     "cancelDelete": "Cancel",
     "confirmDelete": "Delete",
-    "deleteFail": "Could not delete. Check your connection and try again."
+    "deleteFail": "Could not delete. Check your connection and try again.",
+    "yesterday": "Yesterday",
+    "dayBeforeYesterday": "Day before yesterday"
   },
   "account": {
     "back": "Back",

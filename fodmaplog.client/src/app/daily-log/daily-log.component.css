@@ -119,6 +119,8 @@
   font-weight: 600;
   color: var(--log-muted);
   font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .log-entry-actions { display: flex; gap: .75rem; margin-top: .55rem; }

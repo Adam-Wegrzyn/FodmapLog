@@ -47,6 +47,7 @@ namespace FodmapLog.Server.Controllers
 
             var selectedDate = ParseSelectedDate(input.SelectedDate);
             var userId = this.RequireUserId();
+            var recordingClock = RecordingClock.FromClient(input.ClientNow, input.TimeZone, input.UtcOffsetMinutes);
 
             if (_useAiStubs || string.IsNullOrWhiteSpace(_apiKey))
             {
@@ -60,7 +61,8 @@ namespace FodmapLog.Server.Controllers
                         BuildStubDailyLogsJson(selectedDate),
                         selectedDate,
                         userId,
-                        cancellationToken);
+                        cancellationToken,
+                        recordingClock);
                     return Ok(stub.Logs);
                 }
 
@@ -69,9 +71,11 @@ namespace FodmapLog.Server.Controllers
             }
 
             _logger.LogInformation(
-                "OpenAI meal/symptom extract requested. TranscriptLength={Length} Language={Language}",
+                "OpenAI meal/symptom extract requested. TranscriptLength={Length} Language={Language} TimeZone={TimeZone} UtcOffsetMinutes={UtcOffsetMinutes}",
                 input.Transcript.Length,
-                input.Language ?? "en");
+                input.Language ?? "en",
+                input.TimeZone ?? "",
+                input.UtcOffsetMinutes);
 
             string raw;
             try
@@ -84,7 +88,7 @@ namespace FodmapLog.Server.Controllers
                 };
                 ChatCompletion completion = await client.CompleteChatAsync(
                     [
-                        new SystemChatMessage(BuildSystemPrompt(input, selectedDate)),
+                        new SystemChatMessage(BuildSystemPrompt(input, selectedDate, recordingClock)),
                         new UserChatMessage(input.Transcript.Trim())
                     ],
                     options,
@@ -102,7 +106,7 @@ namespace FodmapLog.Server.Controllers
             }
 
             var cleaned = StripMarkdownFences(raw);
-            var outcome = await _normalizer.NormalizeAsync(cleaned, selectedDate, userId, cancellationToken);
+            var outcome = await _normalizer.NormalizeAsync(cleaned, selectedDate, userId, cancellationToken, recordingClock);
             if (!outcome.Success)
             {
                 _logger.LogWarning("OpenAI JSON rejected. Error={Error} Length={Length}", outcome.Error, cleaned.Length);
@@ -112,28 +116,61 @@ namespace FodmapLog.Server.Controllers
             return Ok(outcome.Logs);
         }
 
-        private static string BuildSystemPrompt(TranscribedInput input, DateOnly? selectedDate)
+        private static string BuildSystemPrompt(TranscribedInput input, DateOnly? selectedDate, RecordingClock clock)
         {
             var isPolish = IsPolish(input.Language);
             var languageHint = isPolish
                 ? "The transcript may be in Polish. Understand Polish food and symptom wording."
                 : "The transcript may be in English.";
-            var day = selectedDate?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd");
-            var now = string.IsNullOrWhiteSpace(input.ClientNow) ? DateTime.Now.ToString("o") : input.ClientNow.Trim();
+            var openDay = selectedDate?.ToString("yyyy-MM-dd") ?? clock.LocalNow.ToString("yyyy-MM-dd");
+            var localNow = clock.LocalNow.ToString("yyyy-MM-ddTHH:mm:ss");
+            var zone = string.IsNullOrWhiteSpace(input.TimeZone) ? "unknown" : input.TimeZone.Trim();
+            var offset = clock.Zone.Offset;
+            var offsetText = (offset < TimeSpan.Zero ? "-" : "+")
+                + offset.Duration().ToString(@"hh\:mm", System.Globalization.CultureInfo.InvariantCulture);
+            var yesterday = clock.LocalNow.Date.AddDays(-1).ToString("yyyy-MM-dd");
 
             return
                 $$"""
                 You extract meals and gut/mood symptoms from a spoken food diary.
                 {{languageHint}}
-                The user is logging calendar day {{day}}. Use that date for every event. Times in the transcript belong to that day.
-                The client's local now is {{now}}. If they say "just now" or omit a time, use that clock time.
-                Return a JSON object only: { "events": [ ... ] }. No markdown.
+
+                Recording reference. This is the user's wall clock when they recorded, not UTC:
+                - Local date-time: {{localNow}}
+                - IANA timezone: {{zone}}
+                - UTC offset: {{offsetText}}
+                The calendar day open in the app is {{openDay}}. That is only where they are looking. Do not put every event on that day.
+
+                Give each event its own local date and clock time, resolved against the recording reference:
+                - wczoraj / yesterday = the previous local calendar day
+                - przedwczoraj / day before yesterday = two local days before
+                - dziś / dzisiaj / today = the recording's local day
+                - rano / morning, when no clock was said = 07:30
+                - w południe / noon = 12:00
+                - wieczorem / evening = 19:00
+                - przed snem / before bed / before sleep = 23:00
+                - na śniadanie / breakfast = 08:00
+                - na obiad / lunch = 13:00
+                - na kolację / dinner = 19:00
+                - "X godzin później" / "X hours later" / "półtorej godziny później" / "an hour and a half later" = that long after the previous event, even across midnight
+                - explicit clocks ("o dwudziestej", "o 20", "o 9", "at 8", "at 8 pm") = that clock
+                - "rano następnego dnia" / "the next morning" = 07:30 on the day after the previous event
+                - If they gave no time at all, use the recording local time {{localNow}}
+                - Never output a time after {{localNow}}
+
+                Return a JSON object only: { "events": [ ... ] } in chronological order. No markdown.
 
                 Each event:
-                - date: ISO local datetime on {{day}} (example  {{day}}T08:00:00)
+                - timeExpression: the short time phrase copied from the user. Examples: "wczoraj o dwudziestej", "półtorej godziny później", "przed snem", "rano następnego dnia". Use "" only when they said no time.
+                - time: a structured hint so the server can recompute the instant. dayOffset is -2, -1, or 0 relative to the recording day (omit it when the phrase is only "X hours later" or "the next morning"). clock is "HH:mm" or null. partOfDay is one of morning, noon, afternoon, evening, beforeSleep, breakfast, lunch, dinner, or null. minutesAfterPrevious is an integer or null.
+                - date: that moment as local ISO with no Z and no offset (example {{yesterday}}T20:00:00). Wall clock, not UTC.
                 - either mealLog OR symptomsLog; set the other to null
+                - mealLog.date and symptomsLog.date: the same local datetime
                 - mealLog.productQuantity: product.name in the user's language; quantity as a number; unit.name from the unit list
-                - symptomsLog.symptoms: symptomType.name from the lists below; symptomScale integer 0 through 5
+                - symptomsLog.symptoms: symptomType.name from the lists; spokenName is the user's own short wording; symptomScale integer 0 through 5
+                - Do not upgrade wording. ciężkość, dyskomfort, heaviness, discomfort, "lekka ciężkość", "lekki dyskomfort żołądka" map to Bloating, never Abdominal Pain. Use Abdominal Pain only when they said ból, pain, or bolało.
+                - lekki / slight / mild → symptomScale 1
+                - Do not emit an event for "the rest was fine", "reszta było dobrze", or "było dobrze"
                 - Problem symptoms: 0 = none, 5 = worst/serious
                 - How-I-feel symptoms: 0 = very bad, 5 = great (e.g. "mood was great" → Mood 5, not 0)
 
@@ -141,27 +178,30 @@ namespace FodmapLog.Server.Controllers
                 Problem symptoms (5 = serious): Nausea, Burping, Diarrhea, Constipation, Bloating, Abdominal Pain, Heartburn, Gas, Cramps, Vomiting, Headache, Fatigue, Stress, Brain Fog, Dizziness, Anxiety, Joint Pain, Itching, Urgency, Incomplete Evacuation, Mucus, Palpitations, Irritability
                 How-I-feel symptoms (5 = great): Appetite, Mood, Energy, Sleep Quality, Concentration, Motivation, Physical Activity, General Well-being
 
-                Example events for a user who said they ate oatmeal with milk at 8 and felt bloated around 10:
+                Example for a note recorded at {{localNow}} whose speaker ate rice yesterday at 20:00 and felt slight heaviness an hour and a half later:
                 {
                   "events": [
                     {
-                      "date": "{{day}}T08:00:00",
+                      "timeExpression": "wczoraj o dwudziestej",
+                      "time": { "dayOffset": -1, "clock": "20:00", "partOfDay": null, "minutesAfterPrevious": null },
+                      "date": "{{yesterday}}T20:00:00",
                       "mealLog": {
-                        "date": "{{day}}T08:00:00",
+                        "date": "{{yesterday}}T20:00:00",
                         "productQuantity": [
-                          { "product": { "name": "oatmeal" }, "quantity": 50, "unit": { "name": "Gram" } },
-                          { "product": { "name": "milk" }, "quantity": 200, "unit": { "name": "Milliliter" } }
+                          { "product": { "name": "ryż" }, "quantity": 100, "unit": { "name": "Gram" } }
                         ]
                       },
                       "symptomsLog": null
                     },
                     {
-                      "date": "{{day}}T10:00:00",
+                      "timeExpression": "półtorej godziny później",
+                      "time": { "dayOffset": null, "clock": null, "partOfDay": null, "minutesAfterPrevious": 90 },
+                      "date": "{{yesterday}}T21:30:00",
                       "mealLog": null,
                       "symptomsLog": {
-                        "date": "{{day}}T10:00:00",
+                        "date": "{{yesterday}}T21:30:00",
                         "symptoms": [
-                          { "symptomType": { "name": "Bloating" }, "symptomScale": 3 }
+                          { "symptomType": { "name": "Bloating" }, "spokenName": "lekka ciężkość", "symptomScale": 1 }
                         ]
                       }
                     }
@@ -249,7 +289,11 @@ namespace FodmapLog.Server.Controllers
         public string? Language { get; set; }
         /// <summary>Calendar day the user is viewing (yyyy-MM-dd).</summary>
         public string? SelectedDate { get; set; }
-        /// <summary>Client local now (ISO).</summary>
+        /// <summary>Client local now, wall clock without Z (ISO). A trailing Z is accepted and converted.</summary>
         public string? ClientNow { get; set; }
+        /// <summary>IANA timezone, for example Asia/Bangkok.</summary>
+        public string? TimeZone { get; set; }
+        /// <summary>Minutes east of UTC. Asia/Bangkok is 420.</summary>
+        public int? UtcOffsetMinutes { get; set; }
     }
 }

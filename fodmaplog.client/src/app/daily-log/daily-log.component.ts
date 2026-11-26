@@ -21,6 +21,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { LanguageService } from '../services/language.service';
 import { Unit } from '../domain/Unit';
 import { scaleTone, translateScale, translateSymptomType, translateUnit } from '../services/reference-i18n';
+import { asCivilDateTime, formatDateInput } from '../services/clock-time';
 import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 
@@ -57,7 +58,7 @@ export class DailyLogComponent implements OnInit {
 
   symptomScale = SymptomScale;
   currentDate: Date = new Date();
-  setDateCalendar: string = new Date().toISOString().split('T')[0];
+  setDateCalendar: string = formatDateInput();
   faCircleChevronRight = faCircleChevronRight;
   faCircleChevronLeft = faCircleChevronLeft;
   faPlusCircle = faPlusCircle;
@@ -173,18 +174,16 @@ export class DailyLogComponent implements OnInit {
         // Replace previous pending AI batch with this one
         this.logs = (this.logs || []).filter(l => !l.isPending);
         for (const item of capped) {
-          // AI often invents its own calendar day (prompt examples / model "today").
-          // Review UI only shows time, so pin events to the day the user is viewing.
-          const pinnedDate = this.pinToSelectedDay(item?.date);
+          const spokenDate = asCivilDateTime(item?.date);
           const mealLog = item?.mealLog
-            ? { ...item.mealLog, date: this.pinToSelectedDay(item.mealLog.date || item.date) }
+            ? { ...item.mealLog, date: asCivilDateTime(item.mealLog.date || item.date) }
             : null;
           const symptomsLog = item?.symptomsLog
-            ? { ...item.symptomsLog, date: this.pinToSelectedDay(item.symptomsLog.date || item.date) }
+            ? { ...item.symptomsLog, date: asCivilDateTime(item.symptomsLog.date || item.date) }
             : null;
           const newDailyLog: DailyLogUI = new DailyLog(
             0,
-            pinnedDate,
+            spokenDate,
             mealLog as MealLog,
             symptomsLog as SymptomsLog
           );
@@ -257,8 +256,39 @@ export class DailyLogComponent implements OnInit {
     return `${qty} ${lower}`;
   }
 
-  symptomLabel(type: { id?: number; name?: string } | null | undefined): string {
+  symptomLabel(
+    type: { id?: number; name?: string } | null | undefined,
+    spokenName?: string | null
+  ): string {
+    const spoken = (spokenName || '').trim();
+    if (spoken) {
+      return spoken;
+    }
     return translateSymptomType(this.translate, type);
+  }
+
+  /** Time, or "wczoraj 20:00" when the event is not today. */
+  formatEventWhen(value: string | Date | null | undefined): string {
+    const civil = asCivilDateTime(value);
+    const at = new Date(civil);
+    const time = at.toLocaleTimeString(this.dateLocale, { hour: '2-digit', minute: '2-digit' });
+    const eventDay = formatDateInput(at);
+    const today = formatDateInput(new Date());
+    if (eventDay === today) {
+      return time;
+    }
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (eventDay === formatDateInput(yesterday)) {
+      return `${this.translate.instant('daily.yesterday')} ${time}`;
+    }
+    const dayBefore = new Date();
+    dayBefore.setDate(dayBefore.getDate() - 2);
+    if (eventDay === formatDateInput(dayBefore)) {
+      return `${this.translate.instant('daily.dayBeforeYesterday')} ${time}`;
+    }
+    const datePart = at.toLocaleDateString(this.dateLocale, { day: 'numeric', month: 'short' });
+    return `${datePart} ${time}`;
   }
 
   severityLabel(scale: number, type?: { scaleKind?: number } | null): string {
@@ -384,7 +414,7 @@ export class DailyLogComponent implements OnInit {
   }
 
   getOnlyStringDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    return formatDateInput(date);
   }
 
   discardPending(log: DailyLogUI, event?: Event): void {
@@ -507,31 +537,8 @@ export class DailyLogComponent implements OnInit {
     return [...items].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }
 
-  /**
-   * Keep AI time-of-day but force the calendar day the user is viewing.
-   * Avoids silent "saved on another day" when the model invents dates.
-   */
-  private pinToSelectedDay(isoOrDate: string | Date | null | undefined): string {
-    const day = this.setDateCalendar || new Date().toISOString().split('T')[0];
-    let hours = 12;
-    let minutes = 0;
-    let seconds = 0;
-    if (isoOrDate) {
-      const parsed = new Date(isoOrDate);
-      if (!Number.isNaN(parsed.getTime())) {
-        hours = parsed.getHours();
-        minutes = parsed.getMinutes();
-        seconds = parsed.getSeconds();
-      }
-    }
-    const hh = String(hours).padStart(2, '0');
-    const mm = String(minutes).padStart(2, '0');
-    const ss = String(seconds).padStart(2, '0');
-    return `${day}T${hh}:${mm}:${ss}`;
-  }
-
   private prepareMealLogForSave(mealLog: MealLog, fallbackDate: string): MealLog {
-    const date = this.pinToSelectedDay(mealLog?.date || fallbackDate);
+    const date = asCivilDateTime(mealLog?.date || fallbackDate);
     return {
       id: mealLog?.id ?? 0,
       date,
@@ -551,13 +558,14 @@ export class DailyLogComponent implements OnInit {
   }
 
   private prepareSymptomsLogForSave(symptomsLog: SymptomsLog, fallbackDate: string): SymptomsLog {
-    const date = this.pinToSelectedDay(symptomsLog?.date || fallbackDate);
+    const date = asCivilDateTime(symptomsLog?.date || fallbackDate);
     return {
       id: symptomsLog?.id ?? 0,
       date,
       symptoms: (symptomsLog?.symptoms || []).map(s => ({
         id: s?.id ?? 0,
         symptomScale: s?.symptomScale ?? 0,
+        spokenName: (s?.spokenName || '').trim() || null,
         symptomType: {
           id: s?.symptomType?.id ?? 0,
           name: (s?.symptomType?.name || 'Unknown').trim() || 'Unknown'

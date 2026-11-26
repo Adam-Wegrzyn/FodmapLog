@@ -38,16 +38,25 @@ namespace DataAccess.Repositories
                 .SingleOrDefaultAsync(m => m.Id == id && m.UserId == userId, cancellationToken);
         }
 
-        public async Task<IEnumerable<MealLog>> GetMealLogsByDate(DateTime date, string userId, CancellationToken cancellationToken)
+        public async Task<IEnumerable<MealLog>> GetMealLogsByDate(
+            DateTime date,
+            string userId,
+            CancellationToken cancellationToken,
+            DateTime? utcDayStart = null,
+            DateTime? utcDayEnd = null)
         {
             var dayStart = date.Date;
             var dayEnd = dayStart.AddDays(1);
+            var utcStart = utcDayStart ?? dayStart;
+            var utcEnd = utcDayEnd ?? dayEnd;
             return await _context.MealLogs
                 .Include(m => m.ProductQuantity)
                 .ThenInclude(pq => pq.Product)
                 .Include(m => m.ProductQuantity)
                 .ThenInclude(pq => pq.Unit)
-                .Where(m => m.UserId == userId && m.Date >= dayStart && m.Date < dayEnd)
+                .Where(m => m.UserId == userId && (
+                    (!m.UtcInstant && m.Date >= dayStart && m.Date < dayEnd)
+                    || (m.UtcInstant && m.Date >= utcStart && m.Date < utcEnd)))
                 .ToListAsync(cancellationToken);
         }
 
@@ -221,39 +230,68 @@ namespace DataAccess.Repositories
             return product;
         }
 
-        public async Task<IEnumerable<SymptomsLog>> GetSymptomsLogsByDate(DateTime date, string userId, CancellationToken cancellationToken)
+        public async Task<IEnumerable<SymptomsLog>> GetSymptomsLogsByDate(
+            DateTime date,
+            string userId,
+            CancellationToken cancellationToken,
+            DateTime? utcDayStart = null,
+            DateTime? utcDayEnd = null)
         {
             var dayStart = date.Date;
             var dayEnd = dayStart.AddDays(1);
+            var utcStart = utcDayStart ?? dayStart;
+            var utcEnd = utcDayEnd ?? dayEnd;
             return await _context.SymptomsLogs
                 .Include(s => s.Symptoms)
                 .ThenInclude(s => s.SymptomType)
-                .Where(s => s.UserId == userId && s.Date >= dayStart && s.Date < dayEnd)
+                .Where(s => s.UserId == userId && (
+                    (!s.UtcInstant && s.Date >= dayStart && s.Date < dayEnd)
+                    || (s.UtcInstant && s.Date >= utcStart && s.Date < utcEnd)))
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<IEnumerable<MealLog>> GetMealLogsByDateRange(DateTime fromDate, DateTime toDate, string userId, CancellationToken cancellationToken)
+        public async Task<IEnumerable<MealLog>> GetMealLogsByDateRange(
+            DateTime fromDate,
+            DateTime toDate,
+            string userId,
+            CancellationToken cancellationToken,
+            DateTime? utcRangeStart = null,
+            DateTime? utcRangeEnd = null)
         {
             var rangeStart = fromDate.Date;
             var rangeEnd = toDate.Date.AddDays(1);
+            var utcStart = utcRangeStart ?? rangeStart;
+            var utcEnd = utcRangeEnd ?? rangeEnd;
             return await _context.MealLogs
                 .Include(m => m.ProductQuantity)
                 .ThenInclude(pq => pq.Product)
                 .Include(m => m.ProductQuantity)
                 .ThenInclude(pq => pq.Unit)
-                .Where(m => m.UserId == userId && m.Date >= rangeStart && m.Date < rangeEnd)
+                .Where(m => m.UserId == userId && (
+                    (!m.UtcInstant && m.Date >= rangeStart && m.Date < rangeEnd)
+                    || (m.UtcInstant && m.Date >= utcStart && m.Date < utcEnd)))
                 .OrderBy(m => m.Date)
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<IEnumerable<SymptomsLog>> GetSymptomsLogsByDateRange(DateTime fromDate, DateTime toDate, string userId, CancellationToken cancellationToken)
+        public async Task<IEnumerable<SymptomsLog>> GetSymptomsLogsByDateRange(
+            DateTime fromDate,
+            DateTime toDate,
+            string userId,
+            CancellationToken cancellationToken,
+            DateTime? utcRangeStart = null,
+            DateTime? utcRangeEnd = null)
         {
             var rangeStart = fromDate.Date;
             var rangeEnd = toDate.Date.AddDays(1);
+            var utcStart = utcRangeStart ?? rangeStart;
+            var utcEnd = utcRangeEnd ?? rangeEnd;
             return await _context.SymptomsLogs
                 .Include(s => s.Symptoms)
                 .ThenInclude(s => s.SymptomType)
-                .Where(s => s.UserId == userId && s.Date >= rangeStart && s.Date < rangeEnd)
+                .Where(s => s.UserId == userId && (
+                    (!s.UtcInstant && s.Date >= rangeStart && s.Date < rangeEnd)
+                    || (s.UtcInstant && s.Date >= utcStart && s.Date < utcEnd)))
                 .OrderBy(s => s.Date)
                 .ToListAsync(cancellationToken);
         }
@@ -292,6 +330,7 @@ namespace DataAccess.Repositories
             }
 
             existing.Date = symptomsLog.Date;
+            existing.UtcInstant = symptomsLog.UtcInstant;
             existing.UserId = userId;
             existing.Symptoms ??= new List<Symptom>();
 
@@ -307,7 +346,8 @@ namespace DataAccess.Repositories
                 existing.Symptoms.Add(new Symptom
                 {
                     SymptomType = type,
-                    SymptomScale = incoming.SymptomScale
+                    SymptomScale = incoming.SymptomScale,
+                    SpokenName = incoming.SpokenName
                 });
             }
 

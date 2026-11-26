@@ -37,6 +37,9 @@ namespace DataAccess.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<bool>("UtcInstant")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
@@ -101,6 +104,10 @@ namespace DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("SpokenName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<int>("SymptomScale")
                         .HasColumnType("int");
 
@@ -151,52 +158,62 @@ namespace DataAccess.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "Nausea"
+                            Name = "Nausea",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 2,
-                            Name = "Burping"
+                            Name = "Burping",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 3,
-                            Name = "Diarrhea"
+                            Name = "Diarrhea",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 4,
-                            Name = "Constipation"
+                            Name = "Constipation",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 5,
-                            Name = "Bloating"
+                            Name = "Bloating",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 6,
-                            Name = "Abdominal Pain"
+                            Name = "Abdominal Pain",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 7,
-                            Name = "Heartburn"
+                            Name = "Heartburn",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 8,
-                            Name = "Gas"
+                            Name = "Gas",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 9,
-                            Name = "Cramps"
+                            Name = "Cramps",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 10,
-                            Name = "Vomiting"
+                            Name = "Vomiting",
+                            ScaleKind = 0
                         },
                         new
                         {
@@ -207,12 +224,14 @@ namespace DataAccess.Migrations
                         new
                         {
                             Id = 12,
-                            Name = "Headache"
+                            Name = "Headache",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 13,
-                            Name = "Fatigue"
+                            Name = "Fatigue",
+                            ScaleKind = 0
                         },
                         new
                         {
@@ -235,7 +254,8 @@ namespace DataAccess.Migrations
                         new
                         {
                             Id = 17,
-                            Name = "Stress"
+                            Name = "Stress",
+                            ScaleKind = 0
                         },
                         new
                         {
@@ -264,52 +284,62 @@ namespace DataAccess.Migrations
                         new
                         {
                             Id = 22,
-                            Name = "Brain Fog"
+                            Name = "Brain Fog",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 23,
-                            Name = "Dizziness"
+                            Name = "Dizziness",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 24,
-                            Name = "Anxiety"
+                            Name = "Anxiety",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 25,
-                            Name = "Joint Pain"
+                            Name = "Joint Pain",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 26,
-                            Name = "Itching"
+                            Name = "Itching",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 27,
-                            Name = "Urgency"
+                            Name = "Urgency",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 28,
-                            Name = "Incomplete Evacuation"
+                            Name = "Incomplete Evacuation",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 29,
-                            Name = "Mucus"
+                            Name = "Mucus",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 30,
-                            Name = "Palpitations"
+                            Name = "Palpitations",
+                            ScaleKind = 0
                         },
                         new
                         {
                             Id = 31,
-                            Name = "Irritability"
+                            Name = "Irritability",
+                            ScaleKind = 0
                         });
                 });
 
@@ -327,6 +357,9 @@ namespace DataAccess.Migrations
                     b.Property<string>("UserId")
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("UtcInstant")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
